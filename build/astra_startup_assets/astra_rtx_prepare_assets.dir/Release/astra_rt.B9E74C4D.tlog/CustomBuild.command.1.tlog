@@ -1,0 +1,10 @@
+^H:\BACKUP_20260815\MODDING\IPG\GARRYS-MOD-RTX-REMIXED\SOURCE\STARTUP_ASSETS\CMAKELISTS.TXT
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SH:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets -BH:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets --check-stamp-file H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

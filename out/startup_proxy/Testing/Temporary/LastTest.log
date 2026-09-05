@@ -1,0 +1,70 @@
+Start testing: Sep 05 14:05 Pacific Daylight Time
+----------------------------------------------------------
+1/2 Testing: startup_asset_contracts
+1/2 Test: startup_asset_contracts
+Command: "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_startup_assets.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/Release/astra_rtx_prepare_assets.exe"
+Directory: H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy
+"startup_asset_contracts" start time: Sep 05 14:05 Pacific Daylight Time
+Output:
+----------------------------------------------------------
+test_asset_hash_failure_does_not_publish_partial_layer (__main__.PreparationTests.test_asset_hash_failure_does_not_publish_partial_layer) ... ok
+test_changed_output_is_reverified_and_restored (__main__.PreparationTests.test_changed_output_is_reverified_and_restored) ... ok
+test_cold_then_warm_skips_archive_payload_and_preserves_layer_mtime (__main__.PreparationTests.test_cold_then_warm_skips_archive_payload_and_preserves_layer_mtime) ... ok
+test_conflicting_virtual_paths_fail_instead_of_mount_order_guess (__main__.PreparationTests.test_conflicting_virtual_paths_fail_instead_of_mount_order_guess) ... ok
+test_cross_map_material_hash_collision_deactivates_both (__main__.PreparationTests.test_cross_map_material_hash_collision_deactivates_both) ... ok
+test_existing_immutable_legacy_backup_is_never_overwritten (__main__.PreparationTests.test_existing_immutable_legacy_backup_is_never_overwritten) ... ok
+test_expanded_source_limit_aborts_before_publication (__main__.PreparationTests.test_expanded_source_limit_aborts_before_publication) ... ok
+test_explicit_folder_includes_loose_data_and_deduplicates_explicit_gma (__main__.PreparationTests.test_explicit_folder_includes_loose_data_and_deduplicates_explicit_gma) ... ok
+test_identical_crc_companion_duplicates_are_accepted (__main__.PreparationTests.test_identical_crc_companion_duplicates_are_accepted) ... ok
+test_layer_cannot_reference_unlisted_external_file (__main__.PreparationTests.test_layer_cannot_reference_unlisted_external_file) ... ok
+test_legacy_cleanup_failure_preserves_backup_and_blocks_startup_activation (__main__.PreparationTests.test_legacy_cleanup_failure_preserves_backup_and_blocks_startup_activation) ... ok
+test_long_output_paths_and_atomic_suffix_exceeding_max_path (__main__.PreparationTests.test_long_output_paths_and_atomic_suffix_exceeding_max_path) ... ok
+test_loose_addon_explicit_sources_and_game_data_static (__main__.PreparationTests.test_loose_addon_explicit_sources_and_game_data_static) ... ok
+test_manifest_path_traversal_rejected_without_outside_write (__main__.PreparationTests.test_manifest_path_traversal_rejected_without_outside_write) ... ok
+test_mdl_name_must_match_builtin_exactly (__main__.PreparationTests.test_mdl_name_must_match_builtin_exactly) ... ok
+test_multivolume_union_and_missing_companion_deactivate_even_with_warm_cache (__main__.PreparationTests.test_multivolume_union_and_missing_companion_deactivate_even_with_warm_cache) ... ok
+test_nested_discovery_does_not_recurse_or_scan_game_root_archives (__main__.PreparationTests.test_nested_discovery_does_not_recurse_or_scan_game_root_archives) ... ok
+test_nested_multipart_cold_warm_and_missing_companion (__main__.PreparationTests.test_nested_multipart_cold_warm_and_missing_companion) ... ok
+test_nested_reparse_candidate_is_not_followed_and_missing_part_fails (__main__.PreparationTests.test_nested_reparse_candidate_is_not_followed_and_missing_part_fails) ... ok
+test_real_importer_layer_with_builtin_mdl_is_accepted (__main__.PreparationTests.test_real_importer_layer_with_builtin_mdl_is_accepted) ... ok
+test_real_never_launched_helper_bootstrap_is_already_empty (__main__.PreparationTests.test_real_never_launched_helper_bootstrap_is_already_empty) ... ok
+test_reparse_output_is_rejected_without_following_it (__main__.PreparationTests.test_reparse_output_is_rejected_without_following_it) ... ok
+test_stale_legacy_root_backup_then_empty_without_warm_mtime_changes (__main__.PreparationTests.test_stale_legacy_root_backup_then_empty_without_warm_mtime_changes) ... ok
+test_truncated_archive_after_success_deactivates_removed_root (__main__.PreparationTests.test_truncated_archive_after_success_deactivates_removed_root) ... ok
+test_unicode_game_and_archive_paths_preserve_utf8_report (__main__.PreparationTests.test_unicode_game_and_archive_paths_preserve_utf8_report) ... ok
+test_unrecognized_legacy_root_preserved_and_startup_maps_fail_closed (__main__.PreparationTests.test_unrecognized_legacy_root_preserved_and_startup_maps_fail_closed) ... ok
+test_unrelated_linked_addon_is_skipped_without_aborting_valid_map (__main__.PreparationTests.test_unrelated_linked_addon_is_skipped_without_aborting_valid_map) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 4.215s
+
+OK
+<end of output>
+Test time =   4.40 sec
+----------------------------------------------------------
+Test Passed.
+"startup_asset_contracts" end time: Sep 05 14:05 Pacific Daylight Time
+"startup_asset_contracts" time elapsed: 00:00:04
+----------------------------------------------------------
+
+2/2 Testing: startup_proxy_contracts
+2/2 Test: startup_proxy_contracts
+Command: "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_proxy.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/Release/d3d9.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/fake_renderer/Release/d3d9_astra_renderer.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/proxy_renderer_exports.json"
+Directory: H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy
+"startup_proxy_contracts" start time: Sep 05 14:05 Pacific Daylight Time
+Output:
+----------------------------------------------------------
+....
+----------------------------------------------------------------------
+Ran 4 tests in 1.126s
+
+OK
+<end of output>
+Test time =   1.23 sec
+----------------------------------------------------------
+Test Passed.
+"startup_proxy_contracts" end time: Sep 05 14:05 Pacific Daylight Time
+"startup_proxy_contracts" time elapsed: 00:00:01
+----------------------------------------------------------
+
+End testing: Sep 05 14:05 Pacific Daylight Time

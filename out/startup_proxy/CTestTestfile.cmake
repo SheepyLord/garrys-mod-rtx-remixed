@@ -1,0 +1,36 @@
+# CMake generated Testfile for 
+# Source directory: H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets
+# Build directory: H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy
+# 
+# This file includes the relevant testing commands required for 
+# testing this directory and lists subdirectories to be tested as well.
+if(CTEST_CONFIGURATION_TYPE MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+  add_test([=[startup_asset_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_startup_assets.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/Debug/astra_rtx_prepare_assets.exe")
+  set_tests_properties([=[startup_asset_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;39;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+  add_test([=[startup_asset_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_startup_assets.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/Release/astra_rtx_prepare_assets.exe")
+  set_tests_properties([=[startup_asset_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;39;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+  add_test([=[startup_asset_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_startup_assets.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/MinSizeRel/astra_rtx_prepare_assets.exe")
+  set_tests_properties([=[startup_asset_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;39;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+  add_test([=[startup_asset_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_startup_assets.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/RelWithDebInfo/astra_rtx_prepare_assets.exe")
+  set_tests_properties([=[startup_asset_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;39;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+else()
+  add_test([=[startup_asset_contracts]=] NOT_AVAILABLE)
+endif()
+if(CTEST_CONFIGURATION_TYPE MATCHES "^([Dd][Ee][Bb][Uu][Gg])$")
+  add_test([=[startup_proxy_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_proxy.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/Debug/d3d9.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/fake_renderer/Debug/d3d9_astra_renderer.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/proxy_renderer_exports.json")
+  set_tests_properties([=[startup_proxy_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;50;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
+  add_test([=[startup_proxy_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_proxy.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/Release/d3d9.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/fake_renderer/Release/d3d9_astra_renderer.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/proxy_renderer_exports.json")
+  set_tests_properties([=[startup_proxy_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;50;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Mm][Ii][Nn][Ss][Ii][Zz][Ee][Rr][Ee][Ll])$")
+  add_test([=[startup_proxy_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_proxy.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/MinSizeRel/d3d9.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/fake_renderer/MinSizeRel/d3d9_astra_renderer.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/proxy_renderer_exports.json")
+  set_tests_properties([=[startup_proxy_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;50;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+elseif(CTEST_CONFIGURATION_TYPE MATCHES "^([Rr][Ee][Ll][Ww][Ii][Tt][Hh][Dd][Ee][Bb][Ii][Nn][Ff][Oo])$")
+  add_test([=[startup_proxy_contracts]=] "C:/ProgramData/miniconda3/python.exe" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/test_proxy.py" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/RelWithDebInfo/d3d9.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/fake_renderer/RelWithDebInfo/d3d9_astra_renderer.dll" "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/proxy_renderer_exports.json")
+  set_tests_properties([=[startup_proxy_contracts]=] PROPERTIES  _BACKTRACE_TRIPLES "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;50;add_test;H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/CMakeLists.txt;0;")
+else()
+  add_test([=[startup_proxy_contracts]=] NOT_AVAILABLE)
+endif()

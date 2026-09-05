@@ -1,0 +1,7 @@
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/astra_rtx_startup_proxy.dir
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/astra_startup_assets.dir
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/astra_rtx_prepare_assets.dir
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/astra_startup_fake_renderer.dir
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/RUN_TESTS.dir
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/ALL_BUILD.dir
+H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/build/astra_startup_assets/CMakeFiles/ZERO_CHECK.dir

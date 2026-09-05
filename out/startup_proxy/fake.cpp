@@ -1,0 +1,1 @@
+extern "C" { void* Direct3DCreate9(unsigned int) { return nullptr; } long Direct3DCreate9Ex(unsigned int, void**) { return 0; } const char* AstraStartupStatusJson() { return "{}"; } bool AstraDisableStartupMap(const char*, const char*) { return false; } }

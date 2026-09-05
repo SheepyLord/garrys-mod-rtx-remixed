@@ -1,0 +1,20 @@
+^H:\BACKUP_20260815\MODDING\IPG\GARRYS-MOD-RTX-REMIXED\OUT\STARTUP_PROXY\CMAKEFILES\9EBB7130AD1E37CFFECDED5F43F15F55\FAKE_RENDERER.DEF.RULE
+setlocal
+C:\ProgramData\miniconda3\python.exe H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/tests/generate_fake_exports.py H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets/proxy_renderer_exports.json H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/fake_renderer.def
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
+^H:\BACKUP_20260815\MODDING\IPG\GARRYS-MOD-RTX-REMIXED\SOURCE\STARTUP_ASSETS\CMAKELISTS.TXT
+setlocal
+"C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SH:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/source/startup_assets -BH:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy --check-stamp-file H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/startup_proxy/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

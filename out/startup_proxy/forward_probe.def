@@ -1,0 +1,3 @@
+LIBRARY d3d9
+EXPORTS
+    D3DPERF_BeginEvent="d3d9_astra_renderer.D3DPERF_BeginEvent" @27

@@ -1,0 +1,19 @@
+Start testing: Aug 31 23:19 Pacific Daylight Time
+----------------------------------------------------------
+1/1 Testing: advmat_rtx_writer_tests
+1/1 Test: advmat_rtx_writer_tests
+Command: "H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/advmat-rtx-bridge/Release/advmat_rtx_writer_tests.exe"
+Directory: H:/BACKUP_20260815/Modding/ipg/garrys-mod-rtx-remixed/out/advmat-rtx-bridge
+"advmat_rtx_writer_tests" start time: Aug 31 23:19 Pacific Daylight Time
+Output:
+----------------------------------------------------------
+Assertion failed: bridge.ModDirectory() == expectedMod, file H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\advmat_rtx_bridge\tests\writer_tests.cpp, line 515
+<end of output>
+Test time =   0.92 sec
+----------------------------------------------------------
+Test Failed.
+"advmat_rtx_writer_tests" end time: Aug 31 23:19 Pacific Daylight Time
+"advmat_rtx_writer_tests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Aug 31 23:19 Pacific Daylight Time
