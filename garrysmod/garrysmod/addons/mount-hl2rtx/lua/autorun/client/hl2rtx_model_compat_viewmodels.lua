@@ -39,16 +39,43 @@ local function NormalizeModelPath(path)
     return string.lower(string.Replace(path or "", "\\", "/"))
 end
 
-local function IsHL2RTXMounted()
-    return file.Exists(mountMarker, "GAME")
+local mountAvailable = false
+local validModels = {}
+local lastRefresh = "not initialized"
+local refreshTimer = "HL2RTXModelCompat_Refresh"
+
+-- Mounted-content checks can walk every GAME search path. Keep both positive
+-- and negative results out of the render hooks, including the unmapped physgun.
+local function RefreshMountedModels(reason)
+    timer.Remove(refreshTimer)
+    mountAvailable = file.Exists(mountMarker, "GAME")
+    validModels = {}
+    lastRefresh = reason
+    if not mountAvailable then return end
+
+    for _, model in pairs(combinedViewModels) do
+        local valid = util.IsValidModel(model)
+        validModels[model] = valid
+        if valid then util.PrecacheModel(model) end
+    end
+end
+
+local function QueueMountedModelsRefresh(reason)
+    -- Stop using stale availability immediately on unmount/content changes.
+    -- A named one-shot coalesces mount bursts; there is no polling timer.
+    mountAvailable, validModels = false, {}
+    lastRefresh = "pending: " .. reason
+    timer.Create(refreshTimer, 0, 1, function() RefreshMountedModels(reason) end)
 end
 
 local function GetCombinedViewModel(weapon)
-    if not enabled:GetBool() or not IsHL2RTXMounted() or not IsValid(weapon) then
+    if not IsValid(weapon) then
         return nil
     end
 
-    return combinedViewModels[string.lower(weapon:GetClass() or "")]
+    local replacement = combinedViewModels[string.lower(weapon:GetClass() or "")]
+    if not replacement or not enabled:GetBool() or not mountAvailable then return nil end
+    return replacement
 end
 
 local changingViewModel = false
@@ -86,7 +113,7 @@ local function ApplyCombinedViewModel(viewModel, weapon)
     end
 
     local replacement = GetCombinedViewModel(weapon)
-    if not replacement or not util.IsValidModel(replacement) then
+    if not replacement or not validModels[replacement] then
         return false
     end
 
@@ -140,8 +167,10 @@ hook.Add("PlayerSwitchWeapon", "HL2RTXModelCompat_CombinedViewModelSwitch", func
     end)
 end)
 
-hook.Add("PreDrawPlayerHands", "HL2RTXModelCompat_HideSeparateHands", function(_, _, _, weapon)
-    if GetCombinedViewModel(weapon) then
+hook.Add("PreDrawPlayerHands", "HL2RTXModelCompat_HideSeparateHands", function(_, viewModel, _, weapon)
+    local replacement = GetCombinedViewModel(weapon)
+    if replacement and validModels[replacement] and IsValid(viewModel) and
+        NormalizeModelPath(viewModel:GetModel()) == replacement then
         return true
     end
 end)
@@ -154,17 +183,27 @@ concommand.Add("hl2rtx_model_compat_status", function()
     local replacement = GetCombinedViewModel(weapon)
 
     print("[HL2RTX Model Compat] Status")
-    print("  mounted: " .. tostring(IsHL2RTXMounted()))
+    print("  mounted (cached): " .. tostring(mountAvailable))
+    print("  last refresh: " .. lastRefresh)
     print("  enabled: " .. tostring(enabled:GetBool()))
     print("  weapon: " .. (IsValid(weapon) and weapon:GetClass() or "<invalid>"))
     print("  viewmodel: " .. (IsValid(viewModel) and NormalizeModelPath(viewModel:GetModel()) or "<invalid>"))
     print("  replacement: " .. (replacement or "<none>"))
-    print("  replacement valid: " .. tostring(replacement ~= nil and util.IsValidModel(replacement)))
+    print("  replacement valid: " .. tostring(replacement ~= nil and validModels[replacement] == true))
     print("  hands: " .. (IsValid(hands) and NormalizeModelPath(hands:GetModel()) or "<invalid>"))
 end)
 
-if IsHL2RTXMounted() then
-    for _, model in pairs(combinedViewModels) do
-        util.PrecacheModel(model)
-    end
-end
+hook.Add("InitPostEntity", "HL2RTXModelCompat_RefreshMountedModels", function()
+    QueueMountedModelsRefresh("InitPostEntity")
+end)
+hook.Add("GameContentChanged", "HL2RTXModelCompat_RefreshMountedModels", function()
+    QueueMountedModelsRefresh("GameContentChanged")
+end)
+hook.Add("OnReloaded", "HL2RTXModelCompat_RefreshMountedModels", function()
+    QueueMountedModelsRefresh("OnReloaded")
+end)
+concommand.Add("hl2rtx_model_compat_refresh", function()
+    RefreshMountedModels("explicit refresh")
+end)
+
+RefreshMountedModels("script initialization")

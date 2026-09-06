@@ -1,0 +1,514 @@
+Build started 2026/09/06 3:34:49.
+Logging verbosity is set to: Normal.
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" on node 1 (Build target(s)).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\lua_shared.vcxproj" (2) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\lua_shared\lua_shared.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\lua_shared\lua_shared.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  lua_shared.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\x86_64\Release\lua_shared.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\lua_shared\lua_shared.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\lua_shared\lua_shared.tlog\lua_shared.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\lua_shared.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\detouring.vcxproj" (3) on node 1 (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\detouring.vcxproj" (3) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\hde.vcxproj" (4) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\hde\hde.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\hde\hde.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  hde.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\x86_64\Release\hde.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\hde\hde.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\hde\hde.tlog\hde.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\hde.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\detouring.vcxproj" (3) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\minhook.vcxproj" (5) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\minhook\minhook.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\minhook\minhook.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  minhook.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\x86_64\Release\minhook.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\minhook\minhook.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\minhook\minhook.tlog\minhook.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\minhook.vcxproj" (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\detouring\detouring.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\detouring\detouring.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  detouring.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\x86_64\Release\detouring.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\detouring\detouring.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\detouring\detouring.tlog\detouring.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\detouring.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\common.vcxproj" (6) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\common\common.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\common\common.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  common.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\common.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\common\common.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\common\common.tlog\common.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\common.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\tier1.vcxproj" (7) on node 1 (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\tier1.vcxproj" (7) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\LZMA.vcxproj" (8) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\LZMA\LZMA.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\LZMA\LZMA.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  LZMA.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\LZMA.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\LZMA\LZMA.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\LZMA\LZMA.tlog\LZMA.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\LZMA.vcxproj" (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\tier1\tier1.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\tier1\tier1.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  tier1.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\tier1.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\tier1\tier1.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\tier1\tier1.tlog\tier1.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\tier1.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\tier2.vcxproj" (9) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\tier2\tier2.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\tier2\tier2.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  tier2.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\tier2.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\tier2\tier2.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\tier2\tier2.tlog\tier2.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\tier2.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\mathlib.vcxproj" (10) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\mathlib\mathlib.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\mathlib\mathlib.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  mathlib.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\mathlib.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\mathlib\mathlib.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\mathlib\mathlib.tlog\mathlib.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\mathlib.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (1) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\helpers_extended.vcxproj" (11) on node 1 (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\helpers_extended.vcxproj" (11) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\helpers.vcxproj" (12) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\helpers\helpers.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\helpers\helpers.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  helpers.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\x86_64\Release\helpers.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\helpers\helpers.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\helpers\helpers.tlog\helpers.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\helpers.vcxproj" (default targets).
+Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\helpers_extended.vcxproj" (11) is building "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\scanning\projects\windows\vs2022\scanning.vcxproj" (13) on node 1 (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\scanning\scanning.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\scanning\scanning.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  scanning.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\scanning\projects\windows\vs2022\x86_64\Release\scanning.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\scanning\scanning.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\scanning\scanning.tlog\scanning.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\scanning\projects\windows\vs2022\scanning.vcxproj" (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\helpers_extended\helpers_extended.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\helpers_extended\helpers_extended.tlog\unsuccessfulbuild".
+ClCompile:
+  All outputs are up-to-date.
+Lib:
+  All outputs are up-to-date.
+  helpers_extended.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\x86_64\Release\helpers_extended.lib
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\helpers_extended\helpers_extended.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\helpers_extended\helpers_extended.tlog\helpers_extended.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\helpers_extended.vcxproj" (default targets).
+PrepareForBuild:
+  Structured output is enabled. The formatting of compiler diagnostics will reflect the error hierarchy. See https://aka.ms/cpp/structured-output for more details.
+InitializeBuildStatus:
+  Creating "x86_64\Release\intermediate\gmcl_RTXFixesBinary\gmcl_RTX.692C7C42.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+  Touching "x86_64\Release\intermediate\gmcl_RTXFixesBinary\gmcl_RTX.692C7C42.tlog\unsuccessfulbuild".
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\HostX86\x64\CL.exe /c /Isource /Ipublic\include /nologo /W4 /WX- /diagnostics:column /MP /Ox /Ob2 /Oi /GL /D NDEBUG /D _CRT_NONSTDC_NO_WARNINGS /D _CRT_SECURE_NO_WARNINGS /D STRICT /D GMMODULE /D RTXFIXESBINARY_CLIENT /D IS_SERVERSIDE=false /D GMOD_ALLOW_OLD_TYPES /D GMOD_ALLOW_LIGHTUSERDATA /D "GMOD_MODULE_NAME=\"RTXFixesBinary\"" /D CLIENT_DLL /D GMOD_USE_SOURCESDK /D RAD_TELEMETRY_DISABLED /D NO_STRING_T /D VECTOR /D VERSION_SAFE_STEAM_API_INTERFACES /D PROTECTED_THINGS_ENABLE /D _DLL_EXT=.dll /D WIN32 /D COMPILER_MSVC /D COMPILER_MSVC64 /D PLATFORM_64BITS /D WIN64 /D _WIN64 /D _WINDLL /D _MBCS /GF /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"x86_64\Release\intermediate\gmcl_RTXFixesBinary\\" /Fd"x86_64\Release\intermediate\gmcl_RTXFixesBinary\vc143.pdb" /external:W3 /Gd /TP /wd4324 /FC /errorReport:queue source\d3d9_texture_tracker.cpp source\material_pipeline\auto_categorisation\auto_categorisation.cpp source\material_pipeline\hash_collision_fixer\hash_collision_fixer.cpp source\material_pipeline\material_pipeline.cpp source\material_pipeline\to_pbr\to_pbr.cpp source\module.cpp source\remixapi\material_lua_bindings.cpp
+  d3d9_texture_tracker.cpp
+  auto_categorisation.cpp
+  hash_collision_fixer.cpp
+  material_pipeline.cpp
+  to_pbr.cpp
+  module.cpp
+  material_lua_bindings.cpp
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(187,65): warning C4099: 'IDirect3DTexture9': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7):
+      see declaration of 'IDirect3DTexture9'
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(205,65): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7):
+      see declaration of 'IDirect3DDevice9Ex'
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(267,19): warning C4099: 'IDirect3DTexture9': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7):
+      see declaration of 'IDirect3DTexture9'
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(283,19): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7):
+      see declaration of 'IDirect3DDevice9Ex'
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(1175,1): warning C4099: 'IDirect3DTexture9': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(1175,1):
+      see declaration of 'IDirect3DTexture9'
+  
+C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(2143,1): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(2143,1):
+      see declaration of 'IDirect3DDevice9Ex'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/module.cpp')
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/module.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(160,9):
+      see previous definition of 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/auto_categorisation/auto_categorisation.cpp')
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/d3d9_texture_tracker.cpp')
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/auto_categorisation/auto_categorisation.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(160,9):
+      see previous definition of 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/d3d9_texture_tracker.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(160,9):
+      see previous definition of 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/remixapi/material_lua_bindings.cpp')
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\hash_collision_fixer\hash_collision_fixer.cpp(256,30): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(148,1):
+      see declaration of 'materials'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/remixapi/material_lua_bindings.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(160,9):
+      see previous definition of 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/to_pbr/to_pbr.cpp')
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10): warning C4099: 'remix::Interface': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/to_pbr/to_pbr.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(160,9):
+      see previous definition of 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.h(31,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10): warning C4099: 'remix::Interface': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/auto_categorisation/auto_categorisation.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(107,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.h(31,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/remixapi/material_lua_bindings.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/material_pipeline/material_pipeline.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(160,9):
+      see previous definition of 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(317,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(381,34): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(381,24): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'const int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/remixapi/material_lua_bindings.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(2143,1):
+      see declaration of 'IDirect3DDevice9Ex'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7): warning C4099: 'IDirect3DTexture9': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/remixapi/material_lua_bindings.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(1175,1):
+      see declaration of 'IDirect3DTexture9'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(67,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/remixapi/material_lua_bindings.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/d3d9_texture_tracker.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(2143,1):
+      see declaration of 'IDirect3DDevice9Ex'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7): warning C4099: 'IDirect3DTexture9': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/d3d9_texture_tracker.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(1175,1):
+      see declaration of 'IDirect3DTexture9'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(67,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/d3d9_texture_tracker.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.h(31,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/d3d9_texture_tracker.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(457,29): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystem.h(1788,25):
+      see declaration of 'materials'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(641,29): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystem.h(1788,25):
+      see declaration of 'materials'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\remixapi\material_lua_bindings.cpp(799,30): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\remixapi\material_lua_bindings.cpp(21,25):
+      see declaration of 'materials'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(962,29): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystem.h(1788,25):
+      see declaration of 'materials'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(1262,10): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystem.h(1788,25):
+      see declaration of 'materials'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(1952,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\d3d9_texture_tracker.cpp(1541,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(3883,25): warning C4456: declaration of 'shaderLower' hides previous local declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(3132,17):
+      see declaration of 'shaderLower'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\istudiorender.h(273,9): warning C4005: 'STUDIO_RENDER_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/module.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\interfaces\interfaces.h(221,9):
+      see previous definition of 'STUDIO_RENDER_INTERFACE_VERSION'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/module.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(2143,1):
+      see declaration of 'IDirect3DDevice9Ex'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7): warning C4099: 'IDirect3DTexture9': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/module.cpp')
+      C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(1175,1):
+      see declaration of 'IDirect3DTexture9'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(67,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  (compiling source file 'source/module.cpp')
+      H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10):
+      see declaration of 'remix::Interface'
+  
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\module.cpp(52,23): warning C4505: 'RemixPresentCallback': unreferenced function with internal linkage has been removed [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\d3d9_texture_tracker.cpp(1518,13): warning C4505: 'CheckVMTForSelfillum': unreferenced function with internal linkage has been removed [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(4706,20): warning C4505: 'MaterialPipeline::ToPBR::GetRelativeTexturePath': unreferenced function with internal linkage has been removed [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207\bin\HostX86\x64\link.exe /ERRORREPORT:QUEUE /OUT:"x86_64\Release\gmcl_RTXFixesBinary_win64.dll" /INCREMENTAL:NO /NOLOGO /LIBPATH:"garrysmod_common\sourcesdk-minimal\lib\public\x64" tier0.lib vstdlib.lib ws2_32.lib rpcrt4.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:"x86_64\Release\gmcl_RTXFixesBinary_win64.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG:incremental /LTCGOUT:"x86_64\Release\intermediate\gmcl_RTXFixesBinary\gmcl_RTXFixesBinary_win64.iobj" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"x86_64\Release\gmcl_RTXFixesBinary_win64.lib" /MACHINE:X64 /DLL x86_64\Release\intermediate\gmcl_RTXFixesBinary\HardwareSkinningHooks.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\TinyMathLib.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\culling_fixes.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\culling_patches.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\d3d9_texture_tracker.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\e_utils.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\globalconvars.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\auto_categorisation.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\hash_collision_fixer.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\material_pipeline.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\shader_fixes.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\format_bftpseudopbr.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\format_exopbr.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\format_gpbr.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\format_mwbpbr.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\format_source.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\formats.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\to_pbr.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\usda.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\vtf.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\memory_patcher.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\model_draw_hook.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\modelload_fixes.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\module.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\patch_manager.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\prop_fixes.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\atmosphere_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\bsp_geometry_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\bsp_geometry_manager.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\camera_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\config_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\instance_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\light_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\material_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\mesh_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\remixapi.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\resource_lua_bindings.obj
+  x86_64\Release\intermediate\gmcl_RTXFixesBinary\vtf_parser.obj
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\x86_64\Release\lua_shared.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\x86_64\Release\hde.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\x86_64\Release\minhook.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\detouring\projects\windows\vs2022\x86_64\Release\detouring.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\common.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\LZMA.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\tier1.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\tier2.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\projects\windows\vs2022\x86_64\Release\mathlib.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\x86_64\Release\helpers.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\scanning\projects\windows\vs2022\x86_64\Release\scanning.lib"
+  "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\projects\windows\vs2022\x86_64\Release\helpers_extended.lib"
+module.obj : warning LNK4229: invalid directive '/DELAYLOAD:tier0.dll' encountered; ignored [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+     Creating library x86_64\Release\gmcl_RTXFixesBinary_win64.lib and object x86_64\Release\gmcl_RTXFixesBinary_win64.exp
+  Generating code
+  1335 of 9266 functions (14.4%) were compiled, the rest were copied from previous compilation.
+    561 functions were new in current compilation
+    1017 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  gmcl_RTXFixesBinary.vcxproj -> H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\x86_64\Release\gmcl_RTXFixesBinary_win64.dll
+FinalizeBuildStatus:
+  Deleting file "x86_64\Release\intermediate\gmcl_RTXFixesBinary\gmcl_RTX.692C7C42.tlog\unsuccessfulbuild".
+  Touching "x86_64\Release\intermediate\gmcl_RTXFixesBinary\gmcl_RTX.692C7C42.tlog\gmcl_RTXFixesBinary.lastbuildstate".
+Done Building Project "H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+"H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (Build target) (1) ->
+(ClCompile target) -> 
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(187,65): warning C4099: 'IDirect3DTexture9': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(205,65): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(267,19): warning C4099: 'IDirect3DTexture9': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(283,19): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(1175,1): warning C4099: 'IDirect3DTexture9': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.26100.0\shared\d3d9.h(2143,1): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\hash_collision_fixer\hash_collision_fixer.cpp(256,30): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10): warning C4099: 'remix::Interface': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.h(31,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\public\include\remix\remix.h(179,10): warning C4099: 'remix::Interface': type name first seen using 'class' now seen using 'struct' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\bitmap\imageformat_declarations.h(17,14): warning C4091: 'typedef ': ignored on left of 'DXGI_FORMAT' when no variable is declared [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(107,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.h(31,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\materialsystem\imaterialsystemhardwareconfig.h(36,9): warning C4005: 'MATERIALSYSTEM_HARDWARECONFIG_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(317,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(381,34): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.cpp(381,24): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'const int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7): warning C4099: 'IDirect3DTexture9': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(67,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7): warning C4099: 'IDirect3DTexture9': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(67,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\auto_categorisation\auto_categorisation.h(31,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(457,29): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(641,29): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\remixapi\material_lua_bindings.cpp(799,30): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(962,29): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.cpp(1262,10): warning C4459: declaration of 'materials' hides global declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(1952,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\d3d9_texture_tracker.cpp(1541,18): warning C4244: 'initializing': conversion from 'unsigned __int64' to 'int', possible loss of data [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(3883,25): warning C4456: declaration of 'shaderLower' hides previous local declaration [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\garrysmod_common\sourcesdk-minimal\public\istudiorender.h(273,9): warning C4005: 'STUDIO_RENDER_INTERFACE_VERSION': macro redefinition [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(61,7): warning C4099: 'IDirect3DDevice9Ex': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(62,7): warning C4099: 'IDirect3DTexture9': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\material_pipeline.h(67,7): warning C4099: 'remix::Interface': type name first seen using 'struct' now seen using 'class' [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\module.cpp(52,23): warning C4505: 'RemixPresentCallback': unreferenced function with internal linkage has been removed [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\d3d9_texture_tracker.cpp(1518,13): warning C4505: 'CheckVMTForSelfillum': unreferenced function with internal linkage has been removed [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+  H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\source\material_pipeline\to_pbr\to_pbr.cpp(4706,20): warning C4505: 'MaterialPipeline::ToPBR::GetRelativeTexturePath': unreferenced function with internal linkage has been removed [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+
+
+"H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj" (Build target) (1) ->
+(Link target) -> 
+  module.obj : warning LNK4229: invalid directive '/DELAYLOAD:tier0.dll' encountered; ignored [H:\BACKUP_20260815\Modding\ipg\garrys-mod-rtx-remixed\gmcl_RTXFixesBinary.vcxproj]
+
+    50 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.53

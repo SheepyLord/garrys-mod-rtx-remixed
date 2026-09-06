@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "created_utc": "2026-09-06T10:38:49.2879297Z",
+  "branch": "codex/material-tracking-performance",
+  "base_commit": "4ed57c7ca2a36128e63ecf645b9ce2e61ab77bea",
+  "uncommitted_changes": true,
+  "artifact": {
+    "sha256": "bb252d6d02c10f99d10a269d97534461b8697a795ed37c8e2a72c8d005be1c34",
+    "path": "H:\\BACKUP_20260815\\Modding\\ipg\\garrys-mod-rtx-remixed\\build\\material_tracking_20260906\\gmcl_RTXFixesBinary_win64.dll",
+    "bytes": 1216512
+  },
+  "source_files": [
+    {
+      "sha256": "d1040182c5eac264e97ad6a1ae57b9b2d3f3904c76904a04ccd58600614f8fec",
+      "path": "source/d3d9_texture_tracker.cpp",
+      "bytes": 106590
+    },
+    {
+      "sha256": "baecd0bd9559b33d175f4f868e1a22d665a8b82019c67dd8c5efd3513ab3c4a8",
+      "path": "source/d3d9_texture_tracker.h",
+      "bytes": 16004
+    },
+    {
+      "sha256": "9f52b8996dd922f6e9d0d91d5d3a941a132c30865fa011c2b4442daa43105e88",
+      "path": "source/material_hash_lookup.h",
+      "bytes": 2733
+    },
+    {
+      "sha256": "a76cd8ab8dd03b64c91ea55c5499d56f0802d0f54a33f321bd76e411ddc5b09e",
+      "path": "source/remixapi/material_lua_bindings.cpp",
+      "bytes": 54275
+    },
+    {
+      "sha256": "06e52152579b2c9e3565b4670a300e4657b010dfe5bc6bda8a8f367987fbf7e0",
+      "path": "tests/material_hash_lookup_test.cpp",
+      "bytes": 3667
+    },
+    {
+      "sha256": "ad7d152a4fa7ed8257f42a73a7f89fdb2a04ebd385294b09f9c05e730869dc4c",
+      "path": "tests/material_hash_lookup.md",
+      "bytes": 1926
+    }
+  ],
+  "build": {
+    "command": "MSBuild gmcl_RTXFixesBinary.vcxproj /t:Build /p:Configuration=Release /p:Platform=x64 /m:1",
+    "exit_code": 0,
+    "configuration": "Release",
+    "platform": "x64",
+    "log": "H:\\BACKUP_20260815\\Modding\\ipg\\garrys-mod-rtx-remixed\\build\\material_tracking_20260906\\native_build.log",
+    "toolchain": "MSVC v143 / Visual Studio 2022 BuildTools"
+  },
+  "tests": {
+    "result": "PASS: ownership invariants and 180000 differential lookups",
+    "exit_code": 0,
+    "compiler_flags": "/std:c++17 /EHsc /W4 /WX /O2"
+  },
+  "deployment_performed": false,
+  "game_launch_performed": false,
+  "limitations": [
+    "In-game validation pending root-controlled baseline and candidate runs",
+    "hash_calls counter measures ownership refresh only, not all Remix queries",
+    "Known project/SDK warnings remain in native build"
+  ]
+}

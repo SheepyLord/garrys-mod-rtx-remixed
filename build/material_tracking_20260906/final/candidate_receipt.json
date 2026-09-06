@@ -1,0 +1,147 @@
+{
+  "version": 2,
+  "created_utc": "2026-09-06T11:02:12.386328+00:00",
+  "branch": "codex/material-tracking-performance",
+  "base_commit": "4ed57c7ca2a36128e63ecf645b9ce2e61ab77bea",
+  "uncommitted_changes": true,
+  "artifact": {
+    "path": "H:\\BACKUP_20260815\\Modding\\ipg\\garrys-mod-rtx-remixed\\build\\material_tracking_20260906\\final\\gmcl_RTXFixesBinary_win64.dll",
+    "bytes": 1216512,
+    "sha256": "ccc8b16e478e0bbd358c3745cd611f989d71c2aa3188cb024ce30e98e61dc7a9"
+  },
+  "source_files": [
+    {
+      "path": "source/d3d9_texture_tracker.cpp",
+      "bytes": 106648,
+      "sha256": "f3437fa2827c5bbaf326eb64dfd83c93ea1d94039062b7b0f3d3b5a1493ec564"
+    },
+    {
+      "path": "source/d3d9_texture_tracker.h",
+      "bytes": 16004,
+      "sha256": "baecd0bd9559b33d175f4f868e1a22d665a8b82019c67dd8c5efd3513ab3c4a8"
+    },
+    {
+      "path": "source/material_hash_lookup.h",
+      "bytes": 2733,
+      "sha256": "9f52b8996dd922f6e9d0d91d5d3a941a132c30865fa011c2b4442daa43105e88"
+    },
+    {
+      "path": "source/remixapi/material_lua_bindings.cpp",
+      "bytes": 54275,
+      "sha256": "a76cd8ab8dd03b64c91ea55c5499d56f0802d0f54a33f321bd76e411ddc5b09e"
+    },
+    {
+      "path": "tests/material_hash_lookup_test.cpp",
+      "bytes": 3667,
+      "sha256": "06e52152579b2c9e3565b4670a300e4657b010dfe5bc6bda8a8f367987fbf7e0"
+    },
+    {
+      "path": "tests/material_hash_lookup.md",
+      "bytes": 1926,
+      "sha256": "ad7d152a4fa7ed8257f42a73a7f89fdb2a04ebd385294b09f9c05e730869dc4c"
+    }
+  ],
+  "build": {
+    "clean_rebuild": true,
+    "configuration": "Release",
+    "platform": "x64",
+    "command": "MSBuild gmcl_RTXFixesBinary.vcxproj /t:Rebuild /p:Configuration=Release /p:Platform=x64 /m:1",
+    "compiler": "MSVC 14.44.35207",
+    "flags": "/Ox /Ob2 /Oi /GL /MT; /OPT:REF /OPT:ICF /INCREMENTAL:NO",
+    "elapsed_seconds": 11.67,
+    "exit_code": 0,
+    "warnings": 3656,
+    "errors": 0,
+    "log": "H:\\BACKUP_20260815\\Modding\\ipg\\garrys-mod-rtx-remixed\\build\\material_tracking_20260906\\native_rebuild.log",
+    "link_evidence": "All 9266 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.",
+    "project_sha256": "09ec215bec836f09c9251b3cca6ee955b0b09dd746958cccd81e453c0e44d650",
+    "project_cpp_inputs": [
+      "source/HardwareSkinningHooks.cpp",
+      "source/TinyMathLib.cpp",
+      "source/culling_fixes.cpp",
+      "source/culling_patches.cpp",
+      "source/d3d9_texture_tracker.cpp",
+      "source/e_utils.cpp",
+      "source/globalconvars.cpp",
+      "source/material_pipeline/auto_categorisation/auto_categorisation.cpp",
+      "source/material_pipeline/hash_collision_fixer/hash_collision_fixer.cpp",
+      "source/material_pipeline/material_pipeline.cpp",
+      "source/material_pipeline/shader_fixes/shader_fixes.cpp",
+      "source/material_pipeline/to_pbr/format_bftpseudopbr.cpp",
+      "source/material_pipeline/to_pbr/format_exopbr.cpp",
+      "source/material_pipeline/to_pbr/format_gpbr.cpp",
+      "source/material_pipeline/to_pbr/format_mwbpbr.cpp",
+      "source/material_pipeline/to_pbr/format_source.cpp",
+      "source/material_pipeline/to_pbr/formats.cpp",
+      "source/material_pipeline/to_pbr/to_pbr.cpp",
+      "source/material_pipeline/to_pbr/usda.cpp",
+      "source/material_pipeline/to_pbr/vtf.cpp",
+      "source/memory_patcher.cpp",
+      "source/model_draw_hook.cpp",
+      "source/modelload_fixes.cpp",
+      "source/module.cpp",
+      "source/patch_manager.cpp",
+      "source/prop_fixes.cpp",
+      "source/remixapi/atmosphere_lua_bindings.cpp",
+      "source/remixapi/bsp_geometry_lua_bindings.cpp",
+      "source/remixapi/bsp_geometry_manager.cpp",
+      "source/remixapi/camera_lua_bindings.cpp",
+      "source/remixapi/config_lua_bindings.cpp",
+      "source/remixapi/instance_lua_bindings.cpp",
+      "source/remixapi/light_lua_bindings.cpp",
+      "source/remixapi/material_lua_bindings.cpp",
+      "source/remixapi/mesh_lua_bindings.cpp",
+      "source/remixapi/remixapi.cpp",
+      "source/remixapi/resource_lua_bindings.cpp",
+      "source/vtf_parser.cpp"
+    ],
+    "tracked_cpp_excluded_separate_programs": [
+      "source/launcher/main.cpp",
+      "source/startup_assets/prepare_main.cpp",
+      "source/startup_assets/proxy.cpp",
+      "source/startup_assets/startup_assets.cpp",
+      "source/startup_assets/tests/fake_renderer.cpp"
+    ]
+  },
+  "verification": {
+    "gmod_pe_exports_match_installed": true,
+    "pe_exports": [
+      {
+        "name": "RTX_SetEyeTexGenState",
+        "ordinal": 1,
+        "forwarder": null
+      },
+      {
+        "name": "gmod13_close",
+        "ordinal": 2,
+        "forwarder": null
+      },
+      {
+        "name": "gmod13_open",
+        "ordinal": 3,
+        "forwarder": null
+      }
+    ],
+    "required_runtime_registration_strings_present": [
+      "TrackMaterial",
+      "FindMaterialByHash",
+      "GetMaterialHashRevision",
+      "GetMaterialHashStats",
+      "GetUIState",
+      "ToPBR",
+      "IsInitialized"
+    ],
+    "git_diff_check": "passed",
+    "ownership_unit_tests": "MSVC /W4 /WX; ownership invariants and 180000 differential lookups passed before this guard-only change",
+    "ownership_test_source_unchanged": true
+  },
+  "changes_since_previous_candidate": "Outer debug guards avoid displacement-name lowercase/copy/search when tracker debug output is disabled; full clean rebuild.",
+  "previous_receipt": "H:\\BACKUP_20260815\\Modding\\ipg\\garrys-mod-rtx-remixed\\build\\material_tracking_20260906\\candidate_receipt.json",
+  "previous_candidate_sha256": "bb252d6d02c10f99d10a269d97534461b8697a795ed37c8e2a72c8d005be1c34",
+  "deployment_performed": false,
+  "game_launch_performed": false,
+  "limitations": [
+    "Game validation remains pending.",
+    "Native project/SDK warnings remain; no new claim that historical baseline compiler flags are known."
+  ]
+}

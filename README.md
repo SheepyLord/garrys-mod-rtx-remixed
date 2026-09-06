@@ -30,6 +30,7 @@ Multiplayer works best when the server/host has this addon and the cvar `sv_allo
 You can join servers without the addon but you ***will*** experience visual issues.
 
 ## Support
+### [Material lookup and viewmodel performance](docs/material-tracking-performance.md)
 ### [Problematic Addons](https://github.com/Xenthio/garrys-mod-rtx-remixed/wiki/Problematic-Addons)
 ### [Common issues](https://github.com/Xenthio/garrys-mod-rtx-remixed/wiki/Common-Issues)
 
