@@ -412,9 +412,19 @@ bool TextureProcessor::EnsureOutputDirectory() {
     return true;
 }
 
+// FNV-1a: output names persist on disk, and std::hash is not stable across builds.
+static uint64_t StableNameHash(const std::string& text) {
+    uint64_t hash = 14695981039346656037ull;
+    for (unsigned char c : text) {
+        hash ^= c;
+        hash *= 1099511628211ull;
+    }
+    return hash;
+}
+
 std::string TextureProcessor::GenerateOutputPath(const std::string& sourceName, const std::string& suffix) {
     // Build a readable filename from the game texture path, e.g.
-    // "models/props_c17/furniture_metal001a" -> "models_props_c17_furniture_metal001a_normal.dds"
+    // "models/props_c17/furniture_metal001a" -> "models_props_c17_furniture_metal001a_<id>_normal.dds"
     // Source texture paths are case-insensitive, so lowercase for stable names.
     std::string name;
     name.reserve(sourceName.size());
@@ -431,17 +441,35 @@ std::string TextureProcessor::GenerateOutputPath(const std::string& sourceName, 
     if (name.empty()) {
         name = "unnamed";
     }
-    
-    // Keep the full path under MAX_PATH: truncate very long names and append a
-    // short hash of the original name to preserve uniqueness.
-    constexpr size_t kMaxNameLength = 160;
-    if (name.size() > kMaxNameLength) {
-        std::ostringstream tail;
-        tail << std::hex << std::uppercase << std::hash<std::string>{}(sourceName);
-        name = name.substr(0, kMaxNameLength) + "_" + tail.str();
+
+    // The readable part is lossy ("foo/bar" and "foo_bar" both read foo_bar) and an
+    // existing output is reused without decoding, so the name also carries an id of
+    // the exact source texture and its revision on disk: a different texture, or the
+    // same one after an addon update, gets its own file instead of a stale one.
+    std::string key = sourceName;
+    std::transform(key.begin(), key.end(), key.begin(), [](unsigned char c) {
+        return c == '\\' ? '/' : static_cast<char>(std::tolower(c));
+    });
+    if (key.compare(0, 10, "materials/") == 0) key.erase(0, 10);
+    if (key.size() > 4 && key.compare(key.size() - 4, 4, ".vtf") == 0) key.resize(key.size() - 4);
+    unsigned long long sourceSize = 0;
+    long sourceTime = 0;
+    if (m_fileSystem) {
+        const std::string vtfPath = "materials/" + key + ".vtf";
+        sourceSize = m_fileSystem->Size(vtfPath.c_str(), "GAME");
+        sourceTime = m_fileSystem->GetFileTime(vtfPath.c_str(), "GAME");
     }
-    
-    return m_outputDirectory + "\\" + name + suffix + ".dds";
+    char id[17];
+    snprintf(id, sizeof(id), "%016llX", static_cast<unsigned long long>(StableNameHash(
+        key + '\n' + std::to_string(sourceSize) + '\n' + std::to_string(sourceTime))));
+
+    // Keep the full path under MAX_PATH by truncating the readable part.
+    constexpr size_t kMaxNameLength = 140;
+    if (name.size() > kMaxNameLength) {
+        name.resize(kMaxNameLength);
+    }
+
+    return m_outputDirectory + "\\" + name + "_" + id + suffix + ".dds";
 }
 
 // Calculate number of mipmap levels for a given dimension
@@ -949,14 +977,14 @@ bool TextureProcessor::ParseVTFHeader(const std::vector<uint8_t>& fileData, VTFF
 }
 
 // DXT decompression - delegate to VTF module
-bool TextureProcessor::DecompressDXT1(const uint8_t* compressedData, uint32_t width, uint32_t height,
+bool TextureProcessor::DecompressDXT1(const uint8_t* compressedData, size_t compressedSize, uint32_t width, uint32_t height,
                                           std::vector<uint8_t>& outRGBA) {
-    return VTF::DecompressDXT1(compressedData, width, height, outRGBA);
+    return VTF::DecompressDXT1(compressedData, compressedSize, width, height, outRGBA);
 }
 
-bool TextureProcessor::DecompressDXT5(const uint8_t* compressedData, uint32_t width, uint32_t height,
+bool TextureProcessor::DecompressDXT5(const uint8_t* compressedData, size_t compressedSize, uint32_t width, uint32_t height,
                                           std::vector<uint8_t>& outRGBA) {
-    return VTF::DecompressDXT5(compressedData, width, height, outRGBA);
+    return VTF::DecompressDXT5(compressedData, compressedSize, width, height, outRGBA);
 }
 
 bool TextureProcessor::ExtractVTFPixelData(const std::vector<uint8_t>& fileData, 
@@ -4742,13 +4770,9 @@ bool TextureProcessor::WriteModUSDA() {
         return false;
     }
     
-    // Atomic rename: staging -> final
-    if (std::rename(stagingPath.c_str(), materialsUsdaPath.c_str()) != 0) {
-        std::remove(materialsUsdaPath.c_str());
-        if (std::rename(stagingPath.c_str(), materialsUsdaPath.c_str()) != 0) {
-            Warning("[MaterialPipeline::ToPBR] Failed to rename staging file to materials.usda\n");
-            return false;
-        }
+    // Atomic replace: staging -> final
+    if (!USDA::PublishStagedFile(stagingPath, materialsUsdaPath)) {
+        return false;
     }
     
     m_lastUSDAWriteTime = std::chrono::steady_clock::now();
@@ -4776,6 +4800,13 @@ void TextureProcessor::StartWorkerThread() {
     if (m_debugOutput) {
         Msg("[MaterialPipeline::ToPBR] Background worker thread started\n");
     }
+}
+
+void TextureProcessor::CancelPendingWork() {
+    StopWorkerThread();
+    std::lock_guard<std::mutex> lock(m_queueMutex);
+    while (!m_materialQueue.empty()) m_materialQueue.pop();
+    m_queuedMaterials.clear();
 }
 
 void TextureProcessor::StopWorkerThread() {
@@ -5120,16 +5151,10 @@ bool TextureProcessor::AppendMaterialsToUSDA() {
             return false;
         }
         
-        // Atomic rename: staging file -> final file
-        // On Windows, MoveFileExA with MOVEFILE_REPLACE_EXISTING is atomic on NTFS
-        // On failure, fall back to remove + rename
-        if (std::rename(stagingPath.c_str(), materialsUsdaPath.c_str()) != 0) {
-            // rename() can fail if destination exists on some platforms - try remove first
-            std::remove(materialsUsdaPath.c_str());
-            if (std::rename(stagingPath.c_str(), materialsUsdaPath.c_str()) != 0) {
-                Warning("[MaterialPipeline::ToPBR] Failed to rename staging file to materials.usda\n");
-                return false;
-            }
+        // Atomic replace: staging file -> final file (MoveFileExA with
+        // MOVEFILE_REPLACE_EXISTING never leaves materials.usda missing)
+        if (!USDA::PublishStagedFile(stagingPath, materialsUsdaPath)) {
+            return false;
         }
         
         // Mark all as written

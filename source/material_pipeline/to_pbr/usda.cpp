@@ -9,8 +9,10 @@
 #include "usda.h"
 #include "to_pbr.h"
 #include <tier0/dbg.h>
+#include <cstdio>
 #include <fstream>
 #include <sstream>
+#include <Windows.h>
 
 namespace MaterialPipeline {
 namespace ToPBR {
@@ -143,31 +145,61 @@ bool LoadExistingHashes(const std::string& materialsUsdaPath,
     return true;
 }
 
+bool PublishStagedFile(const std::string& stagingPath, const std::string& finalPath) {
+    if (MoveFileExA(stagingPath.c_str(), finalPath.c_str(),
+                    MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH)) {
+        return true;
+    }
+    Warning("[USDA] Failed to publish %s (error %lu)\n", finalPath.c_str(), GetLastError());
+    std::remove(stagingPath.c_str());
+    return false;
+}
+
 bool WriteModUSDAFile(const std::string& modDir) {
     std::string modUsdaPath = modDir + "/mod.usda";
-    std::ofstream modUsda(modUsdaPath);
-    if (!modUsda.is_open()) {
-        Warning("[USDA] Failed to create mod.usda at %s\n", modUsdaPath.c_str());
-        return false;
-    }
-    
+
     // Write USDA header
-    modUsda << "#usda 1.0\n";
-    modUsda << "(\n";
-    modUsda << "    customLayerData = {\n";
-    modUsda << "        string lightspeed_game_name = \"Garry's Mod (x64)\"\n";
-    modUsda << "        string lightspeed_layer_type = \"replacement\"\n";
-    modUsda << "    }\n";
-    modUsda << "    metersPerUnit = 0.01\n";
-    modUsda << "    subLayers = [\n";
-    modUsda << "        @./materials.usda@\n";
-    modUsda << "    ]\n";
-    modUsda << "    timeCodesPerSecond = 24\n";
-    modUsda << "    upAxis = \"Z\"\n";
-    modUsda << ")\n\n";
-    modUsda.close();
-    
-    return true;
+    std::ostringstream content;
+    content << "#usda 1.0\n";
+    content << "(\n";
+    content << "    customLayerData = {\n";
+    content << "        string lightspeed_game_name = \"Garry's Mod (x64)\"\n";
+    content << "        string lightspeed_layer_type = \"replacement\"\n";
+    content << "    }\n";
+    content << "    metersPerUnit = 0.01\n";
+    content << "    subLayers = [\n";
+    content << "        @./materials.usda@\n";
+    content << "    ]\n";
+    content << "    timeCodesPerSecond = 24\n";
+    content << "    upAxis = \"Z\"\n";
+    content << ")\n\n";
+
+    // Called on every batch publication: leave an up-to-date layer alone, and never
+    // truncate the live file Remix watches (stage it and swap instead).
+    {
+        std::ifstream existing(modUsdaPath);
+        std::ostringstream current;
+        if (existing && (current << existing.rdbuf()) && current.str() == content.str()) {
+            return true;
+        }
+    }
+
+    const std::string stagingPath = modUsdaPath + ".tmp";
+    {
+        std::ofstream modUsda(stagingPath, std::ios::trunc);
+        if (!modUsda.is_open()) {
+            Warning("[USDA] Failed to create mod.usda at %s\n", stagingPath.c_str());
+            return false;
+        }
+        modUsda << content.str();
+        modUsda.close();
+        if (!modUsda) {
+            Warning("[USDA] Failed to write %s\n", stagingPath.c_str());
+            std::remove(stagingPath.c_str());
+            return false;
+        }
+    }
+    return PublishStagedFile(stagingPath, modUsdaPath);
 }
 
 void WriteGlassMaterial(std::ostream& stream,
@@ -498,7 +530,11 @@ bool WriteMaterialsUSDAFile(const std::string& modDir,
     }
     
     materialsUsda.close();
-    
+    if (!materialsUsda) {
+        Warning("[USDA] Failed to write %s\n", materialsUsdaPath.c_str());
+        return false;
+    }
+
     if (debugOutput) {
         if (fileExists && shouldAppend) {
             Msg("[USDA] Appended %d new materials to materials.usda (total: %d existing + %d new)\n", 

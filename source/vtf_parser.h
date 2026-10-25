@@ -29,6 +29,10 @@ constexpr int VTF_MAX_MINOR_VERSION = 5;
 // Larger files are rejected to prevent out-of-memory issues.
 constexpr size_t MAX_VTF_FILE_SIZE = 256 * 1024 * 1024;  // 256 MB
 
+// Largest width/height a header may declare; anything bigger is malformed for
+// Source and only serves to blow up size calculations.
+constexpr uint32_t MAX_VTF_DIMENSION = 16384;
+
 // Maximum texture dimension for solid-color checking.
 // Larger textures are skipped for performance (solid-color textures are typically small).
 constexpr size_t MAX_SOLID_COLOR_CHECK_SIZE = 512;  // Only check textures up to 512x512
@@ -181,14 +185,18 @@ bool IsSolidColorRGBA(const std::vector<uint8_t>& pixelData,
 // =========================================================================
 
 // Decompress DXT1 compressed texture data to RGBA8888
-bool DecompressDXT1(const uint8_t* compressedData, 
-                    uint32_t width, 
+// @param compressedSize - Bytes available at compressedData; too few fails
+bool DecompressDXT1(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA);
 
 // Decompress DXT5 compressed texture data to RGBA8888
-bool DecompressDXT5(const uint8_t* compressedData, 
-                    uint32_t width, 
+// @param compressedSize - Bytes available at compressedData; too few fails
+bool DecompressDXT5(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA);
 

@@ -103,8 +103,9 @@ bool ParseVTFHeader(const std::vector<uint8_t>& fileData,
 // @param height - Texture height in pixels
 // @param outRGBA - Output buffer for RGBA pixel data
 // @return true on success
-bool DecompressDXT1(const uint8_t* compressedData, 
-                    uint32_t width, 
+bool DecompressDXT1(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA);
 
@@ -114,8 +115,9 @@ bool DecompressDXT1(const uint8_t* compressedData,
 // @param height - Texture height in pixels
 // @param outRGBA - Output buffer for RGBA pixel data
 // @return true on success
-bool DecompressDXT5(const uint8_t* compressedData, 
-                    uint32_t width, 
+bool DecompressDXT5(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA);
 

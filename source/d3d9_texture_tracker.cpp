@@ -640,6 +640,10 @@ size_t D3D9TextureTracker::InvalidateMaterialCache(const char* materialName) {
     std::string stage1Name = lowerName + "_stage1";
     invalidateKey(stage1Name);
 
+    // Categorisation still reads the legacy hash -> owner index; the hash this
+    // material stops using must lose it there too (it is re-added on rediscovery).
+    const size_t ownersRemoved = RemoveMaterialOwner(m_hashToMaterials, lowerName);
+
     if (totalCount == 0) {
         return 0;
     }
@@ -649,7 +653,8 @@ size_t D3D9TextureTracker::InvalidateMaterialCache(const char* materialName) {
     InvalidateThreadMaterialStates();
     
     if (m_enableDebugOutput) {
-        Msg("[D3D9TextureTracker] Invalidated cache for '%s' and variants (%zu textures)\n", materialName, totalCount);
+        Msg("[D3D9TextureTracker] Invalidated cache for '%s' and variants (%zu textures, %zu hash owners)\n",
+            materialName, totalCount, ownersRemoved);
     }
     
     return totalCount;

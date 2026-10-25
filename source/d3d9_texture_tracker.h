@@ -11,6 +11,7 @@
 #include <cstddef>
 #include <chrono>
 #include "material_hash_lookup.h"
+#include "material_owner_index.h"
 
 // Forward declarations
 class IMaterial;
@@ -303,7 +304,7 @@ private:
 
     // Reverse map: texture hash -> set of material names that use it (Stage 0 only).
     // Populated as new Stage 0 variants are discovered in Hook_SetTexture.
-    std::unordered_map<uint64_t, std::unordered_set<std::string>> m_hashToMaterials;
+    MaterialOwnerIndex m_hashToMaterials;
 
     // Set of lowercase material names that the Lua BSP scan identified as world brushes,
     // regardless of whether they were assigned a Remix category.

@@ -124,9 +124,12 @@ static void DecompressDXT5AlphaBlock(const uint8_t* block, uint8_t* output, int 
 // =========================================================================
 
 size_t GetImageDataSize(uint32_t width, uint32_t height, VTFImageFormat format) {
-    uint32_t blocksX = (width + 3) / 4;
-    uint32_t blocksY = (height + 3) / 4;
-    
+    // 64-bit math: a 65535x65535 DXT5 level is exactly 4 GiB and wraps to 0 in 32 bits.
+    const size_t w = width;
+    const size_t h = height;
+    const size_t blocksX = (w + 3) / 4;
+    const size_t blocksY = (h + 3) / 4;
+
     switch (format) {
         case IMAGE_FORMAT_DXT1:
         case IMAGE_FORMAT_DXT1_ONEBITALPHA:
@@ -141,12 +144,12 @@ size_t GetImageDataSize(uint32_t width, uint32_t height, VTFImageFormat format) 
         case IMAGE_FORMAT_BGRX8888:
         case IMAGE_FORMAT_UVWQ8888:
         case IMAGE_FORMAT_UVLX8888:
-            return width * height * 4;
+            return w * h * 4;
         case IMAGE_FORMAT_RGB888:
         case IMAGE_FORMAT_BGR888:
         case IMAGE_FORMAT_RGB888_BLUESCREEN:
         case IMAGE_FORMAT_BGR888_BLUESCREEN:
-            return width * height * 3;
+            return w * h * 3;
         case IMAGE_FORMAT_RGB565:
         case IMAGE_FORMAT_BGR565:
         case IMAGE_FORMAT_BGRA5551:
@@ -154,14 +157,14 @@ size_t GetImageDataSize(uint32_t width, uint32_t height, VTFImageFormat format) 
         case IMAGE_FORMAT_BGRA4444:
         case IMAGE_FORMAT_IA88:
         case IMAGE_FORMAT_UV88:
-            return width * height * 2;
+            return w * h * 2;
         case IMAGE_FORMAT_I8:
         case IMAGE_FORMAT_P8:
         case IMAGE_FORMAT_A8:
-            return width * height;
+            return w * h;
         case IMAGE_FORMAT_RGBA16161616F:
         case IMAGE_FORMAT_RGBA16161616:
-            return width * height * 8;
+            return w * h * 8;
         default:
             return 0;
     }
@@ -275,8 +278,26 @@ bool ParseVTFHeader(const std::vector<uint8_t>& fileData,
     
     // Verify version (support 7.0 - 7.5)
     if (outHeader.version[0] != VTF_MAJOR_VERSION_SUPPORTED || outHeader.version[1] > VTF_MAX_MINOR_VERSION) {
-        if (debugOutput) Warning("[VTFParser] Unsupported version %d.%d\n", 
+        if (debugOutput) Warning("[VTFParser] Unsupported version %d.%d\n",
                 outHeader.version[0], outHeader.version[1]);
+        return false;
+    }
+
+    // Reject dimensions no Source texture has, and more mip levels than the
+    // largest dimension allows (each level is addressed as a shift of it).
+    if (outHeader.width == 0 || outHeader.height == 0 ||
+        outHeader.width > MAX_VTF_DIMENSION || outHeader.height > MAX_VTF_DIMENSION) {
+        if (debugOutput) Warning("[VTFParser] Invalid dimensions %dx%d\n",
+                outHeader.width, outHeader.height);
+        return false;
+    }
+    uint32_t maxMipCount = 1;
+    for (uint32_t extent = std::max<uint32_t>(outHeader.width, outHeader.height); extent > 1; extent >>= 1) {
+        ++maxMipCount;
+    }
+    if (outHeader.mipmapCount > maxMipCount) {
+        if (debugOutput) Warning("[VTFParser] Invalid mip count %d for %dx%d\n",
+                outHeader.mipmapCount, outHeader.width, outHeader.height);
         return false;
     }
     
@@ -294,14 +315,18 @@ bool ParseVTFHeader(const std::vector<uint8_t>& fileData,
 // DXT Decompression
 // =========================================================================
 
-bool DecompressDXT1(const uint8_t* compressedData, 
-                    uint32_t width, 
+bool DecompressDXT1(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA) {
     uint32_t blocksX = (width + 3) / 4;
     uint32_t blocksY = (height + 3) / 4;
-    
-    outRGBA.resize(width * height * 4);
+    if (!compressedData || compressedSize < GetImageDataSize(width, height, IMAGE_FORMAT_DXT1)) {
+        return false;
+    }
+
+    outRGBA.resize(static_cast<size_t>(width) * height * 4);
     
     const uint8_t* blockPtr = compressedData;
     
@@ -335,14 +360,18 @@ bool DecompressDXT1(const uint8_t* compressedData,
     return true;
 }
 
-bool DecompressDXT5(const uint8_t* compressedData, 
-                    uint32_t width, 
+bool DecompressDXT5(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA) {
     uint32_t blocksX = (width + 3) / 4;
     uint32_t blocksY = (height + 3) / 4;
-    
-    outRGBA.resize(width * height * 4);
+    if (!compressedData || compressedSize < GetImageDataSize(width, height, IMAGE_FORMAT_DXT5)) {
+        return false;
+    }
+
+    outRGBA.resize(static_cast<size_t>(width) * height * 4);
     
     const uint8_t* blockPtr = compressedData;
     
@@ -457,32 +486,34 @@ bool ExtractPixelData(const std::vector<uint8_t>& fileData,
     }
     
     const uint8_t* imageData = fileData.data() + dataOffset;
-    
+    const size_t imageDataSize = fileData.size() - dataOffset;
+    const size_t pixelCount = static_cast<size_t>(header.width) * header.height;
+
     // Convert to RGBA8888
     std::vector<uint8_t> rgba;
-    
+
     switch (srcFormat) {
         case IMAGE_FORMAT_DXT1:
         case IMAGE_FORMAT_DXT1_ONEBITALPHA:
-            if (!DecompressDXT1(imageData, header.width, header.height, rgba)) {
+            if (!DecompressDXT1(imageData, imageDataSize, header.width, header.height, rgba)) {
                 return false;
             }
             break;
-            
+
         case IMAGE_FORMAT_DXT5:
-            if (!DecompressDXT5(imageData, header.width, header.height, rgba)) {
+            if (!DecompressDXT5(imageData, imageDataSize, header.width, header.height, rgba)) {
                 return false;
             }
             break;
-            
+
         case IMAGE_FORMAT_RGBA8888:
-            rgba.assign(imageData, imageData + header.width * header.height * 4);
+            rgba.assign(imageData, imageData + pixelCount * 4);
             break;
-            
+
         case IMAGE_FORMAT_BGRA8888:
         case IMAGE_FORMAT_BGRX8888:
-            rgba.resize(header.width * header.height * 4);
-            for (size_t i = 0; i < header.width * header.height; i++) {
+            rgba.resize(pixelCount * 4);
+            for (size_t i = 0; i < pixelCount; i++) {
                 rgba[i * 4 + 0] = imageData[i * 4 + 2]; // R from B
                 rgba[i * 4 + 1] = imageData[i * 4 + 1]; // G
                 rgba[i * 4 + 2] = imageData[i * 4 + 0]; // B from R
@@ -491,8 +522,8 @@ bool ExtractPixelData(const std::vector<uint8_t>& fileData,
             break;
             
         case IMAGE_FORMAT_RGB888:
-            rgba.resize(header.width * header.height * 4);
-            for (size_t i = 0; i < header.width * header.height; i++) {
+            rgba.resize(pixelCount * 4);
+            for (size_t i = 0; i < pixelCount; i++) {
                 rgba[i * 4 + 0] = imageData[i * 3 + 0];
                 rgba[i * 4 + 1] = imageData[i * 3 + 1];
                 rgba[i * 4 + 2] = imageData[i * 3 + 2];
@@ -501,8 +532,8 @@ bool ExtractPixelData(const std::vector<uint8_t>& fileData,
             break;
             
         case IMAGE_FORMAT_BGR888:
-            rgba.resize(header.width * header.height * 4);
-            for (size_t i = 0; i < header.width * header.height; i++) {
+            rgba.resize(pixelCount * 4);
+            for (size_t i = 0; i < pixelCount; i++) {
                 rgba[i * 4 + 0] = imageData[i * 3 + 2];
                 rgba[i * 4 + 1] = imageData[i * 3 + 1];
                 rgba[i * 4 + 2] = imageData[i * 3 + 0];
@@ -534,58 +565,29 @@ bool IsSolidColorRGBA(const std::vector<uint8_t>& pixelData,
         return false;
     }
     
-    size_t pixelCount = width * height;
-    if (pixelData.size() < pixelCount * 4) {
+    const size_t pixelCount = static_cast<size_t>(width) * height;
+    if (pixelData.size() / 4 < pixelCount) {
         return false;
     }
-    
+
     // Get first pixel color
     outR = pixelData[0];
     outG = pixelData[1];
     outB = pixelData[2];
     outA = pixelData[3];
-    
-    // For large textures, use sampling instead of checking every pixel
-    size_t step = 1;
-    if (pixelCount > 4096) {
-        step = pixelCount / 1024; // Check ~1024 pixels
-    }
-    
-    // Check sampled pixels
-    for (size_t i = 0; i < pixelCount; i += step) {
-        size_t idx = i * 4;
-        if (pixelData[idx + 0] != outR ||
-            pixelData[idx + 1] != outG ||
-            pixelData[idx + 2] != outB ||
-            pixelData[idx + 3] != outA) {
+
+    // Callers replace the whole texture with this colour, so every pixel must
+    // match; sampling reported textured images as solid.
+    uint32_t first;
+    memcpy(&first, pixelData.data(), sizeof(first));
+    for (size_t i = 1; i < pixelCount; i++) {
+        uint32_t pixel;
+        memcpy(&pixel, pixelData.data() + i * 4, sizeof(pixel));
+        if (pixel != first) {
             return false;
         }
     }
-    
-    // Also check corners and edges for accuracy
-    size_t checkPositions[] = {
-        0,                                       // Top-left
-        (width - 1) * 4,                         // Top-right
-        (height - 1) * width * 4,                // Bottom-left
-        ((height - 1) * width + width - 1) * 4,  // Bottom-right
-        ((height / 2) * width) * 4,              // Middle-left
-        ((height / 2) * width + width - 1) * 4,  // Middle-right
-        (width / 2) * 4,                         // Top-middle
-        ((height - 1) * width + width / 2) * 4,  // Bottom-middle
-        ((height / 2) * width + width / 2) * 4   // Center
-    };
-    
-    for (size_t pos : checkPositions) {
-        if (pos + 3 < pixelData.size()) {
-            if (pixelData[pos + 0] != outR ||
-                pixelData[pos + 1] != outG ||
-                pixelData[pos + 2] != outB ||
-                pixelData[pos + 3] != outA) {
-                return false;
-            }
-        }
-    }
-    
+
     return true;
 }
 

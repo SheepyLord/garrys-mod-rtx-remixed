@@ -65,6 +65,11 @@ target_compile_features(material_hash_lookup_test PRIVATE cxx_std_17)
 target_compile_options(material_hash_lookup_test PRIVATE /W4 /WX /permissive- /EHsc)
 add_test(NAME material_hash_lookup_contracts COMMAND material_hash_lookup_test)
 
+add_executable(material_owner_index_test ../../tests/material_owner_index_test.cpp)
+target_compile_features(material_owner_index_test PRIVATE cxx_std_17)
+target_compile_options(material_owner_index_test PRIVATE /W4 /WX /permissive- /EHsc)
+add_test(NAME material_owner_index_contracts COMMAND material_owner_index_test)
+
 # Compile the production Lua facade against minimal test doubles. The full
 # module is also built against Garry's Mod headers by the regular Build job.
 add_executable(startup_lua_bindings_test ../../tests/startup_lua_bindings/test.cpp)
@@ -72,3 +77,11 @@ target_include_directories(startup_lua_bindings_test PRIVATE ../../tests/startup
 target_compile_features(startup_lua_bindings_test PRIVATE cxx_std_17)
 target_compile_options(startup_lua_bindings_test PRIVATE /W4 /WX /permissive- /EHsc)
 add_test(NAME startup_lua_bindings_contracts COMMAND startup_lua_bindings_test)
+
+# The VTF parser needs only logging and filesystem declarations; stub those so its
+# solid-colour and size regressions run here as well.
+add_executable(vtf_parser_test ../../tests/vtf_parser/test.cpp)
+target_include_directories(vtf_parser_test PRIVATE ../../tests/vtf_parser/stubs)
+target_compile_features(vtf_parser_test PRIVATE cxx_std_17)
+target_compile_options(vtf_parser_test PRIVATE /W4 /WX /permissive- /EHsc)
+add_test(NAME vtf_parser_contracts COMMAND vtf_parser_test)

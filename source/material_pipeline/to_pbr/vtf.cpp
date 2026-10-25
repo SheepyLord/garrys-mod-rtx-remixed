@@ -85,18 +85,20 @@ bool ParseVTFHeader(const std::vector<uint8_t>& fileData,
 // DXT Decompression - Delegate to standalone VTFParser
 // =========================================================================
 
-bool DecompressDXT1(const uint8_t* compressedData, 
-                    uint32_t width, 
+bool DecompressDXT1(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA) {
-    return VTFParser::DecompressDXT1(compressedData, width, height, outRGBA);
+    return VTFParser::DecompressDXT1(compressedData, compressedSize, width, height, outRGBA);
 }
 
-bool DecompressDXT5(const uint8_t* compressedData, 
-                    uint32_t width, 
+bool DecompressDXT5(const uint8_t* compressedData,
+                    size_t compressedSize,
+                    uint32_t width,
                     uint32_t height,
                     std::vector<uint8_t>& outRGBA) {
-    return VTFParser::DecompressDXT5(compressedData, width, height, outRGBA);
+    return VTFParser::DecompressDXT5(compressedData, compressedSize, width, height, outRGBA);
 }
 
 // =========================================================================

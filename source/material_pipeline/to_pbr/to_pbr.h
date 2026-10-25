@@ -343,6 +343,11 @@ public:
     
     // Clear processed materials cache (for map changes)
     void ClearCache();
+
+    // Finish the material in flight, stop the worker and drop queued work. Call
+    // before Source uncaches its materials: the worker resolves queued names with
+    // FindMaterial. The next QueueMaterialsForProcessing restarts it.
+    void CancelPendingWork();
     
     // Global enable/disable for ToPBR processing (controlled by rtx_topbr_enabled ConVar)
     void SetEnabled(bool enabled) { m_enabled.store(enabled, std::memory_order_relaxed); }
@@ -436,9 +441,9 @@ private:
                              ConvertedTexture& outTexture, bool isNormalMap);
     
     // Convert DXT compressed data to RGBA
-    bool DecompressDXT1(const uint8_t* compressedData, uint32_t width, uint32_t height,
+    bool DecompressDXT1(const uint8_t* compressedData, size_t compressedSize, uint32_t width, uint32_t height,
                         std::vector<uint8_t>& outRGBA);
-    bool DecompressDXT5(const uint8_t* compressedData, uint32_t width, uint32_t height,
+    bool DecompressDXT5(const uint8_t* compressedData, size_t compressedSize, uint32_t width, uint32_t height,
                         std::vector<uint8_t>& outRGBA);
     
     // Generate a unique hash for a texture

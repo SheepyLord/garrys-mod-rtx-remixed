@@ -43,6 +43,11 @@ bool CheckExistingMaterials(const std::string& materialsUsdaPath,
 // @return true on success
 bool WriteModUSDAFile(const std::string& modDir);
 
+// Atomically replace finalPath with the finished stagingPath, so Remix's file watcher
+// never sees a missing or partial layer. The staging file is removed on failure.
+// @return true on success
+bool PublishStagedFile(const std::string& stagingPath, const std::string& finalPath);
+
 // Write material definitions to materials.usda
 // @param modDir - Directory to write to
 // @param outputDirectory - Base output directory for relative path calculation
