@@ -321,7 +321,9 @@ int main() {
     assert(kMaxTextureOperations == 4);
 
     const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
-    const auto root = std::filesystem::temp_directory_path() /
+    // The bridge canonicalizes its game root; spell ours the same way, since TEMP
+    // can be an 8.3 short path such as C:\Users\ABCDEF~1\AppData\Local\Temp.
+    const auto root = std::filesystem::canonical(std::filesystem::temp_directory_path()) /
         ("advmat_rtx_writer_test_" + std::to_string(nonce));
     std::filesystem::create_directories(root / "garrysmod" / "data");
     std::filesystem::create_directories(root / "rtx-remix" / "mods");

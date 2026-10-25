@@ -1016,10 +1016,35 @@ LUA_FUNCTION(AdvMatRTXBridge_ClearAllOwned) {
     return GuardLuaCall(LUA, ClearAll);
 }
 
+constexpr const char* kProviderGlobal = "AdvMatRTXBridge";
+constexpr const char* kProviderName = "RTXFixesBinary";
+
+// The ABI-matched standalone provider a developer can install instead; Advanced
+// Material Editor requires it only while the global is still free.
+bool StandaloneProviderInstalled(const std::filesystem::path& gameRoot) {
+    if (gameRoot.empty()) return false;
+    std::error_code error;
+    return std::filesystem::is_regular_file(
+        gameRoot / "garrysmod" / "lua" / "bin" / "gmcl_advmat_rtx_bridge_win64.dll", error);
+}
+
 } // namespace
 
 bool RegisterLua(ILuaBase* lua, const std::filesystem::path& gameRoot) {
     if (!lua) return false;
+
+    // Advanced Material Editor uses whichever provider holds the global, and only
+    // one writer may own its mod folder. Keep a provider that is already there,
+    // and leave the slot to an installed standalone module (it adds live preview);
+    // this commit-only provider is the fallback.
+    lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
+    lua->GetField(-1, kProviderGlobal);
+    const bool occupied = !lua->IsType(-1, Type::Nil);
+    lua->Pop(2);
+    if (occupied || StandaloneProviderInstalled(gameRoot)) {
+        return true;
+    }
+
     {
         std::lock_guard<std::mutex> lock(g_bridgeMutex);
         Config config;
@@ -1030,6 +1055,8 @@ bool RegisterLua(ILuaBase* lua, const std::filesystem::path& gameRoot) {
     lua->CreateTable();
     lua->PushNumber(kApiVersion);
     lua->SetField(-2, "API_VERSION");
+    lua->PushString(kProviderName);
+    lua->SetField(-2, "PROVIDER");
     lua->PushCFunction(AdvMatRTXBridge_Capabilities);
     lua->SetField(-2, "Capabilities");
     lua->PushCFunction(AdvMatRTXBridge_ApplyLegacyMaterial);
@@ -1038,7 +1065,7 @@ bool RegisterLua(ILuaBase* lua, const std::filesystem::path& gameRoot) {
     lua->SetField(-2, "ClearLegacyMaterial");
     lua->PushCFunction(AdvMatRTXBridge_ClearAllOwned);
     lua->SetField(-2, "ClearAllOwned");
-    lua->SetField(-2, "AdvMatRTXBridge");
+    lua->SetField(-2, kProviderGlobal);
     lua->Pop();
     return true;
 }
@@ -1050,9 +1077,20 @@ void UnregisterLua(ILuaBase* lua) {
     }
     if (!lua) return;
     try {
+        // Remove only the table this module installed; another provider may hold it.
         lua->PushSpecial(GarrysMod::Lua::SPECIAL_GLOB);
-        lua->PushNil();
-        lua->SetField(-2, "AdvMatRTXBridge");
+        lua->GetField(-1, kProviderGlobal);
+        bool ours = false;
+        if (lua->IsType(-1, Type::Table)) {
+            lua->GetField(-1, "PROVIDER");
+            ours = lua->IsType(-1, Type::String) && std::string(lua->GetString(-1)) == kProviderName;
+            lua->Pop();
+        }
+        lua->Pop();
+        if (ours) {
+            lua->PushNil();
+            lua->SetField(-2, kProviderGlobal);
+        }
         lua->Pop();
     } catch (...) {
         // Module teardown must continue even if the Lua state is already

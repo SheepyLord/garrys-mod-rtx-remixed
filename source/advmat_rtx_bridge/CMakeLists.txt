@@ -32,4 +32,15 @@ if(ADVMAT_RTX_BUILD_TESTS)
     target_compile_features(advmat_rtx_writer_tests PRIVATE cxx_std_17)
     advmat_rtx_strict_compile(advmat_rtx_writer_tests)
     add_test(NAME advmat_rtx_writer_tests COMMAND advmat_rtx_writer_tests)
+
+    # Provider registration against a stub Lua state (no Garry's Mod needed).
+    if(WIN32)
+        add_executable(advmat_rtx_lua_registration_tests
+            tests/lua_registration_tests.cpp src/lua_bindings.cpp)
+        target_include_directories(advmat_rtx_lua_registration_tests PRIVATE tests/stubs src)
+        target_link_libraries(advmat_rtx_lua_registration_tests PRIVATE advmat_rtx_writer)
+        target_compile_features(advmat_rtx_lua_registration_tests PRIVATE cxx_std_17)
+        advmat_rtx_strict_compile(advmat_rtx_lua_registration_tests)
+        add_test(NAME advmat_rtx_lua_registration_tests COMMAND advmat_rtx_lua_registration_tests)
+    endif()
 endif()
