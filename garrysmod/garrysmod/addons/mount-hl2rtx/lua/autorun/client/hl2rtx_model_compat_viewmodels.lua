@@ -39,12 +39,21 @@ local function NormalizeModelPath(path)
     return string.lower(string.Replace(path or "", "\\", "/"))
 end
 
+-- file.Exists on "GAME" walks every mounted search path (one per addon), measured at about
+-- 3.5 ms a call, and the draw hooks below asked four times a frame: 14.5 of a 28 ms frame.
+-- The launcher writes the marker before the game starts, so check at load and on each map load.
+local hl2rtxMounted = file.Exists(mountMarker, "GAME")
+
+hook.Add("InitPostEntity", "HL2RTXModelCompat_RecheckMount", function()
+    hl2rtxMounted = file.Exists(mountMarker, "GAME")
+end)
+
 local function IsHL2RTXMounted()
-    return file.Exists(mountMarker, "GAME")
+    return hl2rtxMounted
 end
 
 local function GetCombinedViewModel(weapon)
-    if not enabled:GetBool() or not IsHL2RTXMounted() or not IsValid(weapon) then
+    if not IsValid(weapon) or not enabled:GetBool() or not hl2rtxMounted then
         return nil
     end
 

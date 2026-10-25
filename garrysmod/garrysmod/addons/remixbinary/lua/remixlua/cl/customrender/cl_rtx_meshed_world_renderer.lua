@@ -398,7 +398,10 @@ local function BuildMapMeshes(cancelToken)
         local worldFaceMaxs = Vector(-math_huge, -math_huge, -math_huge)
 
         local faceCheckCounter = 0
-        for _, leaf in pairs(allLeafs) do  
+        -- A BSP face is listed in every leaf it touches; without this each shared
+        -- face was meshed once per leaf, stacking coplanar duplicates in the scene.
+        local seenFaces = {}
+        for _, leaf in pairs(allLeafs) do
             if cancelToken and cancelToken.cancelled then return end
             if leaf and not leaf:IsOutsideMap() then
                 local okFaces, leafFaces = pcall(function() return leaf:GetFaces(true) end)
@@ -412,6 +415,14 @@ local function BuildMapMeshes(cancelToken)
                         end
                         local process = true
                         local mirrorOverride = false
+                        local faceId = face and face:GetIndex() or -1
+                        if faceId >= 0 then
+                            if seenFaces[faceId] then
+                                face = nil
+                            else
+                                seenFaces[faceId] = true
+                            end
+                        end
                         if not face or face:IsDisplacement() or IsSkyboxFace(face) then
                             process = false
                         elseif IsBrushEntity(face) then

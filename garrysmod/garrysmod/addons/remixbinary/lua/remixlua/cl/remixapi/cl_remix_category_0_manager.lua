@@ -548,12 +548,17 @@ function RemixCategoryManager.IsMaterialDecal(materialName)
         return true
     end
     
-    -- Method 6: Raw VMT File Parse
+    -- Method 6: Raw VMT File Parse, only when Method 1 had no key values to look at. A GAME-path
+    -- read walks every mounted addon (about 1-3.5 ms here), and this runs for every material
+    -- auto-categorised at map load; parsed key values already show any $decal the file sets.
+    if keyValues and next(keyValues) ~= nil then
+        return false
+    end
     local vmtPath = "materials/" .. materialName
     if not string.EndsWith(vmtPath, ".vmt") then
         vmtPath = vmtPath .. ".vmt"
     end
-    
+
     local content = file.Read(vmtPath, "GAME")
     if content then
         local lines = string.Explode("\n", content)
@@ -2751,12 +2756,17 @@ end)
 -- can't catch them. Poll for models not yet inspected; dedup keeps this cheap.
 local chromeScannedModels = {}
 
-local function GetModelMaterialNames(modelName)
+local function GetModelMaterialNames(ent, modelName)
     if util.GetModelMaterials then
         return util.GetModelMaterials(modelName) or {}
     end
 
-    local names = {}
+    -- The engine already knows the model's materials. NikNaks.ModelMaterials extracts every
+    -- mesh of the model (util.GetModelMeshes) to find them: tens of ms for a character.
+    local names = ent:GetMaterials()
+    if names and #names > 0 then return names end
+
+    names = {}
     if NikNaks and NikNaks.ModelMaterials then
         for _, mat in pairs(NikNaks.ModelMaterials(modelName) or {}) do
             if mat and mat.GetName then
@@ -2767,30 +2777,43 @@ local function GetModelMaterialNames(modelName)
     return names
 end
 
+-- Each inspection reads the raw VMT over the GAME path (about 1-3.5 ms with this many
+-- mounted addons), and a map load or a big spawn brings hundreds at once, so inspections
+-- are queued and drained a little each frame instead of in one burst.
+local chromeQueue, chromeQueueHead = {}, 1
+
 timer.Create("RemixCategoryManager_ChromeScan", 1, 0, function()
     local processor = MaterialPipeline and MaterialPipeline.ToPBR
     if not (processor and processor.RegisterChromeMaterial) then return end
 
-    local newMaterials
     for _, ent in ipairs(ents.GetAll()) do
         local model = IsValid(ent) and ent:GetModel()
         if model and model ~= "" and not chromeScannedModels[model] then
             chromeScannedModels[model] = true
-            local modelMats = GetModelMaterialNames(model)
+            local modelMats = GetModelMaterialNames(ent, model)
             if cvar_debug_categorization:GetBool() then
                 MsgC(Color(200, 200, 200), string.format(
                     "[RemixCategoryManager] Chrome scan: model '%s' has %d materials\n",
                     model, #modelMats))
             end
             for _, matName in ipairs(modelMats) do
-                newMaterials = newMaterials or {}
-                table.insert(newMaterials, matName)
+                chromeQueue[#chromeQueue + 1] = matName
             end
         end
     end
+end)
 
-    if newMaterials then
-        RemixCategoryManager.ProcessChromeMaterials(newMaterials)
+hook.Add("Think", "RemixCategoryManager_ChromeDrain", function()
+    if chromeQueueHead > #chromeQueue then return end
+    local deadline = SysTime() + 0.002
+    local batch = {}
+    while chromeQueueHead <= #chromeQueue and SysTime() < deadline do
+        batch[1] = chromeQueue[chromeQueueHead]
+        chromeQueueHead = chromeQueueHead + 1
+        RemixCategoryManager.ProcessChromeMaterials(batch)
+    end
+    if chromeQueueHead > #chromeQueue then
+        chromeQueue, chromeQueueHead = {}, 1
     end
 end)
 

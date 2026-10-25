@@ -1,6 +1,7 @@
 #ifdef _WIN64
 #include "remixapi.h"
 #include <tier0/dbg.h>
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <algorithm>
@@ -43,8 +44,10 @@ LUA_FUNCTION(RemixAtmosphere_SetSkyMode) {
 LUA_FUNCTION(RemixAtmosphere_GetSkyMode) {
     auto& cfg = RemixAPI::Instance().GetConfigManager();
     std::string val = cfg.GetConfigVariable("rtx.skyMode");
-    if (val.empty()) val = "0";
-    LUA->PushNumber(std::stod(val));
+    // Config text can hold anything; std::stod would throw through the Lua call.
+    char* end = nullptr;
+    const double mode = std::strtod(val.c_str(), &end);
+    LUA->PushNumber(end != val.c_str() ? mode : 0.0);
     return 1;
 }
 

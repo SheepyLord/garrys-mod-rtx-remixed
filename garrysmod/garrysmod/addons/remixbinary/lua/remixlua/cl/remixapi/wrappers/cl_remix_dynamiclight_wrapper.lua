@@ -371,8 +371,11 @@ end
 function DynamicLight(index, fallbackIndex)
     -- Call original function
     local dlight = OriginalDynamicLight(index, fallbackIndex)
-    
-    if not dlight then return dlight end
+
+    -- While inactive (e.g. rtx_lightupdater owns the lights) UpdateRTXFromDynamicLight does
+    -- nothing, so hand back the engine light itself: the proxy below costs a table, a
+    -- metatable and two closures per call, and effects call DynamicLight every frame.
+    if not dlight or not IsWrapperActive() then return dlight end
     
     -- Store original metatable methods
     local originalIndex = dlight.__index

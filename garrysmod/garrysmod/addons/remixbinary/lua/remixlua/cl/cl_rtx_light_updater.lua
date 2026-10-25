@@ -959,8 +959,43 @@ local function UpdateDynamicLightPositions()
 	end
 end
 
--- Stateless, per-frame rendering of helper models
-local function RenderLightUpdaters()
+-- One persistent helper model per light, drawn only from the hook below. render.Model()
+-- without an entity creates a ClientsideModel and removes it again on every call, so each
+-- light ran every OnEntityCreated/EntityRemoved listener (and the timers they start) every
+-- frame. Each light keeps its own entity, so the engine still lights each one at its own spot.
+local helpers = {}
+-- Position last given to each helper. Comparing against this instead of helper:GetPos() avoids
+-- a new Vector per light per frame (the hook's main source of garbage).
+local helperPos = {}
+
+local function ReleaseHelpers()
+    for id, helper in pairs(helpers) do
+        if IsValid(helper) then helper:Remove() end
+        helpers[id] = nil
+        helperPos[id] = nil
+    end
+end
+
+local function GetHelper(light_id, pos)
+    local helper = helpers[light_id]
+    if not IsValid(helper) then
+        helper = ClientsideModel("models/editor/cone_helper.mdl", RENDERGROUP_OTHER)
+        if not IsValid(helper) then return nil end
+        helper:SetNoDraw(true)
+        helper:SetAngles(zero_angle)
+        helpers[light_id] = helper
+        helperPos[light_id] = nil
+    end
+    if helperPos[light_id] ~= pos then
+        helper:SetPos(pos)
+        helperPos[light_id] = pos
+    end
+    return helper
+end
+
+-- Per-frame rendering of helper models
+local function RenderLightUpdaters(bDrawingDepth, bDrawingSkybox)
+    if bDrawingDepth or bDrawingSkybox then return end
     if not updatelights:GetBool() or not known_lights then return end
     -- Ensure lights are initialized
     if not InitializeLights() then return end
@@ -969,12 +1004,21 @@ local function RenderLightUpdaters()
     local prevBlend = render.GetBlend()
     render.SetColorModulation(1, 1, 1)
     render.SetBlend(alpha)
-    for _, light_data in pairs(known_lights) do
-        render.Model({ model = "models/editor/cone_helper.mdl", pos = light_data.pos, angle = zero_angle })
+    for light_id, light_data in pairs(known_lights) do
+        local helper = GetHelper(light_id, light_data.pos)
+        if helper then helper:DrawModel() end
     end
     render.SetBlend(prevBlend or 1)
     if prevR and prevG and prevB then
         render.SetColorModulation(prevR, prevG, prevB)
+    end
+    -- Lights that were removed or recalculated under a new id
+    for id, helper in pairs(helpers) do
+        if not known_lights[id] then
+            if IsValid(helper) then helper:Remove() end
+            helpers[id] = nil
+            helperPos[id] = nil
+        end
     end
 end
 
@@ -1189,6 +1233,7 @@ end
 -- Cleanup on disconnect/shutdown
 local function Cleanup()
 	CleanupModel()
+	ReleaseHelpers()
 	-- Reset force move cvar on cleanup
 	forcemove:SetBool(false)
 	-- Reset dynamic scan timer
@@ -1235,6 +1280,7 @@ end
 
 local function EvaluateOptionalHooks()
 	local enabled = updatelights:GetBool()
+	if not enabled then ReleaseHelpers() end
 
 	-- Optional/non-core hooks
 	ToggleHook(enabled and dynamicupdate:GetBool(), "Think", "RTXReady_DynamicLightUpdater", UpdateDynamicLightPositions)
@@ -1254,6 +1300,7 @@ hook.Add( "OnEntityCreated", "RTXReady_MapCheck", function(ent)
 	-- Reset when worldspawn is created (new map)
 	if ent:GetClass() == "worldspawn" then
 		CleanupModel()
+		ReleaseHelpers()
 	end
 end)
 

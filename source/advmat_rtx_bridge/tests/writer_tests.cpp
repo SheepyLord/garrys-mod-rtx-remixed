@@ -1127,7 +1127,8 @@ int main() {
     assert(anisotropyLayer.find("asset inputs:anisotropy_texture") != std::string::npos);
     assert(anisotropyLayer.find("tangent_texture") == std::string::npos);
 
-    // RTX Remix 1.5.2's AperturePBR_Opacity contract. Exercise every texture
+    // RTX Remix 1.5.2's AperturePBR_Opacity contract, unchanged in 1.6.1 (which
+    // only appends the DLSS control-mask inputs). Exercise every texture
     // role and subsurface constant together so the unique-role bound, USDA
     // input names, and MDL-declared colour spaces cannot drift independently.
     assert(kTextureRoleCount == 11);

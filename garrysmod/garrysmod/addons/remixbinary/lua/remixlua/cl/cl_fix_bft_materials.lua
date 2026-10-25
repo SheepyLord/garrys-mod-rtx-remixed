@@ -163,7 +163,14 @@ end
 -- Combined Material Processing
 -- =========================================================================
 
+-- Fixes edit the shared IMaterial, so each path needs it once; every spawned entity runs this
+-- for each of its materials (cleared on map load in case materials were reloaded).
+local fixedMaterialPaths = {}
+hook.Add("InitPostEntity", "RTX_FixBFTMaterials_ResetCache", function() fixedMaterialPaths = {} end)
+
 local function ProcessBFTMaterial(matPath)
+    if fixedMaterialPaths[matPath] then return end
+    fixedMaterialPaths[matPath] = true
     local mat = Material(matPath)
     if mat:IsError() then return end
     

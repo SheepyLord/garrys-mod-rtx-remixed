@@ -474,7 +474,9 @@ end
 -- Hook: Entity created
 hook.Add("OnEntityCreated", "RTXLightWrapper_EntityCreated", function(ent)
     if not cv_enabled:GetBool() then return end
-    
+    -- The class is set on creation; only light classes are wrapped, so no timer for anything else.
+    if not WRAPPABLE_CLASSES[ent:GetClass()] then return end
+
     -- Delay slightly to ensure entity is fully initialized
     timer.Simple(0.1, function()
         if IsValid(ent) and WRAPPABLE_CLASSES[ent:GetClass()] then

@@ -5,8 +5,8 @@
 
 namespace RemixAPI {
 
-// Some RTX Option defaults extracted from public/include/remix/rtx_options.h
-// This table contains the default values from each RTX_OPTION declaration
+// RTX option defaults of the runtime the module targets (dxvk-remix-gmod gmod-1.6.1),
+// taken from its generated RtxOptions.md.
 inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = {
     // Core RTX settings
     {"rtx.showRaytracingOption", "True"},
@@ -16,19 +16,7 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     {"rtx.skipDrawCallsPostRTXInjection", "False"},
     {"rtx.dlssPreset", "1"}, // On
     {"rtx.nisPreset", "1"}, // Balanced  
-    {"rtx.taauPreset", "1"}, // Balanced
-    {"rtx.xessProfile", "2"}, // Balanced
-    {"rtx.xessNetworkModel", "0"}, // KPSS
-    {"rtx.xessAutoExposureMode", "2"}, // UseXeSS
-    {"rtx.xessJitterScale", "1.0"},
-    {"rtx.xessUseOptimizedJitter", "True"},
-    {"rtx.xessAutoExposureJitterDamping", "0.85"},
-    {"rtx.xessAutoExposureTemporalOptimization", "True"},
-    {"rtx.xessUseJitteredMotionVectors", "False"},
-    {"rtx.xessForceInvertedDepth", "False"},
-    {"rtx.xessForceLDRInput", "False"},
-    {"rtx.xessForceHighResMotionVectors", "False"},
-    {"rtx.xessEnableMotionVectorDebug", "False"},
+    {"rtx.taauPreset", "2"},
     {"rtx.graphicsPreset", "5"}, // Auto
     {"rtx.raytraceModePreset", "1"}, // Auto
     {"rtx.emissiveIntensity", "1.0"},
@@ -73,7 +61,7 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     {"rtx.playerModel.intersectionCapsuleHeight", "68.0"},
 
     // Displacement
-    {"rtx.displacement.mode", "1"}, // QuadtreePOM
+    {"rtx.displacement.mode", "2"},
     {"rtx.displacement.enableDirectLighting", "True"},
     {"rtx.displacement.enableIndirectLighting", "True"},
     {"rtx.displacement.enableNEECache", "True"},
@@ -104,7 +92,7 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
 
     // Lighting & integration
     {"rtx.useRTXDI", "True"},
-    {"rtx.integrateIndirectMode", "2"}, // NeuralRadianceCache
+    {"rtx.integrateIndirectMode", "3"},
     {"rtx.upscalerType", "1"}, // DLSS
     {"rtx.enableRayReconstruction", "True"},
     {"rtx.lowMemoryGpu", "False"},
@@ -120,15 +108,14 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     // UI
     {"rtx.showUI", "0"}, // None
     {"rtx.defaultToAdvancedUI", "False"},
-    {"rtx.showRayReconstructionUI", "True"},
     {"rtx.showUICursor", "True"},
     {"rtx.blockInputToGameInUI", "True"},
-    {"rtx.qualityDLSS", "2"}, // Auto
+    {"rtx.qualityDLSS", "4"},
 
     // Render passes
     {"rtx.renderPassGBufferRaytraceMode", "0"}, // RayQuery
     {"rtx.renderPassIntegrateDirectRaytraceMode", "0"}, // RayQuery  
-    {"rtx.renderPassIntegrateIndirectRaytraceMode", "1"}, // TraceRay
+    {"rtx.renderPassIntegrateIndirectRaytraceMode", "2"},
     {"rtx.captureDebugImage", "False"},
 
     // Denoising
@@ -260,8 +247,6 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     // Materials & textures
     {"rtx.useWhiteMaterialMode", "False"},
     {"rtx.useHighlightLegacyMode", "False"},
-    {"rtx.useHighlightUnsafeAnchorMode", "False"},
-    {"rtx.useHighlightUnsafeReplacementMode", "False"},
     {"rtx.nativeMipBias", "0.0"},
     {"rtx.upscalingMipBias", "0.0"},
     {"rtx.useAnisotropicFiltering", "True"},
@@ -282,7 +267,7 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
 
     // Aliasing
     {"rtx.aliasing.beginPass", "0"}, // FrameBegin
-    {"rtx.aliasing.endPass", "16"}, // FrameEnd  
+    {"rtx.aliasing.endPass", "42"},
     {"rtx.aliasing.width", "1280"},
     {"rtx.aliasing.height", "720"},
     {"rtx.aliasing.depth", "1"},
@@ -318,9 +303,6 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     {"rtx.usePartialDdsLoader", "True"},
 
     // Tonemapping
-    {"rtx.tonemappingMode", "1"}, // Local
-    {"rtx.useLegacyACES", "True"},
-    {"rtx.showLegacyACESOption", "False"},
 
     // Capture
     {"rtx.captureShowMenuOnHotkey", "True"},
@@ -351,11 +333,6 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     {"rtx.skyAutoDetectUniqueCameraDistance", "1.0"},
     {"rtx.skyReprojectToMainCameraSpace", "False"},
     {"rtx.skyReprojectScale", "16.0"},
-    {"rtx.skyReprojectCameraTimeoutFrames", "60"},
-    {"rtx.skyReprojectFallbackToRaster", "True"},
-    {"rtx.skyReprojectLogFallbacks", "True"},
-    {"rtx.skyReprojectPreventCameraConflicts", "True"},
-    {"rtx.skyReprojectCameraSignatureFrames", "10"},
     {"rtx.logLegacyHashReplacementMatches", "False"},
     {"rtx.fusedWorldViewMode", "0"}, // None
     {"rtx.useBuffersDirectly", "True"},
@@ -363,8 +340,6 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     {"rtx.ignoreLastTextureStage", "False"},
     {"rtx.terrain.terrainAsDecalsEnabledIfNoBaker", "False"},
     {"rtx.terrain.terrainAsDecalsAllowOverModulate", "False"},
-    {"rtx.userBrightness", "50"},
-    {"rtx.userBrightnessEVRange", "3.0"},
 
     // Automation
     {"rtx.automation.disableBlockingDialogBoxes", "False"},
@@ -376,7 +351,7 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
     // Core volumetrics
     {"rtx.volumetrics.enable", "True"},
     {"rtx.volumetrics.enableAtmosphere", "False"},
-    {"rtx.volumetrics.anisotropy", "0.5"},
+    {"rtx.volumetrics.anisotropy", "0.05"},
     {"rtx.volumetrics.depthOffset", "0.5"},
 
     // Atmosphere
@@ -386,96 +361,59 @@ inline const std::unordered_map<std::string, std::string> RTX_OPTION_DEFAULTS = 
 
     // Fog remapping  
     {"rtx.volumetrics.enableFogRemap", "False"},
-    {"rtx.volumetrics.fogRemapMode", "0"},
-    {"rtx.volumetrics.fogRemapMaxDistanceMin", "0.0"},
-    {"rtx.volumetrics.fogRemapMaxDistanceMax", "1000.0"},
-    {"rtx.volumetrics.fogRemapTransmittanceColorMin", "0.0, 0.0, 0.0"},
-    {"rtx.volumetrics.fogRemapTransmittanceColorMax", "1.0, 1.0, 1.0"},
-    {"rtx.volumetrics.fogRemapScatteringAlbedoMin", "0.0, 0.0, 0.0"},
-    {"rtx.volumetrics.fogRemapScatteringAlbedoMax", "1.0, 1.0, 1.0"},
 
     // Heterogeneous fog
     {"rtx.volumetrics.enableHeterogeneousFog", "False"},
-    {"rtx.volumetrics.heterogeneousFogDensityScale", "1.0"},
-    {"rtx.volumetrics.heterogeneousFogNoiseFrequency", "1.0"},
-    {"rtx.volumetrics.heterogeneousFogNoiseTimeScale", "1.0"},
-    {"rtx.volumetrics.heterogeneousFogNoiseOctaves", "3"},
-    {"rtx.volumetrics.heterogeneousFogNoiseLacunarity", "2.0"},
-    {"rtx.volumetrics.heterogeneousFogNoiseGain", "0.5"},
-    {"rtx.volumetrics.heterogeneousFogNoiseOffset", "0.0, 0.0, 0.0"},
-    {"rtx.volumetrics.heterogeneousFogNoiseInvert", "False"},
 
     // Single scattering
-    {"rtx.volumetrics.singleScatteringAlbedo", "1.0, 1.0, 1.0"},
-    {"rtx.volumetrics.singleScatteringVolumetricAnisotropy", "0.0"},
-    {"rtx.volumetrics.singleScatteringExtinctionCoefficient", "1.0, 1.0, 1.0"},
+    {"rtx.volumetrics.singleScatteringAlbedo", "0.999, 0.999, 0.999"},
 
     // Multi scattering
-    {"rtx.volumetrics.multiScatteringAlbedo", "1.0, 1.0, 1.0"},
-    {"rtx.volumetrics.multiScatteringVolumetricAnisotropy", "0.0"},
-    {"rtx.volumetrics.multiScatteringExtinctionCoefficient", "1.0, 1.0, 1.0"},
 
     // Isotropic
-    {"rtx.volumetrics.isotropicAlbedo", "1.0, 1.0, 1.0"},
-    {"rtx.volumetrics.isotropicExtinctionCoefficient", "1.0, 1.0, 1.0"},
 
     // Transmittance
-    {"rtx.volumetrics.transmittanceColor", "1.0, 1.0, 1.0"},
-    {"rtx.volumetrics.transmittanceMeasurementDistance", "1000.0"},
+    {"rtx.volumetrics.transmittanceColor", "0.995, 0.995, 0.995"},
 
     // Froxel grid
-    {"rtx.volumetrics.froxelMaxDistanceMeters", "100.0"},
+    {"rtx.volumetrics.froxelMaxDistanceMeters", "20.0"},
     {"rtx.volumetrics.froxelDepthSlices", "64"},
     {"rtx.volumetrics.froxelDepthSliceDistributionExponent", "2.0"},
     {"rtx.volumetrics.froxelFireflyFilteringLuminanceThreshold", "1000.0"},
 
     // Chromaticity
-    {"rtx.volumetrics.enableChromaticity", "False"},
-    {"rtx.volumetrics.chromaticityRedShift", "0.0"},
-    {"rtx.volumetrics.chromaticityGreenShift", "0.0"},
-    {"rtx.volumetrics.chromaticityBlueShift", "0.0"},
 
     // Advanced volumetrics
-    {"rtx.volumetrics.enableTemporalReuse", "True"},
-    {"rtx.volumetrics.enablePortalVolumes", "True"},
-    {"rtx.volumetrics.enableVolumetricLighting", "True"},
-    {"rtx.volumetrics.volumetricInitialRISCandidateCount", "8"},
-    {"rtx.volumetrics.volumetricInitialRayTMax", "1000.0"},
 
     // Auto exposure
     {"rtx.autoExposure.enabled", "True"},
-    {"rtx.autoExposure.evMinValue", "-2.0"},
-    {"rtx.autoExposure.evMaxValue", "4.0"},
 
     // Tonemapping 
     {"rtx.tonemap.exposureBias", "0.0"},
-    {"rtx.tonemap.dynamicRange", "15.0"},
 
     // Post-processing
     {"rtx.bloom.enable", "True"},
     {"rtx.bloom.burnIntensity", "1.0"},
     {"rtx.postfx.enable", "True"},
-    {"rtx.enableFog", "False"},
+    {"rtx.enableFog", "True"},
 
     {"rtx.skyMode", "0"},
-    {"rtx.atmosphere.sunDisc", "True"},
     {"rtx.atmosphere.sunSize", "0.545"},
     {"rtx.atmosphere.sunIntensity", "1.0"},
     {"rtx.atmosphere.sunElevation", "15.0"},
     {"rtx.atmosphere.sunRotation", "0.0"},
-    {"rtx.atmosphere.altitude", "100.0"},
     {"rtx.atmosphere.airDensity", "1.0"},
-    {"rtx.atmosphere.aerosolDensity", "1.0"},
+    {"rtx.atmosphere.aerosolDensity", "1.1"},
     {"rtx.atmosphere.ozoneDensity", "1.0"},
     {"rtx.atmosphere.planetRadius", "6371.0"},
     {"rtx.atmosphere.atmosphereThickness", "100.0"},
     {"rtx.atmosphere.mieAnisotropy", "0.97"},
-    {"rtx.atmosphere.rayleighScattering", "0.0058, 0.0135, 0.0331"},
+    {"rtx.atmosphere.rayleighScattering", "0.005802, 0.013558, 0.0331"},
     {"rtx.atmosphere.mieScattering", "0.003996, 0.003996, 0.003996"},
-    {"rtx.atmosphere.ozoneAbsorption", "0.00204, 0.00497, 0.000214"},
+    {"rtx.atmosphere.ozoneAbsorption", "0.00065, 0.001881, 8.5e-05"},
     {"rtx.atmosphere.ozoneLayerAltitude", "25.0"},
     {"rtx.atmosphere.ozoneLayerWidth", "15.0"},
-    {"rtx.atmosphere.sunIlluminance", "20.0, 20.0, 20.0"}
+    {"rtx.atmosphere.sunIlluminance", "15.0, 15.0, 15.0"},
 };
 
 } // namespace RemixAPI 

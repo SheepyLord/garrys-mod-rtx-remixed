@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2025, NVIDIA CORPORATION. All rights reserved.
+ * Copyright (c) 2023-2026, NVIDIA CORPORATION. All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
  * copy of this software and associated documentation files (the "Software"),
@@ -38,14 +38,18 @@
 
 
 // __stdcall convention
-#define REMIXAPI_CALL __stdcall
+#ifndef REMIXAPI_CALL
+  #define REMIXAPI_CALL __stdcall
+#endif
 #define REMIXAPI_PTR  REMIXAPI_CALL
 
-#ifdef REMIX_LIBRARY_EXPORTS
-  #define REMIXAPI __declspec(dllexport)
-#else
-  #define REMIXAPI __declspec(dllimport)
-#endif // REMIX_LIBRARY_EXPORTS
+#ifndef REMIXAPI
+  #ifdef REMIX_LIBRARY_EXPORTS
+    #define REMIXAPI __declspec(dllexport)
+  #else
+    #define REMIXAPI __declspec(dllimport)
+  #endif
+#endif // REMIXAPI
 
 
 #define REMIXAPI_VERSION_MAKE(major, minor, patch) ( \
@@ -63,8 +67,12 @@
 // the struct layout and category-bit ABI differ. Bump MINOR again on any
 // further breaking ABI change.
 #define REMIXAPI_VERSION_MAJOR 0
+// PATCH 1 merges upstream RTX Remix 1.6.1 (API 0.6.5): the DLSS control mask
+// fields appended to remixapi_MaterialInfoOpaqueEXT. Like upstream, the runtime
+// reads them only from clients at 0.1000.1 or newer, so 0.1000.0 clients keep
+// working.
 #define REMIXAPI_VERSION_MINOR 1000
-#define REMIXAPI_VERSION_PATCH 0
+#define REMIXAPI_VERSION_PATCH 1
 
 
 // External
@@ -226,6 +234,11 @@ extern "C" {
     // Default: false. Use VkSwapchainKHR to present frame into HWND.
     remixapi_Bool       forceNoVkSwapchain;
     remixapi_Bool       editorModeEnabled;
+    // With this disabled, the user must fetch the GUI buffer using 
+    // the, remixapi_dxvk_CopyRenderingOutputType, api with the, 
+    // remixapi_dxvk_CopyRenderingOutputType, field set to: 'REMIXAPI_DXVK_COPY_RENDERING_OUTPUT_TYPE_GUI'
+    // Otherwise the GUI will be drawn in the final color buffer.
+    remixapi_Bool       combineGuiInFinalColor;
   } remixapi_StartupInfo;
 
   typedef remixapi_ErrorCode(REMIXAPI_PTR* PFN_remixapi_Startup)(const remixapi_StartupInfo* info);
@@ -256,6 +269,10 @@ extern "C" {
     int                 alphaTestType;
     uint8_t             alphaReferenceValue;
     float               displaceOut;
+    remixapi_Bool       enableDlssControlMask;
+    float               dlssControlMaskIntensity;
+    float               dlssControlMaskToneStrength;
+    float               dlssControlMaskStructuralStrength;
   } remixapi_MaterialInfoOpaqueEXT;
 
   // Valid only if remixapi_MaterialInfo contains remixapi_MaterialInfoOpaqueEXT in pNext chain
@@ -500,10 +517,13 @@ extern "C" {
     REMIXAPI_INSTANCE_CATEGORY_BIT_THIRD_PERSON_PLAYER_BODY  = 1 << 19,
     REMIXAPI_INSTANCE_CATEGORY_BIT_IGNORE_BAKED_LIGHTING     = 1 << 20,
     REMIXAPI_INSTANCE_CATEGORY_BIT_IGNORE_ALPHA_CHANNEL      = 1 << 21,
+    // Deprecated. Reserved for API compatibility and ignored by the runtime.
     REMIXAPI_INSTANCE_CATEGORY_BIT_IGNORE_TRANSPARENCY_LAYER = 1 << 22,
     REMIXAPI_INSTANCE_CATEGORY_BIT_PARTICLE_EMITTER          = 1 << 23,
     REMIXAPI_INSTANCE_CATEGORY_BIT_SMOOTH_NORMALS            = 1 << 24,
-    REMIXAPI_INSTANCE_CATEGORY_BIT_LEGACY_EMISSIVE           = 1 << 25,
+    REMIXAPI_INSTANCE_CATEGORY_BIT_HAIR_CARDS                = 1 << 25,
+    REMIXAPI_INSTANCE_CATEGORY_BIT_VIEW_MODEL                = 1 << 26,
+    REMIXAPI_INSTANCE_CATEGORY_BIT_LEGACY_EMISSIVE           = 1 << 27,
   } remixapi_InstanceCategoryBit;
 
   typedef uint32_t remixapi_InstanceCategoryFlags;
@@ -726,6 +746,9 @@ extern "C" {
     remixapi_LightHandle      lightHandle);
 
 
+  // Writes an RtxOption value to the user layer. Keys in a registered dynamic option namespace are
+  // validated immediately and applied at the next frame's option update. Returns INVALID_ARGUMENTS for an
+  // invalid key or value, GENERAL_FAILURE for an unknown key. See documentation/RemixConfig.md.
   typedef remixapi_ErrorCode(REMIXAPI_PTR* PFN_remixapi_SetConfigVariable)(
     const char*               key,
     const char*               value);
@@ -894,6 +917,7 @@ extern "C" {
     REMIXAPI_DXVK_COPY_RENDERING_OUTPUT_TYPE_DEPTH = 1,
     REMIXAPI_DXVK_COPY_RENDERING_OUTPUT_TYPE_NORMALS = 2,
     REMIXAPI_DXVK_COPY_RENDERING_OUTPUT_TYPE_OBJECT_PICKING = 3,
+    REMIXAPI_DXVK_COPY_RENDERING_OUTPUT_TYPE_GUI = 4,
   } remixapi_dxvk_CopyRenderingOutputType;
 
   typedef remixapi_ErrorCode(REMIXAPI_PTR* PFN_remixapi_dxvk_CopyRenderingOutput)(

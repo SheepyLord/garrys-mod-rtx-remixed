@@ -11,8 +11,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\null-bumpmap_normal.dds@ (
@@ -46,8 +46,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\plaster_plasterwall022c_normal_normal.dds@ (
@@ -64,8 +64,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\brick_brickwall003a_normal_normal.dds@ (
@@ -80,8 +80,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007b_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -93,8 +93,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\plaster_plasterwall017c_normal_normal.dds@ (
@@ -111,8 +111,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\maxofs2d_models_companion_doll_normal_normal.dds@ (
@@ -129,8 +129,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_c17_furniturewooddrawers001a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -142,8 +142,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\null-bumpmap_normal.dds@ (
@@ -160,8 +160,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.132149
                 float inputs:metallic_constant = 0
             }
@@ -171,8 +171,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template010b_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -184,8 +184,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_c17_furniturecupboard001a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -216,8 +216,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_c17_furnituretable003a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -229,8 +229,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_c17_furniturecouch002a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -242,8 +242,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_physcannon_v_superphyscannon_normal_normal.dds@ (
@@ -260,8 +260,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_c_arms_citizen_c_arms_citizen_sleeves_normal_normal.dds@ (
@@ -297,8 +297,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_buildings_long_building001a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -310,8 +310,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_c_arms_citizen_c_arms_citizen_hands_normal_normal.dds@ (
@@ -328,8 +328,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_kleiner_walter_face_normal_normal.dds@ (
@@ -346,8 +346,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_buildings_short_building001a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -359,8 +359,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_kleiner_kleiner_sheet_normal_normal.dds@ (
@@ -377,8 +377,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.05
                 float inputs:metallic_constant = 0
             }
@@ -388,8 +388,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template006b_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -401,8 +401,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_kleiner_glassessidemask_walter_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -414,8 +414,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_kleiner_glassesfrontmask_walter_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -427,8 +427,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007j_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -440,8 +440,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_buildings_project_building03_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -453,8 +453,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_buildings_buildingsheet_03a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -466,8 +466,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_buildings_project_building01_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -479,8 +479,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template010c_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -492,8 +492,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_interiors_sinkkitchen01a_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -505,8 +505,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\concrete_concretefloor028a_normal_normal.dds@ (
@@ -542,8 +542,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\gm_construct_construct_concrete_ground_normal_normal.dds@ (
@@ -558,8 +558,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\metal_metalpipe003a_normal_normal.dds@ (
@@ -574,8 +574,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007h_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -587,8 +587,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template010g_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -619,8 +619,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007m_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -632,8 +632,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007i_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -645,8 +645,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\building_template_roof_template001a_normal_normal.dds@ (
@@ -680,8 +680,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\concrete_concretefloor025a_normal_normal.dds@ (
@@ -696,8 +696,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007c_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -709,8 +709,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template007d_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -722,8 +722,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\gm_construct_construct_concrete_floor_normal_normal.dds@ (
@@ -757,8 +757,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\plaster_plasterceiling005a_normal_normal.dds@ (
@@ -773,8 +773,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\building_template_building_template003a_normal_normal.dds@ (
@@ -808,8 +808,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\building_template_building_template013h_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -821,8 +821,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\concrete_concretefloor039a_normal_normal.dds@ (
@@ -1238,8 +1238,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\concrete_concretefloor028c_normal_normal.dds@ (
@@ -1256,8 +1256,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.05
                 float inputs:metallic_constant = 0
             }
@@ -1267,8 +1267,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_crowbar_head_normal_normal.dds@ (
@@ -1285,8 +1285,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_crowbar_crowbar_normal_normal.dds@ (
@@ -1303,8 +1303,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.05
                 float inputs:metallic_constant = 0
             }
@@ -1314,8 +1314,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_physcannon_v_physcannon_normal_normal.dds@ (
@@ -1332,8 +1332,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.58566
                 float inputs:metallic_constant = 0
             }
@@ -1343,8 +1343,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_irifle_v_irifle_normal_normal.dds@ (
@@ -1361,8 +1361,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_weapons_v_357_357_sheet_roughness.dds@ (
                     colorSpace = "raw"
                 )
@@ -1374,8 +1374,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_pistol_v_pistol_sheet_normal_normal.dds@ (
@@ -1392,8 +1392,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_shotgun_vshotgun_normal_normal.dds@ (
@@ -1410,8 +1410,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.0525578
                 float inputs:metallic_constant = 0
             }
@@ -1421,8 +1421,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_smg1_smg1_normal_normal.dds@ (
@@ -1439,8 +1439,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.44285
                 float inputs:metallic_constant = 0
             }
@@ -1450,8 +1450,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_crossbow_string_normal_normal.dds@ (
@@ -1466,8 +1466,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_grenade_top_normal_normal.dds@ (
@@ -1484,8 +1484,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.58566
                 float inputs:metallic_constant = 0
             }
@@ -1495,8 +1495,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_grenade_rim_normal_normal.dds@ (
@@ -1513,8 +1513,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_grenade_handle_normal_normal.dds@ (
@@ -1531,8 +1531,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 bool inputs:preload_textures = 1
                 int inputs:encoding = 0
                 asset inputs:normalmap_texture = @./textures\models_weapons_v_rocket_launcher_flat_normal_normal.dds@ (
@@ -1549,8 +1549,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 float inputs:reflection_roughness_constant = 0.383982
                 float inputs:metallic_constant = 0
             }
@@ -1560,8 +1560,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_weapons_v_toolgun_toolgun_exp_phongexp_roughness_v2.dds@ (
                     colorSpace = "raw"
                 )
@@ -1573,8 +1573,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_weapons_v_toolgun_toolgun3_exp_phongexp_roughness_v2.dds@ (
                     colorSpace = "raw"
                 )
@@ -1586,8 +1586,8 @@ over "RootNode"
         {
             over "Shader"
             {
-                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@
-                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opaque"
+                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@
+                uniform token info:mdl:sourceAsset:subIdentifier = "AperturePBR_Opacity"
                 asset inputs:reflectionroughness_texture = @./textures\models_props_buildings_buildingsheet_03a_roughness.dds@ (
                     colorSpace = "raw"
                 )

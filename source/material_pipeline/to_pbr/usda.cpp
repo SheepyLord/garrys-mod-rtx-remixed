@@ -287,9 +287,10 @@ void WriteOpaqueMaterial(std::ostream& stream,
     stream << "            over \"Shader\"\n";
     stream << "            {\n";
     
-    // Standard opaque materials use AperturePBR_Opaque shader
-    stream << "                uniform asset info:mdl:sourceAsset = @AperturePBR_Opaque.mdl@\n";
-    stream << "                uniform token info:mdl:sourceAsset:subIdentifier = \"AperturePBR_Opaque\"\n";
+    // Standard opaque materials use Remix's AperturePBR_Opacity shader (an earlier
+    // "AperturePBR_Opaque" name matched no MDL; the runtime only fell back to opaque)
+    stream << "                uniform asset info:mdl:sourceAsset = @AperturePBR_Opacity.mdl@\n";
+    stream << "                uniform token info:mdl:sourceAsset:subIdentifier = \"AperturePBR_Opacity\"\n";
 
     // Remix associates auxiliary opaque textures with the replacement
     // albedo's sampler-feedback stamp. Most ToPBR materials intentionally

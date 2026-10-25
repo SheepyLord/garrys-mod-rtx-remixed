@@ -27,6 +27,11 @@
 - Select `Start Quick Install` on the main screen and follow the prompts when asked.
 - Once it's finished, press `Launch Game` at the bottom of the launcher.
 
+## RTX Remix version
+The runtime is [SheepyLord/dxvk-remix-gmod](https://github.com/SheepyLord/dxvk-remix-gmod) (branch `gmod-1.6.1`): the Garry's Mod Remix fork with [RTX Remix 1.6.1](https://github.com/NVIDIAGameWorks/rtx-remix/releases/tag/remix-1.6.1) merged in.
+The binary module uses that fork's API extensions and versioning (`0.1000.1`), so stock NVIDIA runtimes reject it. `public/include/remix` holds the runtime's headers.
+RTX Remix 1.6 needs NVIDIA driver 616.92 or newer.
+
 ## Multiplayer
 Multiplayer works best when the server/host has this addon and the cvar `sv_allowcslua 1` set.
 

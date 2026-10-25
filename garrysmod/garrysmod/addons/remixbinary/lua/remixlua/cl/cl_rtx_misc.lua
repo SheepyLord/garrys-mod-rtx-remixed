@@ -95,26 +95,57 @@ cvars.AddChangeCallback("rtx_pseudoweapon", function(convar, oldValue, newValue)
 end, "RTX_PseudoweaponToggle")
 
 -- Entity management
+
+-- DrawFix runs for every draw of every entity (and with r_novis that is every entity on the
+-- map), so it avoids per-draw allocation: Material() is a lookup plus a new userdata each call,
+-- and GetMaterials() builds a table of every material name.
+local overrideMaterials = {}
+local function OverrideMaterial(name)
+    local mat = overrideMaterials[name]
+    if mat == nil then
+        mat = Material(name)
+        overrideMaterials[name] = mat
+    end
+    return mat
+end
+
+-- Sub-material overrides change rarely; the per-entity list is rebuilt twice a second.
+local function SubMaterialOverrides(ent)
+    local now = RealTime()
+    local model = ent:GetModel()
+    local cached = ent.RTXSubMaterialOverrides
+    if cached and now < cached.refresh and cached.model == model then return cached end
+    local list = { refresh = now + 0.5, model = model }
+    for k in pairs(ent:GetMaterials()) do
+        local sub = ent:GetSubMaterial(k - 1)
+        if sub ~= "" then list[#list + 1] = { k - 1, OverrideMaterial(sub) } end
+    end
+    ent.RTXSubMaterialOverrides = list
+    return list
+end
+
 local function DrawFix(self, flags)
     if cv_experimental_manuallight:GetBool() then return end
     render.SuppressEngineLighting(cv_disablevertexlighting:GetBool())
 
     -- Handle material overrides
-    if self:GetMaterial() ~= "" then
-        render.MaterialOverride(Material(self:GetMaterial()))
+    local material = self:GetMaterial()
+    if material ~= "" then
+        render.MaterialOverride(OverrideMaterial(material))
     end
 
     -- Handle submaterials
-    for k, _ in pairs(self:GetMaterials()) do
-        if self:GetSubMaterial(k - 1) ~= "" then
-            render.MaterialOverrideByIndex(k - 1, Material(self:GetSubMaterial(k - 1)))
-        end
+    local subs = SubMaterialOverrides(self)
+    for i = 1, #subs do
+        render.MaterialOverrideByIndex(subs[i][1], subs[i][2])
     end
 
-    -- Draw the model with static lighting (handle nil flags from infmap addon)
-    local drawFlags = (flags or 0) + STUDIO_STATIC_LIGHTING
-    self:DrawModel(drawFlags)
+    -- Draw the model with static lighting (handle nil flags from infmap addon). bor, not +:
+    -- flags that already carry STUDIO_STATIC_LIGHTING (16) would otherwise turn into STUDIO_WIREFRAME (32).
+    self:DrawModel(bit.bor(flags or 0, STUDIO_STATIC_LIGHTING))
     render.MaterialOverride(nil)
+    -- Per-index overrides are global render state: clear them so they do not reach the next entity drawn.
+    if #subs > 0 then render.MaterialOverrideByIndex() end
     render.SuppressEngineLighting(false)
 end
 

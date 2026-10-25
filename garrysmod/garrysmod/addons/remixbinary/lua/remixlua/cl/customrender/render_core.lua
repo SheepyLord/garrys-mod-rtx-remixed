@@ -30,6 +30,10 @@ do
     local lastGCCount = collectgarbage("count")
     local gcCycleCount = 0
     local lastGCStepTime = 0
+    -- Size of the Lua GC step forced at the start of every frame. Whichever step completes a
+    -- collection cycle also runs its atomic phase, which takes milliseconds with a large heap.
+    local gcStepConVar = CreateClientConVar("rtx_rendercore_gc_step", "20", true, false,
+        "Lua GC step forced every frame by the render core (0 = leave collection to Lua's own pacing)")
     
     -- Detailed allocation tracking per component
     local allocTracking = RemixRenderCore._allocTracking or {
@@ -170,10 +174,12 @@ do
         end
         
         -- Run MORE AGGRESSIVE incremental GC
-        local gcStepStart = SysTime()
-        collectgarbage("step", 20)  -- Much larger step size
-        local gcStepTime = SysTime() - gcStepStart
-        lastGCStepTime = gcStepTime
+        local gcStep = gcStepConVar:GetInt()
+        if gcStep > 0 then
+            local gcStepStart = SysTime()
+            collectgarbage("step", gcStep)
+            lastGCStepTime = SysTime() - gcStepStart
+        end
         
         -- Only track if really slow
         -- if gcStepTime > 0.005 then  -- >5ms for GC step

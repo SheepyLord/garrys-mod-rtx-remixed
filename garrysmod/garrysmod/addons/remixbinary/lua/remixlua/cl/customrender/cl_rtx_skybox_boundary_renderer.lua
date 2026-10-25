@@ -168,16 +168,21 @@ local function BuildSkyboxMeshes(cancelToken)
         for _ in pairs(allLeafs) do buildState.total = buildState.total + 1 end
         buildState.processed = 0
 
+        -- A BSP face is listed in every leaf it touches; mesh each one only once.
+        local seenFaces = {}
         for _, leaf in pairs(allLeafs) do
             if cancelToken and cancelToken.cancelled then return end
-            
+
             -- Only process leaves that might have skybox faces (usually outer leaves)
             if leaf then
                 local okFaces, leafFaces = pcall(function() return leaf:GetFaces(true) end)
                 if leafFaces then
                     for _, face in pairs(leafFaces) do
+                        local faceId = face:GetIndex()
+                        local firstTime = faceId < 0 or not seenFaces[faceId]
+                        if faceId >= 0 then seenFaces[faceId] = true end
                         -- THE CORE FILTER LOGIC: Only allow Skybox faces
-                        if IsSkyboxFace(face) then
+                        if firstTime and IsSkyboxFace(face) then
                             local vertices = face:GetVertexs()
                             if vertices and #vertices > 0 then
                                 -- Calculate center for chunking

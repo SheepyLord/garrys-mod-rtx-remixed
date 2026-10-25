@@ -1549,8 +1549,16 @@ LUA_FUNCTION(AutoCat_GetStats) {
 }
 
 LUA_FUNCTION(AutoCat_ExportHashes) {
-    const char* filepath = LUA->GetString(1);
-    int count = MaterialPipeline::AutoCategorisation::ExportHashesToFile(filepath);
+    // Any clientside Lua, including Lua a server sends, can call this, and the file is
+    // opened for writing (truncated). Like file.Write, take a plain file name and write
+    // it under garrysmod/data.
+    LUA->CheckType(1, GarrysMod::Lua::Type::String);
+    const std::string name = LUA->GetString(1);
+    if (name.empty() || name.find_first_of("/\\:") != std::string::npos || name.find("..") != std::string::npos) {
+        LUA->ThrowError("ExportHashes takes a plain file name; it is written to garrysmod/data");
+        return 0;
+    }
+    int count = MaterialPipeline::AutoCategorisation::ExportHashesToFile("garrysmod/data/" + name);
     LUA->PushNumber(count);
     return 1;
 }
