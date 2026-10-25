@@ -180,6 +180,21 @@ class PreparationTests(unittest.TestCase):
         self.assertTrue(no_addons['maps']['gm_fixture']['removed'])
         self.assertTrue(no_addons['maps']['gm_loose']['removed'])
 
+    def test_failed_loose_source_publishes_none_of_its_maps(self):
+        folder = self.addons/'astra_imported'
+        _, loose = package('gm_loose')
+        for relative, raw in loose.items():
+            target = folder/relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(raw)
+        # Listed after the valid package files; its upper-case name fails validation.
+        (folder/'data_static/astra/gm_loose/rtx/zzz_BAD.txt').write_bytes(b'invalid entry')
+        result = self.run_prepare('--source', folder)
+        self.assertFalse(result['ready'], result)
+        self.assertIn('Unsafe loose Astra virtual path', json.dumps(result['errors']))
+        self.assertNotIn('gm_loose', result['maps'], result)
+        self.assertFalse((self.output('gm_loose')/'mod.usda').exists())
+
     def test_nested_discovery_does_not_recurse_or_scan_game_root_archives(self):
         targets = [(self.addons/'astra_imported/deeper/test.gma', 'gm_deep'),
                    (self.root/'garrysmod/cache/workshop/test.gma', 'gm_cache'),

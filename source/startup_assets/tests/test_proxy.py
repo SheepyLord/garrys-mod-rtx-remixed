@@ -65,6 +65,7 @@ def child(root, mode, contract):
     output = ctypes.c_void_p()
     assert create_ex(456, ctypes.byref(output)) == 0 and output.value == 0x200001c8
     assert count() == 2 and json.loads(status()) == first
+    assert first['phase'] == ('prepared' if first.get('ready') else 'failed'), first
     if mode == 'default':
         assert first['maps']['gm_fixture']['ready'], first
         assert first['source_selection'] == 'default_discovery', first

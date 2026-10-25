@@ -93,7 +93,8 @@ void Initialize() noexcept {
                     astra::startup_assets::WorkshopOptions workshop;
                     const auto sources = SelectSources(selection, workshop);
                     result = astra::startup_assets::Prepare(g_gameRoot, sources, workshop);
-                    result["phase"] = "prepared";
+                    // Prepare reports source and map failures in "ready" without throwing.
+                    result["phase"] = result.value("ready", false) ? "prepared" : "failed";
                     result["source_selection"] = selection;
                 } catch (const std::exception& error) {
                     // Remove stale owned packages when an explicit launch

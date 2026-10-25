@@ -273,6 +273,9 @@ void ScanLoose(const fs::path& addon, Inventory& inventory) {
     PlainPath(base);
     if (!Exists(base)) return;
     Need(fs::is_directory(base), "Astra data_static root is not a directory");
+    // Like ScanArchive, publish nothing from this source until all of it validates:
+    // files seen before a failing entry must not let its maps go live.
+    std::vector<std::pair<std::string, Member>> entries;
     std::size_t count = 0;
     for (const auto& entry : fs::recursive_directory_iterator(base)) {
         Need(++count <= kMaxArchiveEntries, "Loose Astra tree exceeds entry bound");
@@ -281,8 +284,9 @@ void ScanLoose(const fs::path& addon, Inventory& inventory) {
         const auto name = entry.path().lexically_relative(addon).generic_string();
         Need(SafeRelative(name), "Unsafe loose Astra virtual path");
         const auto stamp = FileStamp(entry.path());
-        inventory[name].push_back(Member{entry.path(), 0, stamp.at("bytes").get<std::uint64_t>(), std::nullopt, stamp});
+        entries.emplace_back(name, Member{entry.path(), 0, stamp.at("bytes").get<std::uint64_t>(), std::nullopt, stamp});
     }
+    for (auto& entry : entries) inventory[entry.first].push_back(std::move(entry.second));
 }
 
 std::vector<fs::path> ExpandAddonSources(const std::vector<fs::path>& selected, Json& report) {
