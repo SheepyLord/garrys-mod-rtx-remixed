@@ -14,4 +14,8 @@
 	"arc9_breath_pp"		"0"
 	"arc9_breath_sfx"		"1"
 	"arc9_fx_adsblur_bleeding"		"0"
+	"rtx_disablevertexlighting"		"1"
+	"rtx_lightupdater"		"1"
+	"rtx_pseudoplayer_unique_hashes"		"0"
+	"rtx_pseudoweapon_unique_hashes"		"0"
 }
