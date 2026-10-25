@@ -72,3 +72,7 @@ CreateWorkspace({name = "RTXFixesBinary", abi_compatible = false, path = ""})
 
 		filter("system:linux or macosx")
 			files({"source/posix/*.cpp", "source/posix/*.hpp"})
+
+-- The debug module is developed in its own repository at source/debug.
+dofile("source/debug/premake_project.lua")
+CreateRTXDebugProject("source/debug/source", "public/include")

@@ -15,3 +15,6 @@
 [submodule "garrysmod/garrysmod/addons/GMod-Seamless-Portals-Remix"]
 	path = garrysmod/garrysmod/addons/GMod-Seamless-Portals-Remix
 	url = https://github.com/sambow23/GMod-Seamless-Portals-Remix.git
+[submodule "source/debug"]
+	path = source/debug
+	url = https://github.com/SheepyLord/garrys-mod-rtx-debug-module.git
