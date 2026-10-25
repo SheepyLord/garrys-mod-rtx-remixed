@@ -41,7 +41,13 @@ local function ApplyCustomRenderPreset(enable)
     -- Patch out Shader_DrawChains so world surfaces aren't drawn by the engine,
     -- but overlays (OverlayMgr()->RenderOverlays) and decals (DecalSurfaceDraw)
     -- still render because they run after Shader_DrawChains in Shader_WorldEnd.
-    RunConsoleCommand("rtx_patch_skip_world_draw", enable and "1" or "0")
+    -- RemixRenderCore owns the patch and only applies it once the custom world
+    -- renderer has meshes to draw; until it has loaded, the engine draws the world.
+    if RemixRenderCore and RemixRenderCore.SyncWorldDrawPatch then
+        RemixRenderCore.SyncWorldDrawPatch()
+    else
+        RunConsoleCommand("rtx_patch_skip_world_draw", "0")
+    end
 
     -- Engine patches: when custom rendering is on, only keep frustum culling + BSP culling patches
     -- When off, enable all patches since engine rendering needs them for RTX
@@ -90,9 +96,10 @@ local function LoadSubAddons()
             for _, fileName in ipairs(files) do
                 local filePath = folder .. fileName
                 local success, err = pcall(include, filePath)
-                
+
                 if not success then
-                    DebugPrint("[gmRTX] Warning: Failed to load sub-addon: " .. filePath .. " - Error: " .. tostring(err))
+                    -- Always visible: a feature that failed to load is otherwise silently missing.
+                    ErrorNoHalt("[gmRTX] Failed to load sub-addon " .. filePath .. ": " .. tostring(err) .. "\n")
                 else
                     DebugPrint("[gmRTX] Successfully loaded sub-addon: " .. filePath)
                 end
@@ -197,5 +204,5 @@ end)
 
 local patcherOk, patcherErr = pcall(include, "patcher/cl_init.lua")
 if not patcherOk then
-    DebugPrint("[gmRTX] Warning: Failed to load runtime patcher - " .. tostring(patcherErr))
+    ErrorNoHalt("[gmRTX] Failed to load runtime patcher: " .. tostring(patcherErr) .. "\n")
 end

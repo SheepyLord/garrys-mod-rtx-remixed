@@ -13,8 +13,8 @@ table.sort(files)
 for _, fileName in ipairs(files) do
     local path = "patcher/addons/" .. fileName
     local ok, err = pcall(include, path)
-    if not ok and RTXPatcher and RTXPatcher.Debug then
-        RTXPatcher.Debug("failed to include", path, err)
+    if not ok then
+        ErrorNoHalt("[RTXPatcher] Failed to include " .. path .. ": " .. tostring(err) .. "\n")
     end
 end
 

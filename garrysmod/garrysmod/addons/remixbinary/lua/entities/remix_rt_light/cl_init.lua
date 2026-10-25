@@ -559,12 +559,47 @@ hook.Add("HUDPaint", "RemixRTLight_Visualize", function()
     end
 end)
 
-local function onDistantLightCreated()
-    local cv = GetConVar("rtx_api_map_lights_env_brightness_mult")
-    if cv and cv:GetFloat() ~= 0 then
-        RunConsoleCommand("rtx_api_map_lights_env_brightness_mult", "0")
+-- A distant RT light stands in for the map's sun, so map environment lights are
+-- muted while at least one exists. The multiplier it replaced comes back when the
+-- last one goes away: removed, switched to another type, or the game shutting down
+-- (the ConVar is archived, so a leftover 0 would outlive the session).
+local ENV_BRIGHTNESS_CVAR = "rtx_api_map_lights_env_brightness_mult"
+local distantLights = {}
+local savedEnvBrightness = nil
+
+local function setDistantLight(ent, isDistant)
+    local id = ent:EntIndex()
+    if (distantLights[id] == true) == isDistant then return end
+
+    if isDistant then
+        if next(distantLights) == nil then
+            local cv = GetConVar(ENV_BRIGHTNESS_CVAR)
+            if cv then
+                savedEnvBrightness = cv:GetString()
+                RunConsoleCommand(ENV_BRIGHTNESS_CVAR, "0")
+            end
+        end
+        distantLights[id] = true
+    else
+        distantLights[id] = nil
+        if next(distantLights) == nil and savedEnvBrightness then
+            RunConsoleCommand(ENV_BRIGHTNESS_CVAR, savedEnvBrightness)
+            savedEnvBrightness = nil
+        end
     end
 end
+
+hook.Add("ShutDown", "RemixRTLightRestoreEnvBrightness", function()
+    if not savedEnvBrightness then return end
+    local cv = GetConVar(ENV_BRIGHTNESS_CVAR)
+    if cv and cv.SetString then
+        cv:SetString(savedEnvBrightness)
+    else
+        RunConsoleCommand(ENV_BRIGHTNESS_CVAR, savedEnvBrightness)
+    end
+    savedEnvBrightness = nil
+    distantLights = {}
+end)
 
 local function ensure_light(ent)
     -- Add defensive checks to prevent multiple creation attempts
@@ -915,12 +950,8 @@ function ENT:Think()
         ensure_light(self)
     end
     
-    -- Fire onDistantLightCreated when type first becomes distant (NWVars are reliable here)
-    local lt = self:GetNWString("rtx_light_type", "sphere")
-    if lt == "distant" and self.LastSeenLightType ~= "distant" then
-        onDistantLightCreated()
-    end
-    self.LastSeenLightType = lt
+    -- Track distant-type transitions both ways (NWVars are reliable here)
+    setDistantLight(self, self:GetNWString("rtx_light_type", "sphere") == "distant")
     
     -- Update bonemerged position if applicable
     updateBonemergedPosition(self)
@@ -1262,10 +1293,7 @@ local function OpenLightEditor(ent)
             local sid = typeCombo:GetSelectedID()
             local sel = (sid and typeCombo:GetOptionData(sid)) or ent:GetNWString("rtx_light_type", "sphere")
             ent:SetNWString("rtx_light_type", sel)
-            
-            if sel == "distant" then
-                onDistantLightCreated()
-            end
+            setDistantLight(ent, sel == "distant")
             
             -- Flag for instant visual update
             ent.NeedsUpdate = true
@@ -1446,22 +1474,8 @@ function ENT:OnRemove()
     if RemixLight and RemixLight.DestroyLightsForEntity then
         RemixLight.DestroyLightsForEntity(self:EntIndex())
     end
-    
-    if self:GetNWString("rtx_light_type", "sphere") == "distant" then
-        local hasOtherDistant = false
-        for _, ent in ipairs(ents.FindByClass("remix_rt_light")) do
-            if ent ~= self and IsValid(ent) and ent:GetNWString("rtx_light_type", "sphere") == "distant" then
-                hasOtherDistant = true
-                break
-            end
-        end
-        if not hasOtherDistant then
-            local cv = GetConVar("rtx_api_map_lights_env_brightness_mult")
-            if cv and cv:GetFloat() == 0 then
-                RunConsoleCommand("rtx_api_map_lights_env_brightness_mult", "1")
-            end
-        end
-    end
+
+    setDistantLight(self, false)
 end
 
 -- Console commands for visualization control

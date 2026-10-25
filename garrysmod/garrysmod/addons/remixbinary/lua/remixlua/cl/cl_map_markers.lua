@@ -155,7 +155,10 @@ function MapMarker:RenderMesh(id, pos, ang, color)
     pos = pos or Vector(0, 0, 0)
     ang = ang or Angle(0, 0, 0)
     color = color or Color(255, 255, 255, 255)
-    
+
+    -- Restored below so later draws do not inherit this marker's tint.
+    local prevR, prevG, prevB = render.GetColorModulation()
+    local prevBlend = render.GetBlend()
     render.SetColorModulation(color.r/255, color.g/255, color.b/255)
     render.SetBlend(color.a/255)
     
@@ -171,8 +174,11 @@ function MapMarker:RenderMesh(id, pos, ang, color)
     
     -- Draw the pre-built
     meshData.imesh:Draw()
-    
+
     cam.PopModelMatrix()
+
+    render.SetColorModulation(prevR, prevG, prevB)
+    render.SetBlend(prevBlend)
 end
 
 -- Create ideterministc spawn marker

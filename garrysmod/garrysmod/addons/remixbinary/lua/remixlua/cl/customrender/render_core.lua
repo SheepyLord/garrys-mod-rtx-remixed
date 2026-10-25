@@ -1028,15 +1028,41 @@ do
         end)
     end
 
+    -- Engine world drawing (Shader_DrawChains) may only be patched out while the
+    -- custom world renderer is really drawing: custom rendering on, no capture mode,
+    -- and a built mesh set. Every writer of rtx_patch_skip_world_draw goes through
+    -- here, so no transition can leave the world drawn by neither side.
+    RemixRenderCore._worldRendererReady = RemixRenderCore._worldRendererReady or false
+
+    local function convarOn(name)
+        local cv = GetConVar(name)
+        return cv ~= nil and cv:GetBool()
+    end
+
+    function RemixRenderCore.SyncWorldDrawPatch()
+        local skip = convarOn("rtx_custom_render")
+            and RemixRenderCore._worldRendererReady
+            and not convarOn("rtx_capture_mode")
+            and not convarOn("rtx_mwr_capture_mode")
+        RunConsoleCommand("rtx_patch_skip_world_draw", skip and "1" or "0")
+    end
+
+    function RemixRenderCore.SetWorldRendererReady(ready)
+        RemixRenderCore._worldRendererReady = ready and true or false
+        RemixRenderCore.SyncWorldDrawPatch()
+    end
+
     -- Unified capture mode toggle
     local captureConVar = CreateClientConVar("rtx_capture_mode", "0", true, false, "RTX Remix capture mode")
     cvars.AddChangeCallback("rtx_capture_mode", function(_, _, new)
         local on = (new == "1")
-        -- r_drawworld stays at 1 so the engine always collects surfaces for overlays/decals.
-        -- Temporarily restore engine world drawing by disabling the Shader_DrawChains patch.
-        RunConsoleCommand("rtx_patch_skip_world_draw", on and "0" or "1")
-        RunConsoleCommand("r_drawstaticprops", on and "0" or "1")
+        -- r_drawworld stays at 1 so the engine always collects surfaces for overlays/decals;
+        -- capture mode restores engine world drawing through SyncWorldDrawPatch.
+        RemixRenderCore.SyncWorldDrawPatch()
+        -- Once capture ends, static props go back to the static prop renderer's setting.
+        RunConsoleCommand("r_drawstaticprops", (on or convarOn("rtx_spr_enable")) and "0" or "1")
     end, "RemixRenderCoreCapture")
+    RemixRenderCore.SyncWorldDrawPatch()
 
     -- Shared 3D skybox geometry toggle
     local sky3dConVar = GetConVar("rtx_3dsky") or CreateClientConVar("rtx_3dsky", "0", true, false, "Render 3D skybox geometry (map faces, displacements, static props)")

@@ -242,6 +242,14 @@ local function BuildFlatRenderList()
         #oList, #tList))
 end
 
+-- Engine world drawing may only be patched out while these meshes are being drawn.
+local function UpdateWorldReady()
+    if RenderCore and RenderCore.SetWorldRendererReady then
+        RenderCore.SetWorldRendererReady(isEnabled and not buildState.active
+            and (#flatOpaqueList > 0 or #flatTranslucentList > 0))
+    end
+end
+
 -- Main Mesh Building Function
 local function BuildMapMeshes(cancelToken)
     -- Clean up existing meshes first
@@ -255,6 +263,7 @@ local function BuildMapMeshes(cancelToken)
     flatOpaqueList      = {}
     flatTranslucentList = {}
     totalVertexCount = 0
+    UpdateWorldReady()
     
     if not NikNaks or not NikNaks.CurrentMap then return end
 
@@ -790,7 +799,8 @@ local function BuildMapMeshes(cancelToken)
         end
         buildState.active = false
         BuildFlatRenderList()
-        print(string.format("[RTX Fixes] Built chunked meshes in %.2f seconds (total vertices: %d, memory: ~%.1fMB)", 
+        UpdateWorldReady()
+        print(string.format("[RTX Fixes] Built chunked meshes in %.2f seconds (total vertices: %d, memory: ~%.1fMB)",
             SysTime() - frameStartTime, totalVertexCount, (totalVertexCount * 40) / (1024 * 1024)))
         if mwrSkyClipStats.groupsIn > 0 then
             local pctRemoved = (1 - mwrSkyClipStats.trisOut / math.max(1, mwrSkyClipStats.trisIn)) * 100
@@ -816,18 +826,22 @@ local function BuildMapMeshes(cancelToken)
             buildState.active = false
             buildState.processed = 0
             buildState.total = 0
-            -- Clean up partial meshes
+            -- Clean up partial meshes and hand the world back to the engine
             CleanupMeshes()
             mapMeshes = { opaque = {}, translucent = {} }
+            flatOpaqueList, flatTranslucentList = {}, {}
+            UpdateWorldReady()
             return false
         end
-        
+
         -- Check if cancelled
         if cancelToken and cancelToken.cancelled then
             buildState.active = false
             print("[RTX Fixes] Build cancelled, cleaning up...")
             CleanupMeshes()
             mapMeshes = { opaque = {}, translucent = {} }
+            flatOpaqueList, flatTranslucentList = {}, {}
+            UpdateWorldReady()
             return false
         end
         
@@ -899,6 +913,7 @@ local function EnableCustomRendering()
         if RenderCore.IsInSkyboxPass and RenderCore.IsInSkyboxPass() then return end
         RenderCustomWorld(true)
     end)
+    UpdateWorldReady()
 end
 
 local function DisableCustomRendering()
@@ -907,6 +922,7 @@ local function DisableCustomRendering()
 
     RenderCore.Unregister("PreDrawOpaqueRenderables", "RTXCustomWorldOpaque")
     RenderCore.Unregister("PreDrawTranslucentRenderables", "RTXCustomWorldTranslucent")
+    UpdateWorldReady()
 end
 
 -- Initialization and Cleanup
@@ -955,10 +971,10 @@ cvars.AddChangeCallback("rtx_mwr_enable", function(_, _, new)
     end
 end)
 
-cvars.AddChangeCallback("rtx_mwr_capture_mode", function(_, _, new)
-    -- In capture mode, temporarily restore engine world drawing by disabling the patch.
+cvars.AddChangeCallback("rtx_mwr_capture_mode", function()
+    -- In capture mode, temporarily restore engine world drawing (see SyncWorldDrawPatch).
     -- r_drawworld stays at 1 so the engine always collects surfaces for overlays/decals.
-    RunConsoleCommand("rtx_patch_skip_world_draw", new == "1" and "0" or "1")
+    RenderCore.SyncWorldDrawPatch()
 end)
 
 -- Rebuild sinks and debounce on relevant ConVars

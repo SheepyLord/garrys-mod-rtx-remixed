@@ -67,7 +67,8 @@ if (SERVER) then
 					local success, err = pcall(include, filePath)
 					
 					if not success then
-						DebugPrint("Warning: Failed to load sub-addon: " .. filePath .. " - Error: " .. tostring(err))
+						-- Always visible: a feature that failed to load is otherwise silently missing.
+						ErrorNoHalt("[gmRTX-SV] Failed to load sub-addon " .. filePath .. ": " .. tostring(err) .. "\n")
 					else
 						DebugPrint("Successfully loaded sub-addon: " .. filePath)
 					end
@@ -91,16 +92,42 @@ if (SERVER) then
 end
 
 if SERVER then
+    -- NaN slips through math.Clamp, so every networked number must be finite first.
+    local function isfinite(v)
+        return type(v) == "number" and v == v and v ~= math.huge and v ~= -math.huge
+    end
+
+    local RT_LIGHT_SPAWN_COOLDOWN = 0.25
+
+    -- The client only asks for a light; the server traces from the player's eyes and
+    -- applies the spawn menu's policy (permissions, sbox_maxsents, creator, undo, cleanup).
     util.AddNetworkString("remix_spawn_rt_light")
     net.Receive("remix_spawn_rt_light", function(len, ply)
         if not IsValid(ply) then return end
-        local pos = net.ReadVector()
-        local ent = ents.Create("remix_rt_light")
+        if (ply.RemixNextRTLightSpawn or 0) > CurTime() then return end
+        ply.RemixNextRTLightSpawn = CurTime() + RT_LIGHT_SPAWN_COOLDOWN
+
+        if isfunction(Spawn_SENT) then
+            Spawn_SENT(ply, "remix_rt_light")
+            return
+        end
+
+        -- Gamemodes without sandbox's spawn policy: admins only.
+        if not ply:IsAdmin() then return end
+        local start = ply:EyePos()
+        local tr = util.TraceLine({ start = start, endpos = start + ply:GetAimVector() * 4096, filter = ply })
+        local stored = scripted_ents.GetStored("remix_rt_light")
+        local spawnFunction = scripted_ents.GetMember("remix_rt_light", "SpawnFunction")
+        if not tr.Hit or not stored or not spawnFunction then return end
+
+        local ent = spawnFunction(stored.t, ply, tr, "remix_rt_light")
         if not IsValid(ent) then return end
-        ent:SetPos(pos)
-        ent:SetAngles(Angle(0, ply:EyeAngles().y, 0))
-        ent:Spawn()
-        ent:Activate()
+        ent:SetCreator(ply)
+        undo.Create("SENT")
+            undo.SetPlayer(ply)
+            undo.AddEntity(ent)
+        undo.Finish("Remix RT Light")
+        cleanup.Add(ply, "sents", ent)
     end)
 
     util.AddNetworkString("remix_rt_light_apply")
@@ -112,7 +139,7 @@ if SERVER then
         if not istable(t) then return end
 
         local function clampf(v, minv, maxv)
-            if type(v) ~= "number" then return nil end
+            if not isfinite(v) then return nil end
             return math.Clamp(v, minv, maxv)
         end
         local function clampb(v) return v and true or false end
@@ -120,14 +147,11 @@ if SERVER then
             if type(s) ~= "string" then return "" end
             return string.sub(s, 1, 256)
         end
-        local function clampvec(tbl)
-            if istable(tbl) and tbl.x ~= nil and tbl.y ~= nil and tbl.z ~= nil then
-                local x = tonumber(tbl.x) or 0
-                local y = tonumber(tbl.y) or 0
-                local z = tonumber(tbl.z) or 0
-                return Vector(x, y, z)
-            end
-            return nil
+        local function clampvec(tbl, minv, maxv)
+            if not istable(tbl) then return nil end
+            local x, y, z = tonumber(tbl.x), tonumber(tbl.y), tonumber(tbl.z)
+            if not (isfinite(x) and isfinite(y) and isfinite(z)) then return nil end
+            return Vector(math.Clamp(x, minv, maxv), math.Clamp(y, minv, maxv), math.Clamp(z, minv, maxv))
         end
 
         if isstring(t.rtx_light_type) then
@@ -151,7 +175,7 @@ if SERVER then
         v = clampf(t.rtx_light_axis_len, 1, 400);      if v then ent:SetNWFloat("rtx_light_axis_len", v) end
         v = clampf(t.rtx_light_distant_angle, 0, 10);  if v then ent:SetNWFloat("rtx_light_distant_angle", v) end
         local s = clampstr(t.rtx_light_dome_tex);       if s and s ~= "" then ent:SetNWString("rtx_light_dome_tex", s) end
-        local col = clampvec(t.rtx_light_col);          if col then ent:SetNWVector("rtx_light_col", col) end
+        local col = clampvec(t.rtx_light_col, 0, 10000); if col then ent:SetNWVector("rtx_light_col", col) end
         v = clampf(t.rtx_light_color_r, 0, 255);       if v then ent:SetNWFloat("rtx_light_color_r", v) end
         v = clampf(t.rtx_light_color_g, 0, 255);       if v then ent:SetNWFloat("rtx_light_color_g", v) end
         v = clampf(t.rtx_light_color_b, 0, 255);       if v then ent:SetNWFloat("rtx_light_color_b", v) end
@@ -168,7 +192,7 @@ if SERVER then
         if not istable(t) then return end
 
         local function cf(v, lo, hi)
-            if type(v) ~= "number" then return nil end
+            if not isfinite(v) then return nil end
             return math.Clamp(v, lo, hi)
         end
 

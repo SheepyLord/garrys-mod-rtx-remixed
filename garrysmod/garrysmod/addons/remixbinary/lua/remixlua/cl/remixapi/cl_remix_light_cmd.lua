@@ -65,13 +65,13 @@ concommand.Add("remix_light_spawn", function(ply, cmd, args)
 end)
 
 -- Replace crosshair spawn with spawning a remix_rt_light entity on server
+-- (the server traces from our eyes itself and applies its spawn policy)
 concommand.Add("remix_light_spawn_at_crosshair", function(ply, cmd, args)
   local lp = LocalPlayer()
   if not IsValid(lp) then return end
   local tr = lp:GetEyeTrace()
   if not tr.Hit then return end
   net.Start("remix_spawn_rt_light")
-  net.WriteVector(tr.HitPos + tr.HitNormal * 16)
   net.SendToServer()
 end)
 
