@@ -242,8 +242,9 @@ namespace {
 Define_method_Hook(FileHandle_t, IFileSystem_OpenEx, void*, const char* pFileName,
     const char* pOptions, unsigned flags, const char* pathID, char** ppszResolvedFilename)
 {
-    // Prevent recursion
-    static bool inHook = false;
+    // Prevent recursion. Per thread: loader threads open files concurrently, and
+    // a shared flag would make their opens skip the redirection below.
+    static thread_local bool inHook = false;
     if (inHook || !pFileName || !pOptions) {
         return IFileSystem_OpenEx_trampoline()(_this, pFileName, pOptions, flags, pathID, ppszResolvedFilename);
     }

@@ -64,6 +64,10 @@ using namespace GarrysMod::Lua;
 
 IVModelInfo* pModelInfo = nullptr;
 static StudioRenderConfig_t s_StudioRenderConfig;
+// The engine's config before Initialize() forced its fields; restored on Shutdown()
+// or when Initialize() bails out after forcing them.
+static StudioRenderConfig_t s_OriginalStudioRenderConfig;
+static bool s_StudioRenderConfigForced = false;
 
 // Debug logging control - set to 1 to enable verbose logging, 0 to disable
 // Set to 2 for EXTREMELY verbose logging (every single call)
@@ -463,8 +467,37 @@ Define_method_Hook(int*, R_StudioDrawDynamicMesh, void*, IMatRenderContext* pRen
 #endif
 }
 
+// Put back the StudioRender fields Initialize() forced, keeping any other setting
+// the engine changed since.
+static void RestoreStudioRenderConfig() {
+	if (!s_StudioRenderConfigForced || !g_pStudioRender) {
+		return;
+	}
+
+	StudioRenderConfig_t config;
+#ifdef _WIN32
+	typedef void(__thiscall* GetConfigFn)(void*, StudioRenderConfig_t&);
+	typedef void(__thiscall* UpdateConfigFn)(void*, const StudioRenderConfig_t&);
+	void** vtable = *reinterpret_cast<void***>(g_pStudioRender);
+	reinterpret_cast<GetConfigFn>(vtable[9])(g_pStudioRender, config);
+#else
+	g_pStudioRender->GetCurrentConfig(config);
+#endif
+	config.bSoftwareSkin = s_OriginalStudioRenderConfig.bSoftwareSkin;
+	config.bSoftwareLighting = s_OriginalStudioRenderConfig.bSoftwareLighting;
+	config.bDrawNormals = s_OriginalStudioRenderConfig.bDrawNormals;
+	config.bDrawTangentFrame = s_OriginalStudioRenderConfig.bDrawTangentFrame;
+#ifdef _WIN32
+	reinterpret_cast<UpdateConfigFn>(vtable[8])(g_pStudioRender, config);
+#else
+	g_pStudioRender->UpdateConfig(config);
+#endif
+	s_StudioRenderConfigForced = false;
+	Msg("[PropFixes] StudioRender config restored\n");
+}
+
 void ModelRenderHooks::Initialize() {
-	try { 
+	try {
 
 		// config stuff
 		//Sys_LoadInterface CRASHES for some reason on win32?????
@@ -532,6 +565,9 @@ void ModelRenderHooks::Initialize() {
 			Msg("[PropFixes] GetCurrentConfig at vtable[9] = %p\n", GetConfig);
 			GetConfig(g_pStudioRender, s_StudioRenderConfig);
 			Msg("[PropFixes] Got current config\n");
+			if (!s_StudioRenderConfigForced) {
+				s_OriginalStudioRenderConfig = s_StudioRenderConfig;
+			}
 
 			s_StudioRenderConfig.bSoftwareSkin = false;
 			s_StudioRenderConfig.bSoftwareLighting = false;
@@ -544,6 +580,7 @@ void ModelRenderHooks::Initialize() {
 			UpdateConfigFn UpdateConfig = reinterpret_cast<UpdateConfigFn>(vtable[8]); // UpdateConfig at index 8
 			Msg("[PropFixes] UpdateConfig at vtable[8] = %p\n", UpdateConfig);
 			UpdateConfig(g_pStudioRender, s_StudioRenderConfig);
+			s_StudioRenderConfigForced = true;
 			Msg("[PropFixes] StudioRender config updated (bSoftwareSkin=false, bSoftwareLighting=false)\n");
 		}
 #else
@@ -551,12 +588,16 @@ void ModelRenderHooks::Initialize() {
 		if (g_pStudioRender) {
 			Msg("[PropFixes] Configuring StudioRender (64-bit path)...\n");
 			g_pStudioRender->GetCurrentConfig(s_StudioRenderConfig);
+			if (!s_StudioRenderConfigForced) {
+				s_OriginalStudioRenderConfig = s_StudioRenderConfig;
+			}
 			s_StudioRenderConfig.bSoftwareSkin = false;
 			s_StudioRenderConfig.bSoftwareLighting = false;
 			s_StudioRenderConfig.bDrawNormals = false;
 			s_StudioRenderConfig.bDrawTangentFrame = false;
 			//s_StudioRenderConfig.bFlex = false;
 			g_pStudioRender->UpdateConfig(s_StudioRenderConfig);
+			s_StudioRenderConfigForced = true;
 			Msg("[PropFixes] StudioRender config updated\n");
 		}
 #endif
@@ -565,8 +606,9 @@ void ModelRenderHooks::Initialize() {
 
 		Msg("[PropFixes] Setting up function hooks...\n");
 		auto studiorenderdll = GetModuleHandleA("studiorender.dll");
-		if (!studiorenderdll) { 
+		if (!studiorenderdll) {
 			Error("[PropFixes] ERROR: studiorender.dll module handle is NULL!\n");
+			RestoreStudioRenderConfig();
 			return;
 		}
 		Msg("[PropFixes] studiorender.dll module at %p\n", studiorenderdll);
@@ -593,13 +635,15 @@ void ModelRenderHooks::Initialize() {
 		auto R_StudioDrawDynamicMesh = ScanSign(studiorenderdll, R_StudioDrawDynamicMesh_sign, sizeof(R_StudioDrawDynamicMesh_sign) - 1);
 		Msg("[PropFixes] R_StudioDrawDynamicMesh found at: %p\n", R_StudioDrawDynamicMesh);
 
-		if (!R_StudioSetupSkinAndLighting) { 
+		if (!R_StudioSetupSkinAndLighting) {
 			Error("[PropFixes] ERROR: R_StudioSetupSkinAndLighting signature not found!\n");
-			return; 
+			RestoreStudioRenderConfig();
+			return;
 		}
-		if (!R_StudioDrawDynamicMesh) { 
+		if (!R_StudioDrawDynamicMesh) {
 			Error("[PropFixes] ERROR: R_StudioDrawDynamicMesh signature not found!\n");
-			return; 
+			RestoreStudioRenderConfig();
+			return;
 		}
 		Msg("[PropFixes] Installing hook for R_StudioSetupSkinAndLighting...\n");
 		Setup_Hook(R_StudioSetupSkinAndLighting, R_StudioSetupSkinAndLighting)
@@ -693,6 +737,7 @@ void ModelRenderHooks::Initialize() {
 	}
 	catch (...) {
 		Error("[Prop Fixes] Exception in ModelRenderHooks::Initialize\n");
+		RestoreStudioRenderConfig();
 	}
 }
 
@@ -723,7 +768,9 @@ void ModelRenderHooks::Shutdown() {
 
         if (R_StudioDrawDynamicMesh_hook.IsEnabled())
             R_StudioDrawDynamicMesh_hook.Disable();
-        
+
+        RestoreStudioRenderConfig();
+
         // Reset interface pointers
         g_pStudioRender = nullptr;
         pModelInfo = nullptr;

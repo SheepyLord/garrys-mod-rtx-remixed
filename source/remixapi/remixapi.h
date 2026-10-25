@@ -64,7 +64,9 @@ namespace RemixAPI {
     private:
         RemixAPI();
         ~RemixAPI();
-        
+
+        void ResetManagers();
+
         remix::Interface* m_remixInterface;
         GarrysMod::Lua::ILuaBase* m_lua;
         

@@ -177,7 +177,8 @@ bool Pipeline::InitializeInternal(IDirect3DDevice9Ex* device, remix::Interface* 
     }
     
     // Initialize D3D9TextureTracker (or check if already initialized by module.cpp)
-    if (!D3D9TextureTracker::Instance().IsInitialized()) {
+    const bool startedTracker = !D3D9TextureTracker::Instance().IsInitialized();
+    if (startedTracker) {
         if (!D3D9TextureTracker::Instance().Initialize(device)) {
             Warning("[MaterialPipeline] Failed to initialize D3D9TextureTracker\n");
             return false;
@@ -198,7 +199,14 @@ bool Pipeline::InitializeInternal(IDirect3DDevice9Ex* device, remix::Interface* 
     // Initialize ToPBR (texture processor)
     if (!ToPBR::TextureProcessor::Instance().Initialize(remix)) {
         Warning("[MaterialPipeline] Failed to initialize ToPBR::TextureProcessor\n");
-        D3D9TextureTracker::Instance().Shutdown();
+        // Undo what this call started; a tracker started by module.cpp is rolled
+        // back there when this failure reaches it.
+        AutoCategorisation::Shutdown();
+        ShaderFixes::Shutdown();
+        HashCollisionFixer::Shutdown();
+        if (startedTracker) {
+            D3D9TextureTracker::Instance().Shutdown();
+        }
         return false;
     }
     
@@ -748,6 +756,9 @@ void Pipeline::ClearMapState() {
     if (restartWorker) {
         StopWorkerThread();
     }
+    // ToPBR's own worker also resolves materials by name; it must be idle before
+    // the caller uncaches Source materials.
+    ToPBR::TextureProcessor::Instance().CancelPendingWork();
 
     // Clear both hand-off queues and release their exact-texture references.
     {

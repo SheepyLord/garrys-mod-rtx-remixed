@@ -213,7 +213,12 @@ static bool InstallDIPVtableHook(IDirect3DDevice9* pDevice) {
     __try {
         void** vtable = *(void***)pDevice;
         const int DIP_VTABLE_INDEX = 82;
-        
+
+        // Never record our own hook as the original: the hook would call itself.
+        if (vtable[DIP_VTABLE_INDEX] == (void*)Hook_DrawIndexedPrimitive) {
+            return g_OriginalDIP != nullptr;
+        }
+
         g_OriginalDIP = (DrawIndexedPrimitive_t)vtable[DIP_VTABLE_INDEX];
         
         DWORD oldProtect;
@@ -3262,61 +3267,8 @@ void HardwareSkinningHooks::Initialize() {
     try {
         HWSKIN_DBG("[Hardware Skinning] Initializing...\n");
 
-        // Get D3D9 device for setting bone transforms
-        g_pD3DDevice = static_cast<IDirect3DDevice9*>(FindD3D9Device());
-        if (!g_pD3DDevice) {
-            Warning("[Hardware Skinning] Failed to get D3D9 device - bone transforms will not be set\n");
-            // Continue anyway - the hooks can still work, just without D3D9 bone transform output
-        } else {
-            HWSKIN_DBG("[Hardware Skinning] D3D9 device acquired for bone transform output\n");
-            
-            // ================================================================
-            // Install DrawIndexedPrimitive vtable hook for per-strip bone updates
-            // ================================================================
-            if (InstallDIPVtableHook(g_pD3DDevice)) {
-                HWSKIN_DBG("[Hardware Skinning] Installed DrawIndexedPrimitive vtable hook for per-strip bones\n");
-            } else {
-                Warning("[Hardware Skinning] Failed to install DIP vtable hook - per-strip bones disabled\n");
-            }
-        }
-
-        // ====================================================================
-        // Patch shaderapidx9.dll: D3DDECLTYPE_D3DCOLOR -> D3DDECLTYPE_UBYTE4
-        // for bone indices in ComputeVertexSpec.
-        //
-        // D3DCOLOR uses BGRA byte ordering which swizzles bone indices
-        // (e.g., [0,1,2,3] becomes [2,1,0,3]). RTX Remix reads them raw,
-        // so every vertex gets mapped to the wrong bones. UBYTE4 reads
-        // the 4 bytes as-is without swizzle.
-        //
-        // The patch is created here (to capture original bytes) but kept
-        // DISABLED. It is only enabled briefly during CreateSingleMesh for
-        // multi-bone models, so only their vertex declarations get UBYTE4.
-        // All other models keep D3DCOLOR and render normally.
-        // ====================================================================
-#ifdef _WIN64
-        HMODULE shaderApiDll = GetModuleHandleA("shaderapidx9.dll");
-        if (shaderApiDll) {
-            static const char blendIndicesTypeSig[] = "66 C7 44 C7 05 00 02 88 54 C7 07 C6 44 C7 04 04";
-            void* sigAddr = g_MemoryPatcher.FindPatternWildcard(shaderApiDll, blendIndicesTypeSig);
-            if (sigAddr) {
-                void* patchAddr = (void*)((uintptr_t)sigAddr + 15);
-                if (g_MemoryPatcher.CreatePatch("HWSkin_BlendIndices_UBYTE4", patchAddr, "05",
-                    "Patch D3DDECLTYPE_D3DCOLOR to D3DDECLTYPE_UBYTE4 for bone indices")) {
-                    // Always disable immediately -- the patch is toggled on/off
-                    // around CreateSingleMesh calls for skinned models only
-                    g_MemoryPatcher.DisablePatch("HWSkin_BlendIndices_UBYTE4");
-                    HWSKIN_DBG("[Hardware Skinning] UBYTE4 patch registered (enabled per-model during mesh creation)\n");
-                } else {
-                    Warning("[Hardware Skinning] Failed to register UBYTE4 patch!\n");
-                }
-            } else {
-                Warning("[Hardware Skinning] Could not find BLENDINDICES D3DCOLOR signature in shaderapidx9.dll\n");
-            }
-        } else {
-            Warning("[Hardware Skinning] shaderapidx9.dll not found - UBYTE4 patch skipped\n");
-        }
-#endif
+        // Nothing is installed until every signature below has been found, so a
+        // failed scan leaves the device vtable and shaderapidx9.dll untouched.
 
         // Get studiorender.dll handle
         HMODULE studiorenderdll = GetModuleHandleA("studiorender.dll");
@@ -3469,6 +3421,62 @@ void HardwareSkinningHooks::Initialize() {
             return;
         }
 
+        // Get D3D9 device for setting bone transforms
+        g_pD3DDevice = static_cast<IDirect3DDevice9*>(FindD3D9Device());
+        if (!g_pD3DDevice) {
+            Warning("[Hardware Skinning] Failed to get D3D9 device - bone transforms will not be set\n");
+            // Continue anyway - the hooks can still work, just without D3D9 bone transform output
+        } else {
+            HWSKIN_DBG("[Hardware Skinning] D3D9 device acquired for bone transform output\n");
+
+            // ================================================================
+            // Install DrawIndexedPrimitive vtable hook for per-strip bone updates
+            // ================================================================
+            if (InstallDIPVtableHook(g_pD3DDevice)) {
+                HWSKIN_DBG("[Hardware Skinning] Installed DrawIndexedPrimitive vtable hook for per-strip bones\n");
+            } else {
+                Warning("[Hardware Skinning] Failed to install DIP vtable hook - per-strip bones disabled\n");
+            }
+        }
+
+        // ====================================================================
+        // Patch shaderapidx9.dll: D3DDECLTYPE_D3DCOLOR -> D3DDECLTYPE_UBYTE4
+        // for bone indices in ComputeVertexSpec.
+        //
+        // D3DCOLOR uses BGRA byte ordering which swizzles bone indices
+        // (e.g., [0,1,2,3] becomes [2,1,0,3]). RTX Remix reads them raw,
+        // so every vertex gets mapped to the wrong bones. UBYTE4 reads
+        // the 4 bytes as-is without swizzle.
+        //
+        // The patch is created here (to capture original bytes) but kept
+        // DISABLED. It is only enabled briefly during CreateSingleMesh for
+        // multi-bone models, so only their vertex declarations get UBYTE4.
+        // All other models keep D3DCOLOR and render normally.
+        // ====================================================================
+#ifdef _WIN64
+        HMODULE shaderApiDll = GetModuleHandleA("shaderapidx9.dll");
+        if (shaderApiDll) {
+            static const char blendIndicesTypeSig[] = "66 C7 44 C7 05 00 02 88 54 C7 07 C6 44 C7 04 04";
+            void* sigAddr = g_MemoryPatcher.FindPatternWildcard(shaderApiDll, blendIndicesTypeSig);
+            if (sigAddr) {
+                void* patchAddr = (void*)((uintptr_t)sigAddr + 15);
+                if (g_MemoryPatcher.CreatePatch("HWSkin_BlendIndices_UBYTE4", patchAddr, "05",
+                    "Patch D3DDECLTYPE_D3DCOLOR to D3DDECLTYPE_UBYTE4 for bone indices")) {
+                    // Always disable immediately -- the patch is toggled on/off
+                    // around CreateSingleMesh calls for skinned models only
+                    g_MemoryPatcher.DisablePatch("HWSkin_BlendIndices_UBYTE4");
+                    HWSKIN_DBG("[Hardware Skinning] UBYTE4 patch registered (enabled per-model during mesh creation)\n");
+                } else {
+                    Warning("[Hardware Skinning] Failed to register UBYTE4 patch!\n");
+                }
+            } else {
+                Warning("[Hardware Skinning] Could not find BLENDINDICES D3DCOLOR signature in shaderapidx9.dll\n");
+            }
+        } else {
+            Warning("[Hardware Skinning] shaderapidx9.dll not found - UBYTE4 patch skipped\n");
+        }
+#endif
+
         // Store original function pointers
         R_StudioCreateSingleMesh_Original = (F_StudioCreateSingleMesh)CreateSingleMesh_addr;
         R_StudioDrawGroupHWSkin_Original = (F_StudioDrawGroupHWSkin)DrawGroupHWSkin_addr;
@@ -3498,14 +3506,15 @@ void HardwareSkinningHooks::Initialize() {
     }
     catch (...) {
         Warning("[Hardware Skinning] Exception during initialization\n");
+        Shutdown();
     }
 }
 
 void HardwareSkinningHooks::Shutdown() {
-    if (!m_bInitialized) {
-        return;
-    }
-    
+    // Runs whether or not Initialize() finished: an interrupted Initialize() can
+    // already have hooked DrawIndexedPrimitive or a detour, and a vtable entry
+    // left pointing into this module outlives its unload. Every step below is a
+    // no-op for parts that were never installed.
     try {
         HWSKIN_DBG("[Hardware Skinning] Shutting down...\n");
 

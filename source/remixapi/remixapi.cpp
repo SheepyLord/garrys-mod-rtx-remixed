@@ -118,6 +118,17 @@ bool RemixAPI::Initialize(remix::Interface* remixInterface, GarrysMod::Lua::ILua
         m_bspGeometryManager = std::make_unique<BSPGeometryManager>(remixInterface, LUA, m_materialManager.get());
         m_atmosphereManager = std::make_unique<AtmosphereManager>(remixInterface, LUA);
 
+        // Initialize the unified material pipeline and its Lua bindings before any
+        // manager binding: those Lua functions dereference the managers, so none may
+        // be exposed if a failed pipeline makes us tear the managers down again.
+        if (!MaterialPipeline::Pipeline::Initialize(remixInterface, LUA)) {
+            Warning("[RemixAPI] Material pipeline failed to initialize\n");
+            ResetManagers();
+            m_remixInterface = nullptr;
+            m_lua = nullptr;
+            return false;
+        }
+
             // Initialize Lua bindings for all managers
         m_materialManager->InitializeLuaBindings();
         m_meshManager->InitializeLuaBindings();
@@ -128,9 +139,6 @@ bool RemixAPI::Initialize(remix::Interface* remixInterface, GarrysMod::Lua::ILua
         m_lightManager->InitializeLuaBindings();
         m_bspGeometryManager->InitializeLuaBindings();
         m_atmosphereManager->InitializeLuaBindings();
-        
-        // Initialize the unified material pipeline and its Lua bindings
-        MaterialPipeline::Pipeline::Initialize(remixInterface, LUA);
 
     m_initialized = true;
 #ifdef _DEBUG
@@ -144,7 +152,19 @@ void RemixAPI::Shutdown() {
 
     // Shutdown unified material pipeline first
     MaterialPipeline::Pipeline::Shutdown();
-    
+
+    ResetManagers();
+
+    m_remixInterface = nullptr;
+    m_lua = nullptr;
+    m_initialized = false;
+
+#ifdef _DEBUG
+    Msg("[RemixAPI] Shutdown complete\n");
+#endif
+}
+
+void RemixAPI::ResetManagers() {
     m_atmosphereManager.reset();
     m_bspGeometryManager.reset();
     m_resourceManager.reset();
@@ -154,14 +174,6 @@ void RemixAPI::Shutdown() {
     m_cameraManager.reset();
     m_meshManager.reset();
     m_materialManager.reset();
-
-    m_remixInterface = nullptr;
-    m_lua = nullptr;
-    m_initialized = false;
-    
-#ifdef _DEBUG
-    Msg("[RemixAPI] Shutdown complete\n");
-#endif
 }
 
 void RemixAPI::Present() {

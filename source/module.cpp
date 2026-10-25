@@ -197,6 +197,18 @@ namespace {
         g_commandCvar = nullptr;
     }
 
+    // Undo the parts of GMOD_MODULE_OPEN that already ran before it reports a
+    // failure: the tracker's vtable hooks would otherwise keep pointing into this
+    // module across a retried require or after the DLL is unloaded.
+    void RollBackFailedOpen() {
+        D3D9TextureTracker::Instance().Shutdown();
+        if (g_remix) {
+            delete g_remix;
+            g_remix = nullptr;
+        }
+        g_d3dDevice = nullptr;
+    }
+
 }
 
 #endif
@@ -356,13 +368,16 @@ GMOD_MODULE_OPEN() {
             g_remix = new remix::Interface{ *interf };
         }
         else {
-            LUA->ThrowError("[gmRTX - Binary Module] - remix::loadRemixDllAndInitialize() failed"); 
+            RollBackFailedOpen();
+            LUA->ThrowError("[gmRTX - Binary Module] - remix::loadRemixDllAndInitialize() failed");
+            return 0;
         }
 
         g_remix->dxvk_RegisterD3D9Device(sourceDevice);
 
         // Initialize the new comprehensive RemixAPI
         if (!RemixAPI::RemixAPI::Instance().Initialize(g_remix, LUA)) {
+            RollBackFailedOpen();
             LUA->ThrowError("[gmRTX - Binary Module] Failed to initialize RemixAPI");
             return 0;
         }
@@ -495,6 +510,9 @@ GMOD_MODULE_CLOSE() {
         PatchManager::Instance().RestoreAll();
 
         RemixAPI::RemixAPI::Instance().Shutdown();
+        // The pipeline only removes the tracker if it finished initializing; the
+        // hooks module open installed must go regardless.
+        D3D9TextureTracker::Instance().Shutdown();
         g_d3dDevice = nullptr;
 #endif // _WIN64
 
