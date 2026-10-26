@@ -1,0 +1,177 @@
+"""Build the gm_poolrooms RTX Remix mod from tools/materials.json.
+
+Layout (garrysmod/rtx-remix/mods/gm_poolrooms_rtx/ in the repository, linked into the game's
+rtx-remix/mods/):
+
+    mod.usda             root layer; sublayers below, rewritten atomically on
+                         every build so the runtime hot-reloads (it watches
+                         the root layer's timestamp)
+    materials.usda       over "mat_<HASH>" material replacements
+    textures/*.dds       <name>_<digest>.<kind>.rtex.dds, content named so a
+                         file the runtime holds open is never overwritten
+
+materials.json entries:
+
+    "<name>": {
+      "hashes": ["0x...", ...],            texture hashes this material replaces
+      "shader": "opacity" | "translucent",
+      "maps": {"albedo": "work/...png", "normal": ..., "roughness": ..., ...},
+      "inputs": {"reflection_roughness_constant": 0.5, ...}   extra shader inputs
+    }
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import os
+import sys
+from pathlib import Path
+
+import poolrooms_paths
+import texlib as T
+
+ROOT = Path(__file__).resolve().parents[1]
+MOD = poolrooms_paths.MOD
+TEX = MOD / "textures"
+SPEC = ROOT / "tools" / "materials.json"
+CACHE = ROOT / "work" / "dds_cache.json"
+GAME_NAME = "Garry's Mod (x64)"
+
+INPUT_FOR = {
+    "albedo": ("diffuse_texture", "auto"),
+    "normal": ("normalmap_texture", "raw"),
+    "roughness": ("reflectionroughness_texture", "raw"),
+    "metallic": ("metallic_texture", "raw"),
+    "height": ("height_texture", "raw"),
+    "emissive": ("emissive_mask_texture", "auto"),
+    "transmittance": ("transmittance_texture", "auto"),
+}
+SHADERS = {
+    "opacity": "AperturePBR_Opacity",
+    "translucent": "AperturePBR_Translucent",
+}
+
+
+def atomic_write(path: Path, text: str):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    tmp.write_text(text, encoding="utf-8", newline="\n")
+    os.replace(tmp, path)
+
+
+def digest(path: Path) -> str:
+    h = hashlib.sha1()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()[:10]
+
+
+def usd_value(v):
+    if isinstance(v, bool):
+        return ("bool", "1" if v else "0")
+    if isinstance(v, int):
+        return ("int", str(v))
+    if isinstance(v, float):
+        return ("float", f"{v:.6g}")
+    if isinstance(v, (list, tuple)) and len(v) == 3:
+        return ("color3f", f"({v[0]:.6g}, {v[1]:.6g}, {v[2]:.6g})")
+    raise TypeError(v)
+
+
+def material_block(hash_hex: str, shader: str, maps: dict, inputs: dict) -> str:
+    name = hash_hex.upper().replace("0X", "").rjust(16, "0")
+    sub = SHADERS[shader]
+    lines = [
+        f'        over "mat_{name}"',
+        "        {",
+        '            over "Shader"',
+        "            {",
+        f"                uniform asset info:mdl:sourceAsset = @{sub}.mdl@",
+        f'                uniform token info:mdl:sourceAsset:subIdentifier = "{sub}"',
+        "                bool inputs:preload_textures = 1",
+    ]
+    for kind, rel in maps.items():
+        attr, space = INPUT_FOR[kind]
+        lines.append(f'                asset inputs:{attr} = @./{rel}@ (')
+        lines.append(f'                    colorSpace = "{space}"')
+        lines.append("                )")
+    if "normal" in maps and "encoding" not in inputs:
+        lines.append("                int inputs:encoding = 0")
+    for key, val in inputs.items():
+        typ, text = usd_value(val)
+        lines.append(f"                {typ} inputs:{key} = {text}")
+    lines += ["            }", "        }"]
+    return "\n".join(lines)
+
+
+def build(only: set[str] | None = None, prune: bool = True) -> dict:
+    spec = json.loads(SPEC.read_text(encoding="utf-8"))
+    cache = json.loads(CACHE.read_text()) if CACHE.exists() else {}
+    TEX.mkdir(parents=True, exist_ok=True)
+    jobs, used, blocks = [], set(), []
+    for mat_name, m in spec.items():
+        if mat_name.startswith("_"):
+            continue
+        rel_maps = {}
+        for kind, src in m.get("maps", {}).items():
+            src_path = (ROOT / src).resolve()
+            d = digest(src_path)
+            # named by source and content, so materials sharing a map share the file
+            base = Path(src).stem.replace(".", "_")
+            dds_name = f"{base}_{d}.{T.SUFFIX[kind]}.rtex.dds"
+            dst = TEX / dds_name
+            used.add(dds_name)
+            if not dst.exists() and not any(j[1] == dst for j in jobs):
+                jobs.append((src_path, dst, kind))
+            rel_maps[kind] = f"textures/{dds_name}"
+        for h in m["hashes"]:
+            blocks.append(material_block(h, m.get("shader", "opacity"), rel_maps, m.get("inputs", {})))
+    if jobs:
+        print(f"encoding {len(jobs)} DDS files")
+        T.encode_dds(jobs)
+    text = (
+        "#usda 1.0\n(\n"
+        '    doc = "gm_poolrooms RTX: material replacements (generated by tools/build_mod.py)"\n'
+        '    upAxis = "Z"\n'
+        ")\n\n"
+        'over "RootNode"\n{\n    over "Looks"\n    {\n'
+        + "\n\n".join(blocks) +
+        "\n    }\n}\n"
+    )
+    atomic_write(MOD / "materials.usda", text)
+    sublayers = ["./materials.usda"]
+    extra = MOD / "lights.usda"
+    if extra.exists():
+        sublayers.insert(0, "./lights.usda")
+    sub = ",\n".join(f"        @{s}@" for s in sublayers)
+    root = (
+        "#usda 1.0\n(\n"
+        "    customLayerData = {\n"
+        f'        string lightspeed_game_name = "{GAME_NAME}"\n'
+        '        string lightspeed_layer_type = "replacement"\n'
+        '        string lightspeed_mod_name = "gm_poolrooms RTX"\n'
+        '        string lightspeed_mod_version = "1.0.0"\n'
+        "    }\n"
+        '    doc = "gm_poolrooms RTX Remix remaster. Generated by tools/build_mod.py; edits are overwritten."\n'
+        "    metersPerUnit = 0.01\n"
+        f"    subLayers = [\n{sub}\n    ]\n"
+        "    timeCodesPerSecond = 24\n"
+        '    upAxis = "Z"\n'
+        ")\n"
+    )
+    atomic_write(MOD / "mod.usda", root)
+    if prune:
+        for f in TEX.glob("*.dds"):
+            if f.name not in used:
+                try:
+                    f.unlink()
+                    print("  pruned", f.name)
+                except OSError as e:
+                    print("  could not prune", f.name, e)
+    return {"materials": len(blocks), "encoded": len(jobs)}
+
+
+if __name__ == "__main__":
+    print(build(prune="--no-prune" not in sys.argv))

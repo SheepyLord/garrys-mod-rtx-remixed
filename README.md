@@ -11,6 +11,11 @@
 - [Prepared PBR assets in GMA addons](docs/PBR_GMA_LOADER.md): prepare DDS replacements before renderer startup and reuse them on later launches (Windows x64).
 - Win64 legacy texture-hash replacement provider for Advanced Material Editor
   ([protocol and safety notes](source/advmat_rtx_bridge/README.md))
+- [RTX Water](docs/RTX_WATER.md): path-traced water on any map, with a simulated, shape-aware wave
+  field: bodies push the water as their real shapes, moving ones leave Kelvin wakes, walls reflect
+  ([how the waves are simulated](docs/rtx_water/wave_simulation.md)).
+- [gm_poolrooms RTX](docs/GM_POOLROOMS_RTX.md): a path-traced remaster of the workshop map
+  gm_poolrooms (PBR materials, Remix API lights, caustics).
       
 ## Installation
 - Switch to the `x86-64` branch of Garry's Mod on Steam

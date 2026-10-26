@@ -1,0 +1,353 @@
+{
+  "_doc": "Material replacements for gm_poolrooms. Hashes are Remix texture hashes (XXH64 of the top mip as uploaded), verified live in game.",
+  "pooltile": {
+    "hashes": [
+      "0xAEA98B7501210A4E"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "albedo": "work/tex/pooltile/pooltile_albedo.png",
+      "normal": "work/tex/pooltile/pooltile_normal.png",
+      "roughness": "work/tex/pooltile/pooltile_roughness.png",
+      "height": "work/tex/pooltile/pooltile_height.png"
+    },
+    "inputs": {
+      "metallic_constant": 0.0,
+      "displace_in": 0.008,
+      "displace_out": 0.0
+    }
+  },
+  "water": {
+    "hashes": [
+      "0xA72A56D4B799D744"
+    ],
+    "shader": "translucent",
+    "inputs": {
+      "ior_constant": 1.333,
+      "transmittance_color": [
+        0.62,
+        0.89,
+        0.97
+      ],
+      "transmittance_measurement_distance": 150.0,
+      "thin_walled": false,
+      "use_diffuse_layer": false
+    },
+    "_doc": "Fallback for when the RTX Water addon is not installed (it draws all water itself). Bound by the addon: every gm_poolrooms water material gets $normalmap = poolrooms_rtx/water_tag (unique hash), plus the translucent flag so Source draws the underwater geometry in the main view. Calm and flat: no normal map."
+  },
+  "void": {
+    "_doc": "NOTHINGNESS openings (tagged by the addon): white emitter. Its emission also lights the rooms through GI, so its colour (5000 K, a touch warmer than the 5500 K rect lights in front of it) sets the overall warmth.",
+    "hashes": [
+      "0x7B2687227E16808F"
+    ],
+    "shader": "opacity",
+    "maps": {},
+    "inputs": {
+      "diffuse_color_constant": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_color_constant": [
+        1.0,
+        0.8942,
+        0.8076
+      ],
+      "emissive_intensity": 8.0
+    }
+  },
+  "panel": {
+    "_doc": "Ceiling light panels the addon draws in the vaulted north hall (poolrooms_rtx/panel_tag); emissive, the matching rect lights carry the illumination.",
+    "hashes": [
+      "0x347976E3D099557C"
+    ],
+    "shader": "opacity",
+    "maps": {},
+    "inputs": {
+      "diffuse_color_constant": [
+        0.9,
+        0.9,
+        0.9
+      ],
+      "reflection_roughness_constant": 0.6,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_color_constant": [
+        1.0,
+        0.8531,
+        0.735
+      ],
+      "emissive_intensity": 18.0
+    }
+  },
+  "plaster": {
+    "_doc": "poolrooms/plaster: the ceilings. AI-upscaled albedo, artist normal plus fine relief, matte roughness.",
+    "hashes": [
+      "0xBD0A92B6D09AA0C8"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "albedo": "work/tex/plaster/plaster_albedo.png",
+      "normal": "work/tex/plaster/plaster_normal.png",
+      "roughness": "work/tex/plaster/plaster_roughness.png"
+    },
+    "inputs": {
+      "metallic_constant": 0.0
+    }
+  },
+  "gate": {
+    "_doc": "poolrooms/gate vent grilles: rebuilt bar grid, alpha cutout (legacy alpha test state of the draw), galvanised steel.",
+    "hashes": [
+      "0x2A2F349CE52F376C"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "albedo": "work/tex/gate/gate_albedo.png",
+      "normal": "work/tex/gate/gate_normal.png",
+      "roughness": "work/tex/gate/gate_roughness.png",
+      "metallic": "work/tex/gate/gate_metallic.png"
+    },
+    "inputs": {}
+  },
+  "ladder": {
+    "_doc": "models/props_urban/pool_ladder001: stainless rails, plastic treads, enamel plate.",
+    "hashes": [
+      "0xC81C5EBE4C5E9202"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "albedo": "work/tex/ladder/ladder_albedo.png",
+      "normal": "work/tex/ladder/ladder_normal.png",
+      "roughness": "work/tex/ladder/ladder_roughness.png",
+      "metallic": "work/tex/ladder/ladder_metallic.png"
+    },
+    "inputs": {}
+  },
+  "caustic_1": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0xE4807AFC7D7C403A"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 0.2917,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_2": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0xE3C29B235E09BAFA"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 0.4133,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_3": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0x75CA4962B3B5F8B6"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 0.585,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_4": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0x7554E5CF26B448B8"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 0.8283,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_5": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0x11C5916A152A3326"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 1.1733,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_6": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0x49ABF16EDAB9AFB3"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 1.6617,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_7": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0xC00979D07876E36D"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 2.3533,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  },
+  "caustic_8": {
+    "_doc": "Animated pool-floor caustics overlay, one class of tools/gen_caustic_mesh.py (the addon draws its cells just above underwater floors). Unordered emissive particle: blend_type 6 (kEmissive) with the legacy alpha state off, so Remix's emissive-blend override stays out and the layer never enters the water volume (a translucent layer there corrupts the water absorption). Remix composites unordered layers with weighted-blended OIT: background*(1-a) + 4*a*emission, a = luminance of the albedo, so a tiny grey albedo with a matching emission boost is effectively additive. The 5500 K colour is baked into the sheet (a bound emissive texture overrides the colour constant).",
+    "hashes": [
+      "0x2ECB7E63C4047BF8"
+    ],
+    "shader": "opacity",
+    "maps": {
+      "emissive": "work/tex/caustics/caustics_sheet.png"
+    },
+    "inputs": {
+      "use_legacy_alpha_state": false,
+      "blend_enabled": true,
+      "blend_type": 6,
+      "inverted_blend": false,
+      "diffuse_color_constant": [
+        0.03,
+        0.03,
+        0.03
+      ],
+      "reflection_roughness_constant": 1.0,
+      "metallic_constant": 0.0,
+      "enable_emission": true,
+      "emissive_intensity": 3.3333,
+      "sprite_sheet_rows": 8,
+      "sprite_sheet_cols": 8,
+      "sprite_sheet_fps": 13
+    }
+  }
+}

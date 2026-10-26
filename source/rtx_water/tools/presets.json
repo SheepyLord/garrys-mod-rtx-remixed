@@ -1,0 +1,175 @@
+{
+  "_doc": "Water types and wave patterns of the RTX Water addon. tools/build_water.py turns every (type, wave) pair into one Remix material keyed by its own tag texture, and writes the addon's lua/rtx_water/cl_data.lua. Colours are sRGB-encoded (the shader decodes them); transmittance is what survives 'distance' units of water.",
+  "types": {
+    "pool": {
+      "label": "Swimming pool",
+      "transmittance": [
+        0.62,
+        0.89,
+        0.97
+      ],
+      "distance": 150,
+      "ior": 1.333,
+      "match": [
+        0.25,
+        0.55,
+        0.6
+      ]
+    },
+    "clear": {
+      "label": "Clear spring",
+      "transmittance": [
+        0.9,
+        0.96,
+        0.97
+      ],
+      "distance": 500,
+      "ior": 1.333,
+      "match": [
+        0.55,
+        0.65,
+        0.7
+      ]
+    },
+    "lake": {
+      "label": "Lake",
+      "transmittance": [
+        0.52,
+        0.8,
+        0.72
+      ],
+      "distance": 100,
+      "ior": 1.333,
+      "match": [
+        0.18,
+        0.32,
+        0.28
+      ]
+    },
+    "ocean": {
+      "label": "Ocean",
+      "transmittance": [
+        0.25,
+        0.58,
+        0.82
+      ],
+      "distance": 140,
+      "ior": 1.333,
+      "match": [
+        0.08,
+        0.22,
+        0.38
+      ]
+    },
+    "murky": {
+      "label": "Murky pond",
+      "transmittance": [
+        0.6,
+        0.68,
+        0.45
+      ],
+      "distance": 45,
+      "ior": 1.333,
+      "diffuse": [
+        0.2,
+        0.25,
+        0.15
+      ],
+      "diffuse_opacity": 0.25,
+      "match": [
+        0.2,
+        0.24,
+        0.14
+      ]
+    },
+    "muddy": {
+      "label": "Muddy / sewer",
+      "transmittance": [
+        0.62,
+        0.5,
+        0.33
+      ],
+      "distance": 28,
+      "ior": 1.333,
+      "diffuse": [
+        0.28,
+        0.22,
+        0.14
+      ],
+      "diffuse_opacity": 0.45,
+      "match": [
+        0.26,
+        0.2,
+        0.12
+      ]
+    }
+  },
+  "waves": {
+    "calm": {
+      "label": "Calm (mirror flat)"
+    },
+    "ripple": {
+      "label": "Ripples",
+      "repeat_units": 160,
+      "motion": [
+        [
+          0.05,
+          0.035
+        ],
+        [
+          -0.03,
+          -0.055
+        ]
+      ],
+      "map": {
+        "seed": 21,
+        "bands": [
+          [
+            0.012,
+            0.2,
+            0.8,
+            1.0
+          ]
+        ],
+        "patch": 0.5,
+        "rms_slope_deg": 6.0,
+        "max_slope_deg": 14
+      }
+    },
+    "swell": {
+      "label": "Waves",
+      "repeat_units": 480,
+      "motion": [
+        [
+          0.018,
+          0.012
+        ],
+        [
+          -0.011,
+          -0.02
+        ]
+      ],
+      "map": {
+        "seed": 33,
+        "bands": [
+          [
+            0.08,
+            0.55,
+            1.3,
+            1.0
+          ],
+          [
+            0.01,
+            0.06,
+            0.7,
+            0.12
+          ]
+        ],
+        "patch": 0.0,
+        "rms_slope_deg": 5.0,
+        "max_slope_deg": 14
+      }
+    }
+  },
+  "_waves_doc": "map.bands: [shortest, longest wavelength as a fraction of one repeat, spectral tilt, weight]; the sheet is scaled to rms_slope_deg and soft-clamped at max_slope_deg. motion: Remix animated-water texcoord velocities (repeats per second) of the two normal layers."
+}

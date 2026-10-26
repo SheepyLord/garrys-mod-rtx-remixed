@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "desaturate": 0.35,
+  "openings": {
+    "radiance": 8.0,
+    "skylight_scale": 1.0,
+    "kelvin": 5500,
+    "tint": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "offset": 0.5,
+    "volumetric": 2.0,
+    "override": {}
+  },
+  "spots": {
+    "min_brightness": 20,
+    "scale": 1.0,
+    "radius": 3.0,
+    "volumetric": 1.0
+  },
+  "points": {
+    "min_brightness": 25,
+    "scale": 1.0,
+    "radius": 4.0,
+    "volumetric": 1.0
+  },
+  "extra": [],
+  "hall_panels": {
+    "_doc": "Light panels under the flat ceiling of each vault bay of the north hall (pillar grid 288 x 472).",
+    "x": [
+      -372,
+      -84,
+      204,
+      492,
+      780,
+      1068,
+      1356
+    ],
+    "y": [
+      5910,
+      6382,
+      6854,
+      7326
+    ],
+    "z": 121.0,
+    "w": 64,
+    "h": 160,
+    "radiance": 18.0,
+    "kelvin": 4500,
+    "skip": []
+  }
+}

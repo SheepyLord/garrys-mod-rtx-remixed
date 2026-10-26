@@ -22,3 +22,11 @@ build_remote.sh
 __pycache__/
 *.py[cod]
 /out/advmat-rtx-bridge/
+
+# RTX Water and gm_poolrooms RTX: local builds, intermediates and the extracted workshop map
+/source/rtx_water/build/
+/source/rtx_water/mapbuild/
+/source/rtx_water/test/build/
+/source/rtx_water/work/
+/source/gm_poolrooms_rtx/map_extract/
+/source/gm_poolrooms_rtx/work/

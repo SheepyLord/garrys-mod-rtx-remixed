@@ -74,5 +74,12 @@ CreateWorkspace({name = "RTXFixesBinary", abi_compatible = false, path = ""})
 			files({"source/posix/*.cpp", "source/posix/*.hpp"})
 
 -- The debug module is developed in its own repository at source/debug.
-dofile("source/debug/premake_project.lua")
-CreateRTXDebugProject("source/debug/source", "public/include")
+-- Checkouts without that submodule, such as CI, build RTXFixesBinary alone.
+if os.isfile("source/debug/premake_project.lua") then
+	dofile("source/debug/premake_project.lua")
+	CreateRTXDebugProject("source/debug/source", "public/include")
+end
+
+-- RTX Water's native core (docs/RTX_WATER.md).
+dofile("source/rtx_water/premake_project.lua")
+CreateRTXWaterProject("source/rtx_water", "public/include")

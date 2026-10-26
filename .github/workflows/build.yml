@@ -55,6 +55,10 @@ jobs:
         }
         New-Item -ItemType Directory -Force -Path "artifacts\garrysmod\lua\bin"
         Copy-Item $sourcePath "artifacts\garrysmod\lua\bin\$artifactName"
+        # RTX Water's native core (64-bit only; the addon falls back to Lua meshes without it)
+        if ("${{ matrix.platform }}" -eq "x64") {
+          Copy-Item "x86_64\Release\gmcl_rtxwater_win64.dll" "artifacts\garrysmod\lua\bin\gmcl_rtxwater_win64.dll"
+        }
         Copy-Item "garrysmod\*" "artifacts\" -Recurse -Force
       shell: pwsh
 
