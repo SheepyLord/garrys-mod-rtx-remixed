@@ -33,6 +33,10 @@ local function build(panel)
 	panel:CheckBox("Waves from players, NPCs and objects", "rtx_water_interaction")
 	panel:CheckBox("Bullet impacts make waves", "rtx_water_bullets")
 	panel:NumSlider("How hard bodies push the water", "rtx_water_interaction_strength", 0, 3, 2)
+	panel:NumSlider("Wave reach (how far waves travel before they die out)", "rtx_water_interaction_reach", 0.25, 4, 2)
+	panel:CheckBox("Splashes: drops, sheets and jets thrown up by bodies and bullets", "rtx_water_splashes")
+	panel:NumSlider("Splash strength", "rtx_water_splash_strength", 0, 3, 2)
+	panel:NumSlider("Splash drops in the air at most", "rtx_water_splash_drops", 0, 1000, 0)
 	combo(panel, "Wave detail", "rtx_water_interaction_quality", {
 		{ "Low", "1" }, { "Medium", "2" }, { "High", "3" },
 	})
@@ -66,10 +70,10 @@ local function build(panel)
 		else
 			local st = W.Ripples.stats or {}
 			local core = s.native and "native core" or ("Lua meshes" .. (W.Native.error and " (native core: " .. W.Native.error .. ")" or ""))
-			status:SetText(string.format("%s, %s; %s. %s: %d, %d tiles, %d vertices, %.2f ms per update%s.",
+			status:SetText(string.format("%s, %s; %s. %s: %d, %d tiles, %d vertices, %.2f ms per update%s. Splash drops: %d.",
 				D.types[s.type].label, string.lower(D.waves[s.waves].label), core,
 				s.native and "Bodies in the water" or "Ripples", W.Ripples.Count(),
-				st.tiles or 0, st.verts or 0, st.ms or 0, s.native and " (worker thread)" or ""))
+				st.tiles or 0, st.verts or 0, st.ms or 0, s.native and " (worker thread)" or "", W.Splash.Count()))
 		end
 	end
 	refresh()

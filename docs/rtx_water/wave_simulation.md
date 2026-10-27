@@ -75,7 +75,8 @@ second:
   2α/dt, about 42/s² at 60 steps a second. It makes every wave from 12 to 128 units long travel
   10 to 70 % too fast, keeps floating bodies from settling (a crate sat 4 units deep instead of
   12, with a 1.8-unit bulge around it), and wrecks the Kelvin wake. The consistent form is
-  (2 + α dt).
+  (2 + α dt). `rtx_water_interaction_reach` divides α: waves keep their energy that much longer,
+  so they travel that much further before they die out.
 
   ![The same hull at 80 u/s with the published damping and with the velocity-only damping](damping_fix.png)
 - **Viscosity**: the surface velocity's Laplacian, so damping grows with k² and grid-scale noise
@@ -117,9 +118,48 @@ body reaches below the surface in every column:
   in. A body that disappears (removed, out of reach) lets go over 0.3 s instead of leaving a hole.
 - **Bullets** are a pressure impulse for one step. The kernel turns it into a push down in the
   middle and up around it with no net flow, so the crater refills from its rim into a train of
-  rings.
+  rings. Its depth goes with the square root of the round's damage (1 for 10 damage). The server
+  finds where each pellet goes into the water and reports it (`sv_bullets.lua`).
 
 Body samples are interpolated: the simulation runs one step behind the newest sample.
+
+### Hitting the water
+
+The pressure patch is the body's submerged depth, so it is the same whatever speed the body
+comes in at. Anything faster than about 50 units/s puts its head in quicker than the waves of
+its own size can react, and from there on the rings no longer grow with speed. A numpy copy
+of the step (32-unit-wide box, rings 32 units outside it):
+
+| entry speed (units/s) | 60 | 150 | 350 | 700 |
+|---|---|---|---|---|
+| ring height, head alone | 2.87 | 3.03 | 3.06 | 3.06 |
+
+What grows with speed in real water is the cavity a body opens: wider and deeper than the body
+the harder it hits, its walls thrown up as the crown, and closing a moment later into the
+rings. `cl_ripples.lua` adds it as one impulse when a body crosses the surface going down
+faster than 40 units/s:
+
+- width (Gaussian sigma) re (1 + sqrt(v / 600)) + 4 sqrt(v / 300), re the body's equivalent
+  radius (hitboxes count 0.6 of their bounding box);
+- depth 0.3 k min(1, sqrt(16 / re)) of the width, at most 0.35 of it, k = ((v - 60) / 300)^0.8
+  (capped at 2.5 before the power);
+- applied 1.5 re / v + 0.05 s after the hit (0.05 to 0.3 s), when the cavity closes. Applied at
+  once, it lands while the body's own push is still steep and wave breaking damps both, which
+  makes the rings smaller, not bigger.
+
+The same model then gives (ring height 32 units outside the body, interaction strength 1):
+
+| entry speed (units/s) | 100 | 200 | 350 | 550 | 800 |
+|---|---|---|---|---|---|
+| 8-unit body | 0.65 | 0.59 | 0.96 | 1.58 | 1.86 |
+| 32-unit body | 2.47 | 3.39 | 4.95 | 8.02 | 10.5 |
+
+(The small body's dip at 200 units/s is wave breaking around its narrow cavity.)
+
+A body pulled out through the surface faster than 40 units/s lifts the water under it: a
+suction for one step, 0.12 min(v / 300, 2.5) of its width deep. Splash drops falling back into
+the water (`cl_splash.lua`) are impulses 0.25 r min(v / 250, 2) deep and 2 r wide (r the drop's
+radius). `rtx_water_interaction_strength` scales all of them.
 
 ### Where it runs
 
@@ -167,8 +207,10 @@ beam leaving 100 to 190 tiles of waves (two or three steps per update).
 - **Waves longer than about 250 units** travel too fast (13 % at 256, more beyond). Their
   frequency cannot drop below √β, so they barely carry energy away. That mostly matters for very
   fast bodies, whose transverse waves are that long.
-- **Capillary waves** (under an inch, below the grid) and **spray, splash sheets and jets** (not a
-  height field) are not simulated. A bullet makes rings, not a plume.
+- **Capillary waves** (under an inch, below the grid) are not simulated, and neither are
+  **spray, splash sheets and jets** (not a height field). Those are drawn beside the
+  simulation by `cl_splash.lua`, as ballistic drops and shaped sheets and columns sized from
+  the hit, and only touch it where their drops land.
 - **Hollow hulls**: an open boat stays dry inside if its collision hull is solid below the
   waterline (HL2's boats are) and its draft is under 12 units. A boat welded together from plates
   is several bodies, and its inside floods.

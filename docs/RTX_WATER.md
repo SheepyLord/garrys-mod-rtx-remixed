@@ -27,8 +27,18 @@ refracts and reflects through the disturbed surface.
   - waves travel at deep-water speeds, longer ones faster, so splashes spread into trains of
     rings; walls reflect them, steep crests break;
   - a body floating at rest leaves the water flat around it; open hulls stay dry inside;
-  - bullet impacts are pressure impulses, traced against the water surfaces only when the shot
-    reaches the water.
+  - the harder something hits the water, the bigger its waves: a body going in opens a cavity
+    that grows with its speed and closes into rings; one pulled out lifts the water after it;
+  - bullet impacts are pressure impulses, as strong as the round. The server reports every shot
+    that reaches the water (players', NPCs', and in single player your own, which the client
+    never sees by itself).
+- **Splashes**: what something throws up as it goes in, comes out or is shot, as real geometry
+  in the water's material: a crown sheet that rises and breaks up into drops, flying drops, a
+  jet from the closing cavity, and drips from whatever was pulled out. Their size follows the
+  speed of the hit, they lean with its angle (ahead of a slanted hit, the jet back up its
+  path), and the drops that fall back make rings of their own.
+- **The engine's own water effects** are hidden where RTX Water replaces them: the flat ripple
+  and wake quads, and the spray sprites of bullet and body splashes.
 - **Interaction** (Lua meshes, without the native core): rings, a splash when something enters
   the water, a wake while it moves and ripples from bullets.
 - **Map profiles**: maps (or other addons) can ask for a type and wave pattern; gm_poolrooms
@@ -77,9 +87,13 @@ is not one it recognises, it says why in the status line and the Lua meshes are 
 | `rtx_water_wave_scale` | 1 | wave size multiplier (0.25–4) |
 | `rtx_water_interaction` | 1 | waves from players, NPCs and objects |
 | `rtx_water_interaction_strength` | 1 | how hard bodies and bullets push the water (0–3) |
+| `rtx_water_interaction_reach` | 1 | how far waves travel before they die out (0.25–4); it divides the simulation's damping (Lua rings: multiplies their decay) |
 | `rtx_water_interaction_quality` | 2 | wave detail: 1 low, 2 medium, 3 high (mesh resolution and vertex budget; the simulation is the same) |
 | `rtx_water_interaction_rate` | 30 | wave geometry updates per second (0: every frame); the simulation steps 60 times a second regardless |
-| `rtx_water_bullets` | 1 | bullet impacts make waves |
+| `rtx_water_bullets` | 1 | bullet impacts make waves (and splashes) |
+| `rtx_water_splashes` | 1 | splashes: drops, crown sheets and jets from bodies and bullets (needs `rtx_water_interaction`) |
+| `rtx_water_splash_strength` | 1 | how high and how much water splashes (0–3) |
+| `rtx_water_splash_drops` | 200 | splash drops in the air at most (each is a draw call) |
 | `rtx_water_mesh` | 1 | draw the surface with RTX Water; 0 keeps the map's own faces (no ripples) |
 | `rtx_water_native` | 1 | use the native core when it is installed |
 | `rtx_water_custom` | 0 | native core only: use the three settings below instead of the type's look |
@@ -129,6 +143,25 @@ caustics only while the water has waves.
 - **Drawing the waves**: only tiles near the camera, roughly in view and with visible waves are
   tessellated, most important first, within a vertex budget. Nearby tiles get full detail and
   farther ones half. The flat block meshes leave those tiles out, so the surfaces never overlap.
+- **Going in, coming out**: `cl_ripples.lua` checks every frame whether a body near the water
+  has crossed its surface, at the speed of its lowest point. Going in (faster than 40 units/s)
+  it adds the cavity's impulse, a moment later, wider and deeper the faster the body hit;
+  coming out, a lift under it. The native core's push of the body's shape alone makes the same
+  waves at any speed ([details](rtx_water/wave_simulation.md#hitting-the-water)).
+- **Bullets**: `sv_bullets.lua` traces each pellet's own path (`PostEntityFireBullets`) for the
+  first water along it and sends the points to the players who can see or hear them. Without
+  RTX Water on the server, a client only has the shots it predicts itself (its own, in
+  multiplayer).
+- **Splashes** (`cl_splash.lua`): drops, crowns and jets are three static meshes (a sphere, a
+  flared sheet, a column) drawn with the type's calm material, each under its own transform,
+  so a splash costs no vertex work in Lua and Remix sees the same meshes every frame. Drops fly
+  ballistically under `sv_gravity` with air drag; those that land on the water make impulses.
+  A hit's direction (the bullet's, or a body's velocity as it crosses the surface) leans the
+  pieces.
+- **The engine's effects**: `effects/splashwake1`, `3` and `4` (`FX_WaterRipple`'s quad, vehicle
+  wakes) get `MATERIAL_VAR_NO_DRAW` while RTX Water draws the surface, and `effects/splash2`
+  (the spray of `FX_GunshotSplash`) while it makes splashes. Their flags are kept and restored
+  with the water materials'.
 - **Lua path** (no native core): each ripple is a ring-shaped wave packet with its own
   wavelength, speed and decay, from precomputed shape tables, drawn as GMod meshes rebuilt at
   `rtx_water_interaction_rate`.
@@ -179,8 +212,10 @@ garrysmod/garrysmod/addons/rtx_water/
                         lua/rtx_water/cl_data.lua       generated: presets, tag textures, hashes
                         lua/rtx_water/cl_core.lua       settings, map profiles, materials, lifecycle
                         lua/rtx_water/cl_surface.lua    water discovery, tiles, flat surface meshes
-                        lua/rtx_water/cl_ripples.lua    what is near water, bullets, Lua ripple meshes
+                        lua/rtx_water/cl_ripples.lua    what is near water, going in and out, bullets, Lua ripple meshes
                         lua/rtx_water/cl_bodies.lua     body shapes (hulls, hitboxes) and poses for the core
+                        lua/rtx_water/cl_splash.lua     splashes: drops, crowns, jets, drips
+                        lua/rtx_water/sv_bullets.lua    server: where shots go into the water
                         lua/rtx_water/cl_native.lua     native core glue, custom look
                         lua/rtx_water/cl_menu.lua       spawn menu panel
                         materials/rtx_water/*.vtf       tag textures (one Remix hash each)
@@ -231,12 +266,18 @@ docs/RTX_WATER.md       this page; docs/rtx_water/ has its images and wave_simul
   reflections and refraction but do not move the geometry. The waves from interaction do.
   Calm water has no normal map at all and is a flat mirror.
 - The wave simulation is one-way: the water does not push bodies (Source's buoyancy floats
-  them), it uses deep-water dispersion whatever the depth, and it has no spray or capillary
-  ripples. Bodies push as their collision hulls or hitboxes, so a model whose hull is much larger
+  them), it uses deep-water dispersion whatever the depth, and it has no capillary ripples.
+  Spray is not part of it: splashes are drawn beside it and only touch it where their drops
+  land. Bodies push as their collision hulls or hitboxes, so a model whose hull is much larger
   than the model pushes where the hull is. Open hulls stay dry inside when the hull is solid
   below the waterline and the draft is under 12 units. Details in
   [rtx_water/wave_simulation.md](rtx_water/wave_simulation.md).
 - Without the native core, interaction falls back to Lua rings (no shapes, no simulation).
+- Splashes are drawn in the water type's own look, also when the native core's custom colour,
+  clarity and refraction (`rtx_water_custom`) are on. They do not collide: drops that come down
+  beside the water vanish at its height.
+- Explosions in water keep the engine's columns (`effects/splash1`, `splash3`) and make no RTX
+  Water splash.
 - With `rtx_water_mesh 0` the map's faces are drawn with the chosen material and there are no
   ripples (both need the redrawn surface).
 - The native core's render-queue access is checked against the material system's machine code.

@@ -1,10 +1,11 @@
 -- RTX Water ripples. With the native core the waves are simulated there (a height field
 -- with the dispersion of real water, pushed by the shapes of the bodies in it, see
 -- cl_bodies.lua and source/rtx_water/wavesim.cpp); this file then only tracks which entities are
--- near water and turns bullet impacts into impulses. Without the core, ripples are rings
--- that spread from players, NPCs, objects and bullet impacts, as real geometry: the tiles
--- they cross are tessellated and their vertices lifted, so Remix refracts and reflects
--- through the actual surface.
+-- near water and turns impacts into impulses: bodies hitting the water (as hard as they hit
+-- it) or leaving it, bullets (reported by the server, sv_bullets.lua) and splash drops coming
+-- down. Without the core, ripples are rings that spread from players, NPCs, objects and
+-- bullet impacts, as real geometry: the tiles they cross are tessellated and their vertices
+-- lifted, so Remix refracts and reflects through the actual surface.
 --
 -- Every ripple vertex is Lua work here and hashing plus acceleration-structure
 -- work in Remix, so the cost is kept down:
@@ -74,11 +75,15 @@ local NEAR, FAR = 900, 2200  -- full detail within NEAR, half up to FAR, flat be
 local AMP_MIN = 0.02         -- summed ripple height (units) below which a tile stays flat
 local MAX_SOURCES = 96
 local MAX_STRIP = 30000      -- vertices per mesh
+local DAMPING = 0.35         -- 1/s: the core's damping (wavesim.h), over rtx_water_interaction_reach
+local DROPS_PER_FRAME = 40   -- splash drops coming down that make rings, per frame at most
 
 R.sources = R.sources or {}
 R.tracked = R.tracked or {}
 R.active = R.active or {}
 R.meshes = R.meshes or {}
+R.later = R.later or {}      -- impulses waiting for their time (cavities closing)
+R.dropRings = 0
 R.stats = { verts = 0, tiles = 0, ms = 0 }
 local sources = R.sources
 
@@ -92,6 +97,7 @@ function R.Configure(s)
 	R.native = s.native
 	R.enabled = s.interaction
 	R.strength = s.interactionStrength
+	R.reach = s.reach
 	local q = s.native and QUALITY_NATIVE or QUALITY
 	R.quality = q[s.quality] or q[2]
 	-- shortest ripple the grid can carry: a bit over two cells per wavelength
@@ -99,7 +105,9 @@ function R.Configure(s)
 	R.bullets = s.bullets
 	R.rate = rateCvar:GetFloat()
 	R.nextUpdate = 0
-	if s.native then RTXWaterNative.SetWaves({ strength = s.interactionStrength }) end
+	-- reach: waves lose their energy over 1 / damping seconds, so they travel that much
+	-- further before they die out
+	if s.native then RTXWaterNative.SetWaves({ strength = s.interactionStrength, damping = DAMPING / s.reach }) end
 	if not R.enabled then R.Clear() end
 end
 
@@ -112,12 +120,13 @@ end
 ---------------------------------------------------------------- sources
 
 -- amp: height in units; lambda: wavelength; speed: ring speed (units/s);
--- decay: amplitude e-folding time (s); delay: start later (s)
+-- decay: amplitude e-folding time (s), times rtx_water_interaction_reach; delay: start later (s)
 function R.Add(plane, x, y, amp, lambda, speed, decay, delay)
 	-- the native core makes its waves from the bodies themselves
 	if not R.enabled or R.native then return end
 	amp = amp * (R.strength or 1)
 	if amp < 0.01 then return end
+	decay = decay * (R.reach or 1)
 	if lambda < R.minLambda then
 		-- keep the slope when a coarse grid stretches a short ripple
 		amp = amp * R.minLambda / lambda
@@ -135,6 +144,7 @@ end
 function R.Clear()
 	if R.native and RTXWaterNative then RTXWaterNative.ClearRipples() end
 	for i = #sources, 1, -1 do sources[i] = nil end
+	R.later = {}
 	R.SetActive({})
 	R.DestroyMeshes()
 end
@@ -449,7 +459,20 @@ function R.Update()
 	local frame = FrameNumber()
 	if R.frame == frame then return end
 	R.frame = frame
-	if R.native then W.Bodies.Send() end
+	R.dropRings = 0
+	R.Track()
+	W.Splash.Think()
+	if R.native then
+		W.Bodies.Send()
+		local now = CurTime()
+		for i = #R.later, 1, -1 do
+			local im = R.later[i]
+			if now >= im.t then
+				RTXWaterNative.AddImpulse(im.plane.index, im.x, im.y, im.depth, im.radius)
+				table.remove(R.later, i)
+			end
+		end
+	end
 	local everyFrame = (R.rate or 0) <= 0
 	local real = RealTime()
 	if not everyFrame and real < (R.nextUpdate or 0) then return end
@@ -510,10 +533,6 @@ local function candidate(ent)
 	return c == "prop_physics" or c == "prop_physics_multiplayer" or c == "prop_ragdoll"
 end
 
-local function consider(ent)
-	if IsValid(ent) and candidate(ent) then R.candidates[ent] = true end
-end
-
 local function active(ent)
 	if ent:IsDormant() then return false end
 	if ent:IsPlayer() then return ent:Alive() and ent:GetObserverMode() == OBS_MODE_NONE end
@@ -537,14 +556,14 @@ local function nearWater(pos)
 end
 
 local function splash(plane, x, y, vz, size)
-	local a = math.Clamp(vz / 220, 0.25, 2.0) * sqrt(size)
+	local a = math.Clamp(vz / 220, 0.15, 3.5) * sqrt(size)
 	R.Add(plane, x, y, a * 1.3, 14 * size ^ 0.3, 36, 1.6)
 	R.Add(plane, x, y, a, 10, 28, 1.8, 0.1)
 	R.Add(plane, x, y, a * 0.5, 7, 20, 2.0, 0.25)
 end
 
--- One look at an entity near the water: splash on entering, wake while moving, a ring
--- now and then while standing.
+-- One look at an entity near the water: a wake while it moves, a ring now and then while it
+-- stands. (Going in and coming out are R.Track's: it sees them on the frame they happen.)
 local function visit(ent, now)
 	local mins, maxs = ent:WorldSpaceAABB()
 	local cx, cy = (mins.x + maxs.x) * 0.5, (mins.y + maxs.y) * 0.5
@@ -554,13 +573,10 @@ local function visit(ent, now)
 		R.tracked[ent] = st
 	end
 	local dt = max(now - st.t, 1e-3)
-	local vx, vy, vz = (cx - st.x) / dt, (cy - st.y) / dt, (mins.z - st.z) / dt
+	local vx, vy = (cx - st.x) / dt, (cy - st.y) / dt
 	local plane = S.PlaneAt(cx, cy, mins.z - 1, maxs.z + 1)
 	local size = math.Clamp(max(maxs.x - mins.x, maxs.y - mins.y) / 32, 0.4, 4)
 	if plane then
-		if st.plane ~= plane and st.known then
-			splash(plane, cx, cy, abs(vz), size)
-		end
 		local v = sqrt(vx * vx + vy * vy)
 		if v > 6 and now >= st.nextWake then
 			-- a little ahead of the body: its front pushes the water
@@ -571,12 +587,20 @@ local function visit(ent, now)
 			R.Add(plane, cx, cy, 0.08 * size, 7, 18, 1.2)
 			st.nextIdle = now + 1.2 + math.random() * 1.6
 		end
-	elseif st.plane then
-		-- leaving the water
+	elseif st.plane and maxs.z < st.plane.z then
+		-- gone under: the water closes over it
 		R.Add(st.plane, st.x, st.y, 0.15 * size, 9, 24, 1.2)
 	end
-	st.plane, st.known, st.size = plane, true, size
+	st.plane, st.size = plane, size
 	st.x, st.y, st.z, st.t = cx, cy, mins.z, now
+end
+
+-- A new entity, or one that came into view: one near the water is watched from now on rather
+-- than from its turn in the slices (a prop dropped in may be in the water by then).
+local function consider(ent)
+	if not IsValid(ent) or not candidate(ent) then return end
+	R.candidates[ent] = true
+	if not R.tracked[ent] and active(ent) and nearWater(ent:GetPos()) then visit(ent, CurTime()) end
 end
 
 function R.Scan()
@@ -598,23 +622,146 @@ function R.Scan()
 			end
 		end
 	end
+	-- shapes for the core are made here, outside the frame (see cl_bodies.lua)
+	if R.native then W.Bodies.Prepare() end
 end
 
+---------------------------------------------------------------- going in and coming out
+
+-- Bodies crossing the surface are seen on the frame it happens (a scan comes every 50 ms, in
+-- which a falling body crosses the surface and more), at the speed of their lowest point.
+-- Going in, a body opens a cavity wider than itself, the wider and deeper the harder it hits;
+-- it closes a moment later into waves that grow with the speed. (The core's push of the
+-- body's shape alone makes the same waves however fast it comes in.) Coming out, it lifts
+-- the water under it, which falls back. Both splash (cl_splash.lua).
+local CROSS_SPEED = 40  -- units/s: slower crossings (wading in, bobbing) make neither
+local CROSS_GAP = 0.3   -- s between two crossings of one body
+
+-- Equivalent radius of a body's footprint; hitboxes fill their bounding box less.
+local function footprint(ent, mins, maxs)
+	local re = 0.5 * sqrt(max(maxs.x - mins.x, 1) * max(maxs.y - mins.y, 1))
+	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then re = re * 0.6 end
+	return re
+end
+
+-- A body of equivalent radius re hit the water at (x, y), going down at `speed` (units/s) and
+-- across it at (vx, vy).
+function R.Entry(plane, x, y, speed, re, vx, vy)
+	if R.native then
+		-- the cavity: one step of pressure where it closes, a Gaussian sigma wide, along the
+		-- body's path from where it went in when it went in at a slant
+		local k = min(max(speed - 60, 0) / 300, 2.5) ^ 0.8
+		if k > 0 then
+			local sigma = re * (1 + sqrt(speed / 600)) + 4 * sqrt(speed / 300)
+			local depth = min(0.3 * k * min(1, sqrt(16 / re)), 0.35) * sigma * (R.strength or 1)
+			local shift = 0.5 * re / sqrt(vx * vx + vy * vy + speed * speed)
+			R.later[#R.later + 1] = { t = CurTime() + math.Clamp(1.5 * re / speed + 0.05, 0.05, 0.3),
+				plane = plane, x = x + vx * shift, y = y + vy * shift, depth = depth, radius = sigma }
+		end
+	else
+		splash(plane, x, y, speed, math.Clamp(re / 16, 0.4, 4))
+	end
+	W.Splash.Entry(plane, x, y, speed, re, vx, vy)
+end
+
+-- A body left the water at (x, y) at `speed` (units/s, upwards).
+function R.Exit(plane, ent, x, y, speed, re)
+	local k = min(speed / 300, 2.5)
+	if R.native then
+		-- the water it lifts: a suction under it for one step
+		local sigma = re * 1.2 + 2
+		RTXWaterNative.AddImpulse(plane.index, x, y, -0.12 * k * sigma * (R.strength or 1), sigma)
+	else
+		R.Add(plane, x, y, (0.1 + 0.25 * k) * math.Clamp(re / 16, 0.4, 4), 9, 24, 1.2)
+	end
+	W.Splash.Exit(plane, ent, speed, re)
+end
+
+function R.Track()
+	local now = CurTime()
+	for ent, st in pairs(R.tracked) do
+		if IsValid(ent) and active(ent) then
+			local mins, maxs = ent:WorldSpaceAABB()
+			local cx, cy = (mins.x + maxs.x) * 0.5, (mins.y + maxs.y) * 0.5
+			local bottom, last = mins.z, st.fz
+			st.fz = bottom
+			-- velocity over 15 ms or more: some entities only move once a tick
+			if not st.wt or now - st.wt >= 0.015 then
+				if st.wt and st.wx then
+					local inv = 1 / (now - st.wt)
+					st.vx, st.vy, st.vz = (cx - st.wx) * inv, (cy - st.wy) * inv, (bottom - st.wz) * inv
+				else
+					st.vx, st.vy, st.vz = 0, 0, 0
+				end
+				st.wx, st.wy, st.wz, st.wt = cx, cy, bottom, now
+			end
+			if last and bottom ~= last and now >= (st.nextCross or 0) then
+				local plane = S.PlaneAt(cx, cy, min(bottom, last), max(bottom, last))
+				if plane then
+					local vz = st.vz
+					if last >= plane.z and bottom < plane.z and vz < -CROSS_SPEED then
+						st.nextCross = now + CROSS_GAP
+						R.Entry(plane, cx, cy, -vz, footprint(ent, mins, maxs), st.vx, st.vy)
+					elseif last < plane.z and bottom >= plane.z and vz > CROSS_SPEED then
+						st.nextCross = now + CROSS_GAP
+						R.Exit(plane, ent, cx, cy, vz, footprint(ent, mins, maxs))
+					end
+				end
+			end
+		end
+	end
+end
+
+-- A splash drop of radius r coming down on the water at `speed`.
+function R.Drop(plane, x, y, r, speed)
+	if not R.enabled or R.dropRings >= DROPS_PER_FRAME then return end
+	R.dropRings = R.dropRings + 1
+	local k = min(speed / 250, 2)
+	if R.native then
+		RTXWaterNative.AddImpulse(plane.index, x, y, 0.25 * r * k * (R.strength or 1), max(1.5, 2 * r))
+	elseif r >= 0.4 and R.dropRings <= 4 then
+		R.Add(plane, x, y, 0.08 * r * k, 5, 18, 0.6)
+	end
+end
+
+---------------------------------------------------------------- bullets
+
+-- A bullet went into the water at (x, y) of plane, along dir; power is 1 for a pistol round,
+-- more for heavier ones. A pressure impulse, of which the simulation makes the crater and its
+-- train of rings, and a spout of spray.
+function R.Shot(plane, x, y, dir, power)
+	if R.native then
+		RTXWaterNative.AddImpulse(plane.index, x, y, 2.0 * (R.strength or 1) * power, 3.0 * sqrt(power))
+	else
+		R.Add(plane, x, y, 0.6 * power, 6, 28, 1.0)
+		R.Add(plane, x, y, 0.3 * power, 10, 34, 1.2, 0.05)
+	end
+	W.Splash.Shot(plane, x, y, dir, power)
+end
+
+-- The server reports every shot that reaches the water (sv_bullets.lua).
+net.Receive("rtx_water_shots", function()
+	for _ = 1, net.ReadUInt(5) do
+		local pos, dir, power = net.ReadVector(), net.ReadNormal(), net.ReadUInt(8) / 32
+		if R.enabled and R.bullets then
+			local plane = S.PlaneAt(pos.x, pos.y, pos.z - 4, pos.z + 4)
+			if plane then R.Shot(plane, pos.x, pos.y, dir, power) end
+		end
+	end
+end)
+
+-- On a server without RTX Water, the shots this client predicts (its own, in multiplayer)
+-- are all it sees.
 local function onBullets(ent, data)
 	if not (R.enabled and R.bullets) or not data.Src or not data.Dir then return end
+	if util.NetworkStringToID("rtx_water_shots") ~= 0 or not IsFirstTimePredicted() then return end
 	local dir = data.Dir:GetNormalized()
 	local hit = S.RayHit(data.Src, dir, min(data.Distance or 32768, 32768))
 	if not hit then return end
 	-- only if the shot reaches the water before anything solid
 	local tr = util.TraceLine({ start = data.Src, endpos = data.Src + dir * hit.t, mask = MASK_SHOT, filter = ent })
 	if tr.Hit then return end
-	if R.native then
-		-- a pressure impulse: the simulation makes the crater and its train of rings
-		RTXWaterNative.AddImpulse(hit.plane.index, hit.x, hit.y, 2.0 * (R.strength or 1), 3.0)
-		return
-	end
-	R.Add(hit.plane, hit.x, hit.y, 0.6, 6, 28, 1.0)
-	R.Add(hit.plane, hit.x, hit.y, 0.3, 10, 34, 1.2, 0.05)
+	R.Shot(hit.plane, hit.x, hit.y, dir, 1)
 end
 
 function R.Start()
@@ -626,6 +773,9 @@ function R.Start()
 	end)
 	hook.Add("EntityRemoved", "RTXWater_Candidates", function(ent)
 		R.candidates[ent], R.tracked[ent] = nil, nil
+	end)
+	hook.Add("NotifyShouldTransmit", "RTXWater_Candidates", function(ent, transmit)
+		if transmit then timer.Simple(0, function() consider(ent) end) end
 	end)
 	timer.Create("RTXWater_Scan", SCAN, 0, function()
 		local t0 = SysTime()
@@ -639,8 +789,10 @@ function R.Stop()
 	timer.Remove("RTXWater_Scan")
 	hook.Remove("OnEntityCreated", "RTXWater_Candidates")
 	hook.Remove("EntityRemoved", "RTXWater_Candidates")
+	hook.Remove("NotifyShouldTransmit", "RTXWater_Candidates")
 	hook.Remove("EntityFireBullets", "RTXWater_Bullets")
 	R.Clear()
 	R.tracked, R.candidates = {}, {}
 	if W.Bodies then W.Bodies.Reset() end
+	if W.Splash then W.Splash.Clear() end
 end

@@ -19,6 +19,7 @@ local BELOW = 64       -- and below it
 local POSE_RATE = 15   -- poses a second of the local player in first person (setting its bones up costs ~50 us)
 
 B.shapes = B.shapes or {}  -- "hull:model" / "hitbox:model" -> { key, bones } or false
+B.pending = B.pending or {} -- entity -> shape name, to be made outside the frame
 B.nextKey = B.nextKey or 0
 
 -- A box as a triangle soup.
@@ -82,33 +83,50 @@ local function animated(ent)
 	return ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() or ent:GetClass() == "prop_ragdoll"
 end
 
--- The shape of an entity, sent to the core the first time its model is seen.
-local function shapeOf(ent)
+local function shapeName(ent)
 	local model = ent:GetModel()
 	if not model or model == "" then return nil end
-	local bony = animated(ent)
-	local name = (bony and "hitbox:" or "hull:") .. model
-	local sh = B.shapes[name]
-	if sh ~= nil then return sh or nil end
+	return (animated(ent) and "hitbox:" or "hull:") .. model
+end
+
+-- The shape of an entity, sent to the core the first time its model is seen. A hull comes
+-- from a client-side prop, which must not be spawned or removed while a frame is drawn, and
+-- B.Send runs in the draw hook: so it only looks shapes up, and the scan (a timer) makes the
+-- missing ones with B.Prepare.
+local function makeShape(ent, name)
 	local parts, bones
-	if bony then
+	if animated(ent) then
 		parts, bones = hitboxes(ent)
 	else
-		parts = hull(model)
+		parts = hull(ent:GetModel())
 	end
 	if not parts then
 		local mins, maxs = ent:OBBMins(), ent:OBBMaxs()
 		if (maxs - mins):LengthSqr() < 1 then
 			B.shapes[name] = false
-			return nil
+			return
 		end
 		parts, bones = { boxTris(mins, maxs) }, nil
 	end
 	B.nextKey = B.nextKey + 1
-	sh = { key = B.nextKey, bones = bones }
+	local sh = { key = B.nextKey, bones = bones }
 	RTXWaterNative.SetShape(sh.key, parts)
 	B.shapes[name] = sh
-	return sh
+end
+
+local function shapeOf(ent)
+	local name = shapeName(ent)
+	if not name then return nil end
+	local sh = B.shapes[name]
+	if sh == nil then B.pending[ent] = name end
+	return sh or nil
+end
+
+function B.Prepare()
+	for ent, name in pairs(B.pending) do
+		B.pending[ent] = nil
+		if IsValid(ent) and B.shapes[name] == nil then makeShape(ent, name) end
+	end
 end
 
 local function bodyId(ent)
@@ -205,5 +223,5 @@ function B.Send()
 end
 
 function B.Reset()
-	B.shapes, B.nextKey, B.sentAny, B.last, B.pose = {}, 0, false, nil, nil
+	B.shapes, B.pending, B.nextKey, B.sentAny, B.last, B.pose = {}, {}, 0, false, nil, nil
 end

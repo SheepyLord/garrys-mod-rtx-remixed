@@ -13,6 +13,9 @@
 --   the Remix mod has one translucent material per tag, so a type or wave change is
 --   a texture swap. Wave strength, speed and direction are Remix animated-water
 --   options, set while a map with water is loaded and restored afterwards.
+-- * The engine's own water effects are flat sprites at the map's water height. Its ripple
+--   and wake quads are hidden while this addon draws the surface (its waves are real), and
+--   the spray of bullet and body splashes while it makes splashes of its own.
 
 RTXWater = RTXWater or {}
 local W = RTXWater
@@ -20,7 +23,15 @@ local D = RTXWater_Data
 
 local CAT_HIDDEN = bit.lshift(1, 9)
 local CAT_ANIMATED_WATER = bit.lshift(1, 18)
+local MATERIAL_VAR_NO_DRAW = 4
 local MATERIAL_VAR_TRANSLUCENT = 2097152
+
+-- The engine's water effect materials (client.dll's effects): FX_WaterRipple's quad, which
+-- bullets, splashes and explosions leave on the water, and vehicles' wakes; the spray of
+-- FX_GunshotSplash (bullets, and bodies going in). Explosions keep their columns (splash1,
+-- splash3).
+local EFFECT_WAKES = { "effects/splashwake1", "effects/splashwake3", "effects/splashwake4" }
+local EFFECT_SPRAY = { "effects/splash2" }
 
 function W.log(fmt, ...)
 	MsgC(Color(90, 200, 255), "[RTXWater] ", Color(225, 225, 225), string.format(fmt, ...), "\n")
@@ -46,8 +57,12 @@ W.cv = {
 	scale = cvar("rtx_water_wave_scale", "1", "Wave size multiplier", 0.25, 4),
 	interaction = cvar("rtx_water_interaction", "1", "Waves from players, NPCs and objects", 0, 1),
 	interactionStrength = cvar("rtx_water_interaction_strength", "1", "How hard bodies and bullets push the water", 0, 3),
+	reach = cvar("rtx_water_interaction_reach", "1", "How far waves from bodies and bullets travel before they die out (multiplier)", 0.25, 4),
 	quality = cvar("rtx_water_interaction_quality", "2", "Wave detail: 1 low, 2 medium, 3 high", 1, 3),
 	bullets = cvar("rtx_water_bullets", "1", "Bullet impacts make waves", 0, 1),
+	splashes = cvar("rtx_water_splashes", "1", "Splashes: drops, sheets and jets thrown up by bodies and bullets", 0, 1),
+	splashStrength = cvar("rtx_water_splash_strength", "1", "How high and how much water splashes (multiplier)", 0, 3),
+	splashDrops = cvar("rtx_water_splash_drops", "200", "Splash drops in the air at most", 0, 1000),
 	mesh = cvar("rtx_water_mesh", "1", "Draw the water surface with RTX Water (0: the map's own faces, no waves from interaction)", 0, 1),
 }
 
@@ -63,6 +78,7 @@ function W.Resolve()
 	if not D.types[t] then t = (D.types[p.type or ""] and p.type) or W.detectedType or "lake" end
 	local w = W.cv.waves:GetString()
 	if not D.waves[w] then w = (D.waves[p.waves or ""] and p.waves) or "ripple" end
+	local interaction = W.cv.interaction:GetBool() and p.interaction ~= false and W.cv.mesh:GetBool()
 	return {
 		type = t,
 		waves = w,
@@ -70,10 +86,15 @@ function W.Resolve()
 		speed = W.cv.speed:GetFloat() * (p.wave_speed or 1),
 		direction = W.cv.direction:GetFloat(),
 		scale = math.max(W.cv.scale:GetFloat() * (p.wave_scale or 1), 0.05),
-		interaction = W.cv.interaction:GetBool() and p.interaction ~= false and W.cv.mesh:GetBool(),
+		interaction = interaction,
 		interactionStrength = W.cv.interactionStrength:GetFloat(),
+		reach = math.Clamp(W.cv.reach:GetFloat(), 0.25, 4),
 		quality = math.Clamp(W.cv.quality:GetInt(), 1, 3),
 		bullets = W.cv.bullets:GetBool(),
+		-- splashes come from what the interaction tracks
+		splashes = interaction and W.cv.splashes:GetBool(),
+		splashStrength = math.Clamp(W.cv.splashStrength:GetFloat(), 0, 3),
+		splashDrops = math.Clamp(W.cv.splashDrops:GetInt(), 0, 1000),
 		mesh = W.cv.mesh:GetBool(),
 		-- the native core draws the surface itself, so it needs the redrawn surface
 		native = W.cv.mesh:GetBool() and W.Native ~= nil and W.Native.Wanted(),
@@ -204,13 +225,20 @@ local function isOurTag(name)
 	return false
 end
 
--- Puts back materials a previous map left with our tags.
+-- Puts back materials a previous map left with our tags, or effects it left hidden.
 local function recoverOriginals()
 	local saved = util.JSONToTable(file.Read(ORIGINALS, "DATA") or "") or {}
 	local n = 0
 	for name, o in pairs(saved) do
 		local m = Material(name)
-		if not m:IsError() and (isOurTag(texName(m, "$basetexture")) or isOurTag(texName(m, "$normalmap"))) then
+		if m:IsError() then
+			-- gone
+		elseif o.effect then
+			if bit.band(m:GetInt("$flags"), MATERIAL_VAR_NO_DRAW) ~= 0 then
+				m:SetInt("$flags", o.flags or 0)
+				n = n + 1
+			end
+		elseif isOurTag(texName(m, "$basetexture")) or isOurTag(texName(m, "$normalmap")) then
 			if o.normal then m:SetTexture("$normalmap", o.normal) end
 			if o.base then m:SetTexture("$basetexture", o.base) end
 			m:SetInt("$flags", o.flags or 0)
@@ -254,6 +282,28 @@ local function restoreMaterials()
 	saveOriginals()
 end
 
+-- Hides (or shows again) engine effect materials; their flags are kept with the water's.
+local function hideEffects(names, hide)
+	for _, name in ipairs(names) do
+		local m = Material(name)
+		local o = W.original[name]
+		if m:IsError() then
+			-- not in this game
+		elseif hide then
+			local f = m:GetInt("$flags")
+			if not o then
+				W.original[name] = { flags = bit.band(f, bit.bnot(MATERIAL_VAR_NO_DRAW)), effect = true }
+				saveOriginals()
+			end
+			if bit.band(f, MATERIAL_VAR_NO_DRAW) == 0 then m:SetInt("$flags", bit.bor(f, MATERIAL_VAR_NO_DRAW)) end
+		elseif o then
+			m:SetInt("$flags", o.flags or 0)
+			W.original[name] = nil
+			saveOriginals()
+		end
+	end
+end
+
 local function applyMaterials(s)
 	local S = W.Surface
 	local tag = D.types[s.type].tags[s.waves].texture
@@ -261,6 +311,8 @@ local function applyMaterials(s)
 	-- everything with rtx_water_mesh 0) shows the chosen material directly
 	local n = fixMaterials(S.worldMaterials, s.mesh and D.hidden.texture or tag)
 	n = n + fixMaterials(S.entityMaterials, tag)
+	hideEffects(EFFECT_WAKES, s.mesh)
+	hideEffects(EFFECT_SPRAY, s.splashes)
 	return n
 end
 
@@ -291,6 +343,7 @@ function W.Refresh(force)
 		end
 	end
 	W.Ripples.Configure(s)
+	W.Splash.Configure(s)
 	if force or not old or old.type ~= s.type or old.waves ~= s.waves then
 		log("%s, %s waves on %d water materials", D.types[s.type].label, string.lower(D.waves[s.waves].label), n)
 	end
@@ -348,6 +401,7 @@ function W.Start()
 			W.Surface.Draw()
 			W.Ripples.Draw()
 		end
+		W.Splash.Draw()
 		W.Native.Frame()
 		W.perf.draw = W.perf.draw * 0.98 + (SysTime() - t0) * 0.02
 	end)
@@ -401,4 +455,5 @@ concommand.Add("rtx_water_status", function()
 	log("%s; game thread %.3f ms a frame drawing, %.3f ms a scan; %d tiles, %d vertices, %.2f ms per update%s",
 		s.native and "native core" or "Lua meshes", W.perf.draw * 1000, W.perf.scan * 1000, st.tiles or 0, st.verts or 0,
 		st.ms or 0, s.native and " (worker thread)" or "")
+	log("wave reach %.2f; splashes %s, %d drops in the air", s.reach, s.splashes and "on" or "off", W.Splash.Count())
 end)

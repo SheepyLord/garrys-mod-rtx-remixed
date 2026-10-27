@@ -1,5 +1,6 @@
 -- RTX Water: path-traced water for Garry's Mod RTX, on any map.
--- Water type, waves, and the waves players, objects and bullets make in it, all client side.
+-- Water type, waves, and the waves and splashes players, objects and bullets make in it, all
+-- client side; the server only reports where bullets go into the water (sv_bullets.lua).
 -- The materials live in the Remix mod rtx-remix/mods/rtx_water.
 
 local FILES = {
@@ -8,12 +9,14 @@ local FILES = {
 	"rtx_water/cl_surface.lua",
 	"rtx_water/cl_ripples.lua",
 	"rtx_water/cl_bodies.lua",
+	"rtx_water/cl_splash.lua",
 	"rtx_water/cl_native.lua",
 	"rtx_water/cl_menu.lua",
 }
 
 if SERVER then
 	for _, f in ipairs(FILES) do AddCSLuaFile(f) end
+	include("rtx_water/sv_bullets.lua")
 	return
 end
 
