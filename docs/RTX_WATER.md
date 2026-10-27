@@ -37,6 +37,10 @@ refracts and reflects through the disturbed surface.
   jet from the closing cavity, and drips from whatever was pulled out. Their size follows the
   speed of the hit, they lean with its angle (ahead of a slanted hit, the jet back up its
   path), and the drops that fall back make rings of their own.
+- **Under water** (native core): the camera starts inside the water's material, so the surface
+  seen from below refracts as real water does. Overhead is Snell's window; past the critical
+  angle (48.6° from vertical at refraction index 1.333) the surface mirrors the pool, and the
+  view is dimmed with the water's colour.
 - **The engine's own water effects** are hidden where RTX Water replaces them: the flat ripple
   and wake quads, and the spray sprites of bullet and body splashes.
 - **Interaction** (Lua meshes, without the native core): rings, a splash when something enters
@@ -175,6 +179,14 @@ caustics only while the water has waves.
   queue. The core checks that queue's layout against GMod's `materialsystem.dll` code before
   using it. The material is a Remix API material, which is what makes the custom colour,
   clarity and refraction settings possible.
+- **Under water**: Remix traces every camera ray as starting in air unless it is told
+  otherwise, and then takes the surface seen from below for a way into the water: no total
+  internal reflection, no Snell's window. Once a frame the draw hook asks the engine whether
+  the view origin is in a water volume (`util.PointContents`), and while it is, the native core
+  makes the water material the camera's medium (`SetCameraMediumMaterial`, on the render
+  thread like the other calls that emit device commands). It is sent again every frame
+  because Remix forgets it whenever it clears its scene (camera cuts, mod reloads), and cleared
+  when the view leaves the water or RTX Water stops.
 - **Leaving a map**: the map's materials are left as they are while it unloads. A material
   changed in the `ShutDown` hook leaves queued render work that runs after the material is
   freed, and GMod crashes. Their original values are kept in `data/rtx_water/originals.json`,
@@ -280,6 +292,10 @@ docs/RTX_WATER.md       this page; docs/rtx_water/ has its images and wave_simul
   Water splash.
 - With `rtx_water_mesh 0` the map's faces are drawn with the chosen material and there are no
   ripples (both need the redrawn surface).
+- Whether the view is under water is the engine's test against the water at rest, as for its
+  own underwater fog and sounds. A camera within a wave's height of the surface can be on the
+  other side of the drawn waves for a moment. Without the native core (Lua meshes, or
+  `rtx_water_mesh 0`) the camera does not start in the water.
 - The native core's render-queue access is checked against the material system's machine code.
   A GMod update that changes that code turns the native core off, with a status message, until
   the core is updated.

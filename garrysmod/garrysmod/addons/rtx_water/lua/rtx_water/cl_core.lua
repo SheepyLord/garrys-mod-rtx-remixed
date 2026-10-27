@@ -455,5 +455,6 @@ concommand.Add("rtx_water_status", function()
 	log("%s; game thread %.3f ms a frame drawing, %.3f ms a scan; %d tiles, %d vertices, %.2f ms per update%s",
 		s.native and "native core" or "Lua meshes", W.perf.draw * 1000, W.perf.scan * 1000, st.tiles or 0, st.verts or 0,
 		st.ms or 0, s.native and " (worker thread)" or "")
-	log("wave reach %.2f; splashes %s, %d drops in the air", s.reach, s.splashes and "on" or "off", W.Splash.Count())
+	log("wave reach %.2f; splashes %s, %d drops in the air%s", s.reach, s.splashes and "on" or "off", W.Splash.Count(),
+		(s.native and RTXWaterNative.Stats().cameraInWater) and "; the camera is in the water" or "")
 end)

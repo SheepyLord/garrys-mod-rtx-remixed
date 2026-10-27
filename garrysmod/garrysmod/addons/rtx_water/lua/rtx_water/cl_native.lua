@@ -4,15 +4,17 @@
 -- Remix through its C API: calm water sits in persistent Remix instances (no
 -- per-frame work at all), ripple tiles are tessellated on a worker thread, and the
 -- water material is a Remix API material, so its colour, clarity and refraction can
--- be set freely (rtx_water_custom). Its Remix calls that must not run on this thread
--- go out to the render thread from the draw hook (N.Frame). Without the module,
--- cl_surface.lua and cl_ripples.lua draw the water through GMod meshes and the Remix
--- mod's materials.
+-- be set freely (rtx_water_custom), and the camera can start inside it while the view
+-- is under water. Its Remix calls that must not run on this thread go out to the
+-- render thread from the draw hook (N.Frame). Without the module, cl_surface.lua and
+-- cl_ripples.lua draw the water through GMod meshes and the Remix mod's materials.
 
 local W = RTXWater
 local D = RTXWater_Data
 local N = W.Native or {}
 W.Native = N
+
+local LIQUID = bit.bor(CONTENTS_WATER, CONTENTS_SLIME)
 
 local function cvar(name, default, help, lo, hi)
 	local c = CreateClientConVar(name, default, true, false, help, lo, hi)
@@ -108,15 +110,33 @@ function N.Apply(s, surfaceChanged)
 end
 
 function N.Stop()
-	if N.tried and RTXWaterNative then RTXWaterNative.Shutdown() end
+	if N.tried and RTXWaterNative then
+		RTXWaterNative.Shutdown()
+		-- the draw hook may be gone with RTX Water: what the shutdown queued (the camera
+		-- leaving the water, the material going away) goes out with the next frame drawn
+		hook.Add("PreDrawTranslucentRenderables", "RTXWater_NativeStop", function(depth, sky)
+			if depth or sky then return end
+			hook.Remove("PreDrawTranslucentRenderables", "RTXWater_NativeStop")
+			if N.ok then RTXWaterNative.Flush(FrameNumber()) end
+		end)
+	end
 	N.surfaceSet, N.materialKey, N.repeatUnits = false, nil, nil
 end
 
 -- Once per drawn frame, from the draw hook: the core destroys meshes it no longer uses
 -- and hands its Remix calls to the render thread (Remix must not be called from here
--- while GMod renders on its own thread).
+-- while GMod renders on its own thread). First it learns whether the view is in the
+-- water (the engine's own test, at the water's rest height): the camera then starts
+-- inside the water material, so seen from below the surface shows Snell's window and
+-- mirrors everything past the critical angle.
 function N.Frame()
-	if not N.ok or RTXWaterNative.Flush(FrameNumber()) then return end
+	if not N.ok then return end
+	local frame = FrameNumber()
+	if frame ~= N.frame and RTXWaterNative.SetCameraInWater then
+		N.frame = frame
+		RTXWaterNative.SetCameraInWater(bit.band(util.PointContents(EyePos()), LIQUID) ~= 0)
+	end
+	if RTXWaterNative.Flush(frame) then return end
 	N.ok, N.error = false, "this GMod build's render queue is not recognised"
 	W.ScheduleRefresh()
 end

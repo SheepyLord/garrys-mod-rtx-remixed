@@ -13,6 +13,9 @@
 // * The water material is a Remix API translucent material, so colour, clarity and
 //   refraction change at run time without a mesh rebuild (meshes refer to it by
 //   handle).
+// * Under water the camera starts inside that material (Remix's camera medium), so the
+//   surface seen from below refracts out of the water: Snell's window overhead, total
+//   internal reflection past the critical angle.
 //
 // Geometry conventions match lua/rtx_water/cl_surface.lua: polygons are flat
 // {x1, y1, x2, y2, ...} arrays, counter-clockwise seen from above; triangles are
@@ -20,9 +23,10 @@
 // faces up and rays enter the water volume through it.
 //
 // Threading: GMod renders on its own thread (mat_queue_mode -2) while Lua runs on the
-// main thread. Remix API calls that emit device commands straight away
-// (DestroyMesh, CreateMaterial, DestroyMaterial) take no device lock, so calling them
-// from Lua races the render thread's D3D9 calls and corrupts Remix's command stream.
+// main thread. Remix API calls that emit device commands straight away (DestroyMesh,
+// CreateMaterial, DestroyMaterial, SetCameraMediumMaterial) take no device lock, so
+// calling them from Lua races the render thread's D3D9 calls and corrupts Remix's
+// command stream.
 // Here they run on the render thread through the material system's call queue (the
 // main thread only touches D3D9 itself under IMaterialSystem::Lock, which first waits
 // for the render thread to go idle). Meshes are made with CreateMeshBatched and shown
@@ -417,6 +421,7 @@ float g_repeatInv = 1.0f / 256.0f;
 
 remixapi_MaterialHandle g_material = nullptr;
 uint64_t g_materialHash = 0;
+remixapi_MaterialHandle g_cameraMedium = nullptr;  // what the camera was last put in (main thread)
 remixapi_InstanceCategoryFlags g_categories = 0;
 remixapi_MeshHandle g_rippleMesh = nullptr;
 remixapi_PersistentInstanceHandle g_rippleInst = 0;
@@ -612,6 +617,19 @@ void refreshInstances() {
 	if (g_rippleInst && g_rippleMesh) showMesh(g_rippleInst, g_rippleMesh);
 }
 
+// Puts the camera inside a translucent material from the next frame on, or outside any
+// (nullptr). Remix copies the material's values when it is called.
+void setCameraMedium(remixapi_MaterialHandle m) {
+	g_cameraMedium = m;
+	if (!g_apiOk || !g_api.SetCameraMediumMaterial) return;
+	onRenderThread([m] {
+		remixapi_CameraMediumInfo info {};
+		info.sType = REMIXAPI_STRUCT_TYPE_CAMERA_MEDIUM_INFO;
+		info.medium = m;
+		g_api.SetCameraMediumMaterial(&info);
+	});
+}
+
 // ---------------------------------------------------------------- waves
 
 struct View { float ex, ey, ez, fx, fy, fz, cosView; int n; int budget; float nearD, farD; };
@@ -776,6 +794,7 @@ void clearRipples() {
 void destroyAll() {
 	clearRipples();
 	destroyStatic();
+	if (g_cameraMedium) setCameraMedium(nullptr);  // out of the water before it goes
 	if (g_material && g_apiOk) {
 		remixapi_MaterialHandle m = g_material;
 		onRenderThread([m] { g_api.DestroyMaterial(m); });
@@ -1238,6 +1257,17 @@ LUA_FUNCTION(Native_Update) {
 	return 3;
 }
 
+// SetCameraInWater(inWater): once per drawn frame, before Flush: whether the view is in
+// the water. Under water the camera starts inside the water material, so Remix refracts
+// out through the surface instead of into it, and dims the view with the water's colour.
+// The medium is sent again every frame: Remix forgets it whenever it clears its scene
+// (camera cuts, mod reloads), and a restyled material takes over at once.
+LUA_FUNCTION(Native_SetCameraInWater) {
+	remixapi_MaterialHandle m = LUA->GetBool(1) ? g_material : nullptr;
+	if (m || g_cameraMedium) setCameraMedium(m);
+	return 0;
+}
+
 // Flush(frameNumber): once per drawn frame, from the draw hook. Destroys meshes that
 // have been out of use long enough and hands waiting work to the render thread.
 // Returns false if the render queue cannot be used (the native core must then stop).
@@ -1292,6 +1322,7 @@ LUA_FUNCTION(Native_Stats) {
 	LUA->PushNumber(g_jobsQueued); LUA->SetField(-2, "jobsQueued");
 	LUA->PushNumber(g_jobsRun); LUA->SetField(-2, "jobsRun");
 	LUA->PushBool(g_jobThread != 0 && g_jobThread != g_luaThread); LUA->SetField(-2, "jobsOnRenderThread");
+	LUA->PushBool(g_cameraMedium != nullptr); LUA->SetField(-2, "cameraInWater");
 	return 1;
 }
 
@@ -1311,11 +1342,12 @@ GMOD_MODULE_OPEN() {
 	LUA->PushCFunction(Native_AddImpulse); LUA->SetField(-2, "AddImpulse");
 	LUA->PushCFunction(Native_SetWaves); LUA->SetField(-2, "SetWaves");
 	LUA->PushCFunction(Native_Update); LUA->SetField(-2, "Update");
+	LUA->PushCFunction(Native_SetCameraInWater); LUA->SetField(-2, "SetCameraInWater");
 	LUA->PushCFunction(Native_Flush); LUA->SetField(-2, "Flush");
 	LUA->PushCFunction(Native_ClearRipples); LUA->SetField(-2, "ClearRipples");
 	LUA->PushCFunction(Native_Shutdown); LUA->SetField(-2, "Shutdown");
 	LUA->PushCFunction(Native_Stats); LUA->SetField(-2, "Stats");
-	LUA->PushNumber(4); LUA->SetField(-2, "Version");
+	LUA->PushNumber(5); LUA->SetField(-2, "Version");
 	LUA->SetField(-2, "RTXWaterNative");
 	LUA->Pop();
 	return 0;
