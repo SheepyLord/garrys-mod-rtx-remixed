@@ -556,7 +556,7 @@ local function nearWater(pos)
 end
 
 local function splash(plane, x, y, vz, size)
-	local a = math.Clamp(vz / 220, 0.15, 3.5) * sqrt(size)
+	local a = math.Clamp(0.1 + vz / 250, 0.1, 3.5) * sqrt(size)
 	R.Add(plane, x, y, a * 1.3, 14 * size ^ 0.3, 36, 1.6)
 	R.Add(plane, x, y, a, 10, 28, 1.8, 0.1)
 	R.Add(plane, x, y, a * 0.5, 7, 20, 2.0, 0.25)
@@ -616,65 +616,149 @@ function R.Scan()
 		elseif st or i % FAR_SLICES == slice then
 			if active(ent) and nearWater(ent:GetPos()) then
 				visit(ent, now)
+				W.Bodies.Want(ent)
 			elseif st then
 				if st.plane and active(ent) then R.Add(st.plane, st.x, st.y, 0.15 * st.size, 9, 24, 1.2) end
 				R.tracked[ent] = nil
 			end
 		end
 	end
-	-- shapes for the core are made here, outside the frame (see cl_bodies.lua)
-	if R.native then W.Bodies.Prepare() end
+	-- shapes (for the core, and the outlines of splashes) are made here, outside the frame
+	-- (see cl_bodies.lua)
+	W.Bodies.Prepare()
 end
 
 ---------------------------------------------------------------- going in and coming out
 
 -- Bodies crossing the surface are seen on the frame it happens (a scan comes every 50 ms, in
 -- which a falling body crosses the surface and more), at the speed of their lowest point.
--- Going in, a body opens a cavity wider than itself, the wider and deeper the harder it hits;
--- it closes a moment later into waves that grow with the speed. (The core's push of the
--- body's shape alone makes the same waves however fast it comes in.) Coming out, it lifts
--- the water under it, which falls back. Both splash (cl_splash.lua).
-local CROSS_SPEED = 40  -- units/s: slower crossings (wading in, bobbing) make neither
+-- What goes in is the plan of the body's lowest units (W.Bodies.Footprint): one outline, or
+-- several (two legs). Going in, a body opens a cavity along its outline, wider and deeper
+-- the harder it hits, which closes about 2 sqrt(D / g) later into waves that grow with the
+-- speed. (The core's push of the body's shape alone makes the same waves however fast it
+-- comes in; the cavity's impulse, landing while that push is still forming, would make them
+-- smaller instead.) Coming out, a body lifts the water under it, which falls back. Both
+-- splash (cl_splash.lua). Everything grows from nothing with speed: there is no speed below
+-- which a body makes no splash, only one below which there is nothing to see.
+local CROSS_SPEED = 12  -- units/s: slower crossings (floating, bobbing) are left alone
 local CROSS_GAP = 0.3   -- s between two crossings of one body
+local GOING_IN = 0.6    -- s after it hits during which more of a body going under splashes too
+local SLICE = 12        -- units: the slice of a body whose plan goes into the water first
+local FLAT = 3          -- units: ...and the slice that tells how flat its underside is
 
--- Equivalent radius of a body's footprint; hitboxes fill their bounding box less.
-local function footprint(ent, mins, maxs)
-	local re = 0.5 * sqrt(max(maxs.x - mins.x, 1) * max(maxs.y - mins.y, 1))
-	if ent:IsPlayer() or ent:IsNPC() or ent:IsNextBot() then re = re * 0.6 end
-	return re
+local gravity = GetConVar("sv_gravity")
+
+-- An outline's long axis: its length and width along it, the middle of that, and the axis.
+local function axes(o)
+	local p = o.poly
+	local sxx, syy, sxy = 0, 0, 0
+	for k = 1, #p, 2 do
+		local dx, dy = p[k] - o.x, p[k + 1] - o.y
+		sxx, syy, sxy = sxx + dx * dx, syy + dy * dy, sxy + dx * dy
+	end
+	local a = 0.5 * math.atan2(2 * sxy, sxx - syy)
+	local ux, uy = math.cos(a), math.sin(a)
+	local l0, l1, w0, w1 = math.huge, -math.huge, math.huge, -math.huge
+	for k = 1, #p, 2 do
+		local dx, dy = p[k] - o.x, p[k + 1] - o.y
+		local s, t = dx * ux + dy * uy, dy * ux - dx * uy
+		l0, l1, w0, w1 = min(l0, s), max(l1, s), min(w0, t), max(w1, t)
+	end
+	local cs, ct = (l0 + l1) * 0.5, (w0 + w1) * 0.5
+	return l1 - l0, w1 - w0, o.x + ux * cs - uy * ct, o.y + uy * cs + ux * ct, ux, uy
 end
 
--- A body of equivalent radius re hit the water at (x, y), going down at `speed` (units/s) and
--- across it at (vx, vy).
-function R.Entry(plane, x, y, speed, re, vx, vy)
-	if R.native then
-		-- the cavity: one step of pressure where it closes, a Gaussian sigma wide, along the
-		-- body's path from where it went in when it went in at a slant
-		local k = min(max(speed - 60, 0) / 300, 2.5) ^ 0.8
-		if k > 0 then
-			local sigma = re * (1 + sqrt(speed / 600)) + 4 * sqrt(speed / 300)
-			local depth = min(0.3 * k * min(1, sqrt(16 / re)), 0.35) * sigma * (R.strength or 1)
-			local shift = 0.5 * re / sqrt(vx * vx + vy * vy + speed * speed)
-			R.later[#R.later + 1] = { t = CurTime() + math.Clamp(1.5 * re / speed + 0.05, 0.05, 0.3),
-				plane = plane, x = x + vx * shift, y = y + vy * shift, depth = depth, radius = sigma }
-		end
-	else
-		splash(plane, x, y, speed, math.Clamp(re / 16, 0.4, 4))
+-- Impulses along an outline: one where it is round or square, a row along a long one, each
+-- as wide as the outline. each(x, y, re) is called for every one.
+local function alongAxis(o, each)
+	local len, wid, cx, cy, ux, uy = axes(o)
+	wid = max(wid, 2)
+	local n = max(1, math.floor(len / wid + 0.5))
+	local step = n > 1 and (len - wid) / (n - 1) or 0
+	for i = 1, n do
+		local s = (i - (n + 1) * 0.5) * step
+		each(cx + ux * s, cy + uy * s, wid * 0.5)
 	end
-	W.Splash.Entry(plane, x, y, speed, re, vx, vy)
 end
 
--- A body left the water at (x, y) at `speed` (units/s, upwards).
-function R.Exit(plane, ent, x, y, speed, re)
-	local k = min(speed / 300, 2.5)
-	if R.native then
-		-- the water it lifts: a suction under it for one step
-		local sigma = re * 1.2 + 2
-		RTXWaterNative.AddImpulse(plane.index, x, y, -0.12 * k * sigma * (R.strength or 1), sigma)
-	else
-		R.Add(plane, x, y, (0.1 + 0.25 * k) * math.Clamp(re / 16, 0.4, 4), 9, 24, 1.2)
+-- The plan of a body's underside going in or out: its outlines, and how flat it is (the
+-- share of its plan already in the water within FLAT units).
+local function plan(ent, mins, maxs)
+	local B = W.Bodies
+	local slice = math.Clamp((maxs.z - mins.z) * 0.5, 2, SLICE)
+	local outlines = B.Footprint(ent, mins.z, slice)
+	local a1, a2 = 0, 0
+	for _, o in ipairs(B.Footprint(ent, mins.z, min(FLAT, slice))) do a1 = a1 + o.area end
+	for _, o in ipairs(outlines) do a2 = a2 + o.area end
+	return outlines, a2 > 0 and math.Clamp(a1 / a2, 0, 1) or 0
+end
+
+-- Outlines of a body going into the water at `speed` (units/s, down) and (vx, vy) across it;
+-- share: how much of them is new (a body that is going in further).
+local function impact(plane, outlines, speed, vx, vy, flat, share)
+	local E = W.Splash.Amount(speed)
+	local g = gravity and gravity:GetFloat() or 600
+	local shift = 1 / sqrt(vx * vx + vy * vy + speed * speed)
+	for _, o in ipairs(outlines) do
+		alongAxis(o, function(x, y, re)
+			if R.native then
+				-- the cavity: one step of pressure as it closes, a Gaussian sigma wide; along the
+				-- body's path from where it went in, when that was at a slant
+				local sigma = re * (1 + sqrt(speed / 600)) + 4 * sqrt(speed / 300)
+				local k = 0.55 * E * min(1, sqrt(16 / re))
+				local depth = 0.35 * math.tanh(k / 0.35) * sigma * (R.strength or 1) * share * W.Splash.Jit(0.15)
+				if depth > 0.01 then
+					R.later[#R.later + 1] = { t = CurTime() + 2 * sqrt(2 * re / g), plane = plane,
+						x = x + vx * 0.5 * re * shift, y = y + vy * 0.5 * re * shift, depth = depth, radius = sigma }
+				end
+			else
+				splash(plane, x, y, speed * share, math.Clamp(re / 16, 0.4, 4))
+			end
+		end)
 	end
-	W.Splash.Exit(plane, ent, speed, re)
+	W.Splash.Entry(plane, outlines, speed, vx, vy, flat, share)
+end
+
+-- A body hit the water, going down at `speed` (units/s) and across it at (vx, vy). Returns
+-- the area that went in.
+function R.Entry(plane, ent, speed, vx, vy, mins, maxs)
+	local outlines, flat = plan(ent, mins, maxs)
+	impact(plane, outlines, speed, vx, vy, flat, 1)
+	local a = 0
+	for _, o in ipairs(outlines) do a = a + o.area end
+	return a
+end
+
+-- A body that is still going in: whatever has gone under since its last splash splashes as
+-- it hits, at the speed the body has then (a ragdoll's hand goes in first, its body slaps
+-- the water after).
+local function goingIn(plane, ent, st)
+	local outlines = W.Bodies.Footprint(ent, plane.z - SLICE, SLICE)
+	local a = 0
+	for _, o in ipairs(outlines) do a = a + o.area end
+	if a > st.wetArea * 1.5 + 16 then
+		local speed = max(-st.vcz, -st.vz)
+		if speed > CROSS_SPEED then impact(plane, outlines, speed, st.vx, st.vy, 0.7, 1 - st.wetArea / a) end
+		st.wetArea = a
+	end
+end
+
+-- A body left the water going up at `speed` (units/s).
+function R.Exit(plane, ent, speed, mins, maxs)
+	local outlines = plan(ent, mins, maxs)
+	local E = W.Splash.Amount(speed)
+	for _, o in ipairs(outlines) do
+		alongAxis(o, function(x, y, re)
+			if R.native then
+				-- the water it lifts: a suction under it for one step
+				local sigma = re * 1.2 + 2
+				RTXWaterNative.AddImpulse(plane.index, x, y, -0.25 * E * sigma * (R.strength or 1), sigma)
+			else
+				R.Add(plane, x, y, (0.1 + 0.5 * E) * math.Clamp(re / 16, 0.4, 4), 9, 24, 1.2)
+			end
+		end)
+	end
+	W.Splash.Exit(plane, ent, outlines, speed)
 end
 
 function R.Track()
@@ -682,31 +766,36 @@ function R.Track()
 	for ent, st in pairs(R.tracked) do
 		if IsValid(ent) and active(ent) then
 			local mins, maxs = ent:WorldSpaceAABB()
-			local cx, cy = (mins.x + maxs.x) * 0.5, (mins.y + maxs.y) * 0.5
+			local cx, cy, cz = (mins.x + maxs.x) * 0.5, (mins.y + maxs.y) * 0.5, (mins.z + maxs.z) * 0.5
 			local bottom, last = mins.z, st.fz
 			st.fz = bottom
 			-- velocity over 15 ms or more: some entities only move once a tick
 			if not st.wt or now - st.wt >= 0.015 then
-				if st.wt and st.wx then
+				if st.wt and st.wcz then
 					local inv = 1 / (now - st.wt)
-					st.vx, st.vy, st.vz = (cx - st.wx) * inv, (cy - st.wy) * inv, (bottom - st.wz) * inv
+					st.vx, st.vy = (cx - st.wx) * inv, (cy - st.wy) * inv
+					st.vz, st.vcz = (bottom - st.wz) * inv, (cz - st.wcz) * inv
 				else
-					st.vx, st.vy, st.vz = 0, 0, 0
+					st.vx, st.vy, st.vz, st.vcz = 0, 0, 0, 0
 				end
-				st.wx, st.wy, st.wz, st.wt = cx, cy, bottom, now
+				st.wx, st.wy, st.wz, st.wcz, st.wt = cx, cy, bottom, cz, now
 			end
 			if last and bottom ~= last and now >= (st.nextCross or 0) then
 				local plane = S.PlaneAt(cx, cy, min(bottom, last), max(bottom, last))
 				if plane then
 					local vz = st.vz
 					if last >= plane.z and bottom < plane.z and vz < -CROSS_SPEED then
-						st.nextCross = now + CROSS_GAP
-						R.Entry(plane, cx, cy, -vz, footprint(ent, mins, maxs), st.vx, st.vy)
+						st.nextCross, st.wetUntil = now + CROSS_GAP, now + GOING_IN
+						st.wetArea = R.Entry(plane, ent, -vz, st.vx, st.vy, mins, maxs)
 					elseif last < plane.z and bottom >= plane.z and vz > CROSS_SPEED then
-						st.nextCross = now + CROSS_GAP
-						R.Exit(plane, ent, cx, cy, vz, footprint(ent, mins, maxs))
+						st.nextCross, st.wetArea = now + CROSS_GAP, nil
+						R.Exit(plane, ent, vz, mins, maxs)
 					end
 				end
+			end
+			if st.wetArea then
+				local plane = now < (st.wetUntil or 0) and S.PlaneAt(cx, cy, bottom, maxs.z)
+				if plane then goingIn(plane, ent, st) else st.wetArea = nil end
 			end
 		end
 	end

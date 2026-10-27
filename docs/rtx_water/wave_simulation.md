@@ -135,31 +135,36 @@ of the step (32-unit-wide box, rings 32 units outside it):
 | ring height, head alone | 2.87 | 3.03 | 3.06 | 3.06 |
 
 What grows with speed in real water is the cavity a body opens: wider and deeper than the body
-the harder it hits, its walls thrown up as the crown, and closing a moment later into the
-rings. `cl_ripples.lua` adds it as one impulse when a body crosses the surface going down
-faster than 40 units/s:
+the harder it hits, its walls thrown up as the splash, and closing into a jet and the rings
+(Truscott, Epps and Belden, *Water entry of projectiles*, Annual Review of Fluid Mechanics,
+2014). `cl_ripples.lua` adds it when a body crosses the surface going down faster than 12
+units/s. It follows the body's outline at the waterline (the plan of its lowest 12 units,
+from its collision hull or hitboxes): one impulse for a round or square outline, a row of
+them along a long one, each as wide as the outline (2 re):
 
-- width (Gaussian sigma) re (1 + sqrt(v / 600)) + 4 sqrt(v / 300), re the body's equivalent
-  radius (hitboxes count 0.6 of their bounding box);
-- depth 0.3 k min(1, sqrt(16 / re)) of the width, at most 0.35 of it, k = ((v - 60) / 300)^0.8
-  (capped at 2.5 before the power);
-- applied 1.5 re / v + 0.05 s after the hit (0.05 to 0.3 s), when the cavity closes. Applied at
-  once, it lands while the body's own push is still steep and wave breaking damps both, which
-  makes the rings smaller, not bigger.
+- width (Gaussian sigma) re (1 + sqrt(v / 600)) + 4 sqrt(v / 300);
+- depth 0.35 tanh(0.55 E min(1, sqrt(16 / re)) / 0.35) of the width, E = q² / (1 + q),
+  q = v / 300: it grows from nothing like the square of the speed, then like the speed, and
+  levels off, with no speed at which it starts or jumps;
+- applied 2 sqrt(D / g) after the hit (D = 2 re), about when such a cavity closes. Applied
+  sooner, it lands while the body's own push is still steep, and wave breaking damps both:
+  the rings come out smaller at middling speeds instead of bigger.
+- With `rtx_water_splash_randomness`, its depth varies by up to 15 % from one hit to the next.
 
-The same model then gives (ring height 32 units outside the body, interaction strength 1):
+The same model then gives (ring height 32 units outside the body, interaction strength 1),
+growing with speed for every size:
 
-| entry speed (units/s) | 100 | 200 | 350 | 550 | 800 |
-|---|---|---|---|---|---|
-| 8-unit body | 0.65 | 0.59 | 0.96 | 1.58 | 1.86 |
-| 32-unit body | 2.47 | 3.39 | 4.95 | 8.02 | 10.5 |
+| entry speed (units/s) | 15 | 60 | 150 | 300 | 650 | 900 |
+|---|---|---|---|---|---|---|
+| 8-unit body, head alone | 0.23 | 0.63 | 0.76 | 0.77 | 0.78 | 0.78 |
+| 8-unit body | 0.23 | 0.62 | 0.86 | 1.22 | 2.10 | 2.58 |
+| 32-unit body, head alone | 1.10 | 2.57 | 2.56 | 2.56 | 2.56 | 2.56 |
+| 32-unit body | 1.10 | 2.71 | 2.85 | 5.25 | 10.9 | 13.7 |
 
-(The small body's dip at 200 units/s is wave breaking around its narrow cavity.)
-
-A body pulled out through the surface faster than 40 units/s lifts the water under it: a
-suction for one step, 0.12 min(v / 300, 2.5) of its width deep. Splash drops falling back into
-the water (`cl_splash.lua`) are impulses 0.25 r min(v / 250, 2) deep and 2 r wide (r the drop's
-radius). `rtx_water_interaction_strength` scales all of them.
+A body pulled out through the surface faster than 12 units/s lifts the water under it: a
+suction for one step under its outline, 0.25 E of its width deep. Splash drops falling back
+into the water (`cl_splash.lua`) are impulses 0.25 r min(v / 250, 2) deep and 2 r wide (r the
+drop's radius). `rtx_water_interaction_strength` scales all of them.
 
 ### Where it runs
 

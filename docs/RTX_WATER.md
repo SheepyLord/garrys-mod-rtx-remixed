@@ -33,10 +33,17 @@ refracts and reflects through the disturbed surface.
     that reaches the water (players', NPCs', and in single player your own, which the client
     never sees by itself).
 - **Splashes**: what something throws up as it goes in, comes out or is shot, as real geometry
-  in the water's material: a crown sheet that rises and breaks up into drops, flying drops, a
-  jet from the closing cavity, and drips from whatever was pulled out. Their size follows the
-  speed of the hit, they lean with its angle (ahead of a slanted hit, the jet back up its
-  path), and the drops that fall back make rings of their own.
+  in the water's material: a sheet that rises from the waterline and breaks up into drops,
+  flying drops, a jet from the closing cavity, and drips from whatever was pulled out.
+  - They follow the shape of what hits the water: the sheet rises all along its outline at the
+    waterline, square round a crate, along both sides of a plank, one round each leg.
+  - A flat underside slams and throws a fast, low skirt of spray; a round or pointed one throws
+    a slower, steeper crown. Compact bodies hit hard close their cavity into a jet, and faster
+    still, the crown closes over it.
+  - They grow smoothly from nothing with the speed of the hit (the sheet's height with its
+    square), with no speed at which they suddenly start; they lean with its angle (ahead of a
+    slanted hit, the jet back up its path); the drops that fall back make rings of their own;
+    and they vary as much as `rtx_water_splash_randomness` says.
 - **Under water** (native core): the camera starts inside the water's material, so the surface
   seen from below refracts as real water does. Overhead is Snell's window; past the critical
   angle (48.6° from vertical at refraction index 1.333) the surface mirrors the pool, and the
@@ -98,6 +105,7 @@ is not one it recognises, it says why in the status line and the Lua meshes are 
 | `rtx_water_splashes` | 1 | splashes: drops, crown sheets and jets from bodies and bullets (needs `rtx_water_interaction`) |
 | `rtx_water_splash_strength` | 1 | how high and how much water splashes (0–3) |
 | `rtx_water_splash_drops` | 200 | splash drops in the air at most (each is a draw call) |
+| `rtx_water_splash_randomness` | 0.5 | how much splashes vary in amount, height, speed, angle and drop size (0: the same splash every time; 1: as varied as they get) |
 | `rtx_water_mesh` | 1 | draw the surface with RTX Water; 0 keeps the map's own faces (no ripples) |
 | `rtx_water_native` | 1 | use the native core when it is installed |
 | `rtx_water_custom` | 0 | native core only: use the three settings below instead of the type's look |
@@ -148,20 +156,33 @@ caustics only while the water has waves.
   tessellated, most important first, within a vertex budget. Nearby tiles get full detail and
   farther ones half. The flat block meshes leave those tiles out, so the surfaces never overlap.
 - **Going in, coming out**: `cl_ripples.lua` checks every frame whether a body near the water
-  has crossed its surface, at the speed of its lowest point. Going in (faster than 40 units/s)
-  it adds the cavity's impulse, a moment later, wider and deeper the faster the body hit;
-  coming out, a lift under it. The native core's push of the body's shape alone makes the same
-  waves at any speed ([details](rtx_water/wave_simulation.md#hitting-the-water)).
+  has crossed its surface, at the speed of its lowest point (faster than 12 units/s). What
+  crosses is the plan of the body's lowest 12 units, from its collision hull or hitboxes
+  (`cl_bodies.lua`, `W.Bodies.Footprint`): one outline per part, overlapping parts merged.
+  How flat its underside is: how much of that plan is in the water within 3 units. Going
+  in, the cavity's impulses follow each outline (a row of them along a long one) and land
+  when the cavity closes, about 2 sqrt(D / g) after the hit; coming out, a lift under it. For
+  0.6 s after the hit, whatever more of the body goes under splashes too, at the speed the
+  body has then (a ragdoll's hand goes in first, its body slaps the water after). The
+  native core's push of the body's shape alone makes the same waves at any speed
+  ([details](rtx_water/wave_simulation.md#hitting-the-water)).
 - **Bullets**: `sv_bullets.lua` traces each pellet's own path (`PostEntityFireBullets`) for the
   first water along it and sends the points to the players who can see or hear them. Without
   RTX Water on the server, a client only has the shots it predicts itself (its own, in
   multiplayer).
-- **Splashes** (`cl_splash.lua`): drops, crowns and jets are three static meshes (a sphere, a
-  flared sheet, a column) drawn with the type's calm material, each under its own transform,
-  so a splash costs no vertex work in Lua and Remix sees the same meshes every frame. Drops fly
-  ballistically under `sv_gravity` with air drag; those that land on the water make impulses.
-  A hit's direction (the bullet's, or a body's velocity as it crosses the surface) leans the
-  pieces.
+- **Splashes** (`cl_splash.lua`, which also lists the research behind them): drops and jets are
+  static meshes (a sphere and a column) drawn under their own transforms, so they cost no
+  vertex work in Lua. A sheet bends round its outline (corners rounded), rises and leans in
+  ways no transform follows, so it is built each frame while it stands: a closed shell along
+  the outline with fingers along its rim, a few hundred vertices, 1,500 quads a frame at most.
+  All are drawn with the type's calm material. A sheet rises at a speed that goes with the
+  impact speed (up to 1.2 times it for a flat underside), thrown at 70° from the water for a
+  round underside down to 46° for a flat one, leans out at most 0.6 units per unit of height,
+  and stays whole up to 0.6 hydraulic diameters (4 area / perimeter) high: above that, and
+  once it falls back, it is drops. The amount of water thrown goes with q² / (1 + q), q the
+  impact speed over 300 units/s. Drops fly ballistically under `sv_gravity` with air drag; those that
+  land on the water make impulses. A hit's direction (the bullet's, or a body's velocity as it
+  crosses the surface) leans the pieces and makes the sheet taller ahead of it.
 - **The engine's effects**: `effects/splashwake1`, `3` and `4` (`FX_WaterRipple`'s quad, vehicle
   wakes) get `MATERIAL_VAR_NO_DRAW` while RTX Water draws the surface, and `effects/splash2`
   (the spray of `FX_GunshotSplash`) while it makes splashes. Their flags are kept and restored
@@ -290,6 +311,10 @@ docs/RTX_WATER.md       this page; docs/rtx_water/ has its images and wave_simul
   beside the water vanish at its height.
 - Explosions in water keep the engine's columns (`effects/splash1`, `splash3`) and make no RTX
   Water splash.
+- A splash's outline is convex per part of the body (an L-shaped prop splashes as its convex
+  hull), and parts whose outlines overlap are merged. Until a model's shape has been made (the
+  scan does it within a twentieth of a second of the body coming near the water), its
+  bounding box stands in.
 - With `rtx_water_mesh 0` the map's faces are drawn with the chosen material and there are no
   ripples (both need the redrawn surface).
 - Whether the view is under water is the engine's test against the water at rest, as for its

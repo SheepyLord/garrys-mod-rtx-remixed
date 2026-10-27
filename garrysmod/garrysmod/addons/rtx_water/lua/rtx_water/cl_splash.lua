@@ -2,57 +2,106 @@
 -- by a bullet. The wave simulation is a height field, which cannot leave the surface, so the
 -- spray is drawn on its own, as real geometry in the water's own material: Remix refracts
 -- and reflects through it as through the surface.
--- * Drops: small spheres stretched along their flight, falling under the game's gravity
---   with air drag. Those that come down on the water make rings of their own (R.Drop).
--- * The crown: the sheet a body throws up around itself as it goes in. It rises and flares
---   with the speed the body hit the water at, its rim breaking into drops, and falls back.
--- * The jet: the column that shoots up where a compact, fast body or a bullet went in,
---   once the cavity behind it closes. Its tip pinches off into drops.
--- A splash leans with the way the water was hit. Hit at a slant, the water ahead of the
--- body or bullet is thrown forward: the crown is drawn out along its path and leans ahead,
--- and so does most of the spray. The cavity runs down along the path, so the jet that comes
--- out of it leans back towards where the hit came from, and a bullet throws some spray back
--- up its path.
--- A body pulled out lifts a sheet of water that falls off its underside, and drips for a
--- while after. Every piece is one of three static meshes drawn under its own transform, so
--- a splash costs no vertex work in Lua, and Remix sees the same three meshes every frame.
+--
+-- What real water does (Truscott, Epps & Belden, "Water entry of projectiles", Annual Review
+-- of Fluid Mechanics 2014; Duez et al., "Making a splash with water repellency", Nature
+-- Physics 2007; "Splash wave and crown breakup after disc impact on a liquid surface",
+-- arXiv:1211.6641; Aristoff & Bush, "Water entry of small hydrophobic spheres", JFM 2009),
+-- and how it is drawn here:
+-- * A body going in throws a sheet up from its waterline, all along its outline: a crate's
+--   sheet is square, a plank's runs along its sides, two legs throw two. The sheet is drawn
+--   along the outline that W.Bodies.Footprint gives for the body, its corners rounded.
+-- * A flat underside slams: the sheet leaves its edge fast (at first about 1.6 times the
+--   impact speed) and low, a wide skirt of spray. A round or pointed one parts the water:
+--   a slower, steeper crown. How flat the underside is: how much of its outline is in the
+--   water within the first 3 units.
+-- * The sheet's rim breaks into fingers and drops as it rises, and the rest of it breaks up
+--   as it falls back. Rims break up from very low speeds on (a Weber number of about 140,
+--   under half a metre a second for anything this size), and wood, plastic or skin splash
+--   at any speed, so a splash fades in with speed instead of starting at a threshold: the
+--   sheet's speed goes with the impact speed, its height with its square, and the amount
+--   of water that flies with q^2 / (1 + q), q the impact speed over 300 units/s.
+-- * A compact body going in fast (a high Froude number v^2 / g D) opens an air cavity that
+--   closes, about 2 sqrt(D / g) later, into a jet (Worthington's); faster still, the crown
+--   leans in and closes over the cavity (surface seal). Long or wide bodies make neither.
+-- * Hit at a slant, the water ahead is thrown forward: on that side the sheet stands taller
+--   and leans further out, and the spray goes ahead; the cavity runs down along the path,
+--   so the jet leans back towards where the hit came from.
+-- Drops fall under the game's gravity with air drag; those that come down on the water make
+-- rings of their own (R.Drop). A body pulled out lifts water that drains off its underside,
+-- and drips. rtx_water_splash_randomness sets how much splashes vary (0: the same every
+-- time). Drops and jets are static meshes drawn under their own transforms, so they cost no
+-- vertex work in Lua; a sheet bends, rises and leans in ways no transform follows, so it is
+-- built each frame while it stands (a few hundred vertices, SHEET_QUADS a frame at most).
 
 local W = RTXWater
 local S = W.Surface
 local P = W.Splash or {}
 W.Splash = P
 
-local sqrt, min, max, floor, abs = math.sqrt, math.min, math.max, math.floor, math.abs
-local cos, sin, random = math.cos, math.sin, math.random
-local TAU = 2 * math.pi
+local sqrt, min, max, floor, ceil, abs = math.sqrt, math.min, math.max, math.floor, math.ceil, math.abs
+local cos, sin, atan2, random = math.cos, math.sin, math.atan2, math.random
+local pi, TAU = math.pi, 2 * math.pi
 
 local FAR = 3000          -- units from the camera beyond which pieces are not drawn
 local DRAG = 0.0015       -- quadratic air drag of a drop, over its radius: fast spray slows down
-local CROWN_WALL = 0.035  -- thickness of the crown's sheet, of its radius
-local CROWN_FLARE = 0.25  -- how far the crown's top flares out, of its radius
-local CROWN_BREAK = 1.6   -- the crown breaks up into drops this many rise times after the hit
-local MAX_CROWNS = 24
+local SHEET_MAX = 0.6     -- a sheet stays whole up to this many outline widths; above, it is spray
+local SHEET_LEAN = 0.6    -- a sheet leans out at most this much per unit of height
+local SHEET_STEP = 6      -- units between the points of a sheet along its outline
+local SHEET_BREAK = 1.25  -- the sheet breaks up into drops this many rise times after the hit
+local SHEET_QUADS = 2500  -- sheet quads drawn a frame at most (the nearest sheets first)
+local FINGER = 10         -- units between the fingers of a sheet's rim
+local MAX_CROWNS = 32
 local MAX_JETS = 32
+local MAX_SPRAY = 64      -- drops thrown at once by one outline
 local JET_ROOT = 3        -- units of a jet below the surface, where the crater it rises from is
 local DRIP_TIME = 3       -- s a body pulled out of the water drips for
 local DRIP_HEIGHT = 300   -- units above the water past which a body no longer drips onto it
--- At a grazing hit (and less the steeper it is), per unit of height or upward speed:
-local SPRAY_LEAN = 1.2    -- spray thrown ahead
-local CROWN_LEAN = 0.7    -- the crown's top ahead of its foot (and the crown 1.5 times as long)
-local JET_LEAN = 0.7      -- the jet's tip back up the path
+local SPRAY_LEAN = 1.2    -- at a grazing hit: spray thrown ahead, per unit of upward speed
+local SLANT_SHEET = 0.5   -- ...the sheet that much taller on the side ahead (shorter behind)
+local JET_LEAN = 0.7      -- ...the jet's tip back up the path, per unit of height
 local BACK_SPRAY = 0.2    -- share of a bullet's spray thrown back up its path
 
 -- (pieces from before a reload of this file may lack fields: start afresh)
 P.drops, P.crowns, P.jets, P.wet = {}, {}, {}, {}
 P.maxDrops = P.maxDrops or 200
 P.strength = P.strength or 1
+P.random = P.random or 0.5
 local drops, crowns, jets = P.drops, P.crowns, P.jets
 
 local gravity = GetConVar("sv_gravity")
+local function grav() return gravity and gravity:GetFloat() or 600 end
 
 local function rand(a, b) return a + (b - a) * random() end
 
----------------------------------------------------------------- the three meshes
+-- Between a and b, as random as rtx_water_splash_randomness says: their middle at 0,
+-- anywhere between them at 1.
+local function vary(a, b) return (a + b) * 0.5 + (b - a) * 0.5 * P.random * (2 * random() - 1) end
+
+-- A factor of 1 give or take spread (the same way).
+local function jit(spread) return vary(1 - spread, 1 + spread) end
+P.Jit = jit
+
+-- n things on average: at no randomness, n rounded; otherwise rounded up or down at random,
+-- so that small splashes fade in smoothly instead of all starting with one drop.
+local function count(n)
+	if P.random <= 0 then return floor(n + 0.5) end
+	return floor(n * jit(0.3) + random())
+end
+
+local function smooth(x, a, b)
+	local t = math.Clamp((x - a) / (b - a), 0, 1)
+	return t * t * (3 - 2 * t)
+end
+
+-- How much water a hit at `speed` throws: q^2 / (1 + q), q = speed / 300.
+local function amount(speed)
+	local q = speed / 300
+	return q * q / (1 + q)
+end
+P.Amount = amount
+
+---------------------------------------------------------------- the meshes
 
 -- Clockwise seen from where the vertex normals point, which is the front for Source and
 -- Remix: rays enter the water through the outside of every piece.
@@ -67,19 +116,13 @@ local function tri(out, a, b, c)
 	out[#out + 1] = c
 end
 
--- A closed surface of revolution about z, as triangles. profile = {rho, z, ...} runs
--- counter-clockwise in the (rho, z) half plane: from the axis round to the axis, or round a
--- loop (closed). lift(theta, z) moves its points up or down (the crown's points).
-local function lathe(profile, seg, closed, lift)
+-- A closed surface of revolution about z, as triangles: profile = {rho, z, ...} runs from the
+-- axis round to the axis, counter-clockwise in the (rho, z) half plane.
+local function lathe(profile, seg)
 	local np = #profile / 2
 	local nr, nz = {}, {}
 	for k = 1, np do
-		local a, b = k - 1, k + 1
-		if closed then
-			a, b = a < 1 and np or a, b > np and 1 or b
-		else
-			a, b = max(a, 1), min(b, np)
-		end
+		local a, b = max(k - 1, 1), min(k + 1, np)
 		local dr, dz = profile[2 * b - 1] - profile[2 * a - 1], profile[2 * b] - profile[2 * a]
 		local l = sqrt(dr * dr + dz * dz)
 		nr[k], nz[k] = dz / l, -dr / l
@@ -91,7 +134,6 @@ local function lathe(profile, seg, closed, lift)
 		local row = {}
 		for k = 1, np do
 			local r, z = profile[2 * k - 1], profile[2 * k]
-			if lift then z = lift(th, z) end
 			row[k] = { r * c, r * s, z, nr[k] * c, nr[k] * s, nz[k], i / seg, z }
 		end
 		rows[i] = row
@@ -99,10 +141,9 @@ local function lathe(profile, seg, closed, lift)
 	local out = {}
 	for i = 0, seg - 1 do
 		local A, B = rows[i], rows[i + 1]
-		for k = 1, closed and np or np - 1 do
-			local k2 = k % np + 1
-			tri(out, A[k], B[k], B[k2])
-			tri(out, A[k], B[k2], A[k2])
+		for k = 1, np - 1 do
+			tri(out, A[k], B[k], B[k + 1])
+			tri(out, A[k], B[k + 1], A[k + 1])
 		end
 	end
 	return out
@@ -112,33 +153,9 @@ end
 local function sphere(rings)
 	local p = {}
 	for k = 0, rings do
-		local a = math.pi * k / rings
+		local a = pi * k / rings
 		p[#p + 1] = sin(a)
 		p[#p + 1] = -cos(a)
-	end
-	return p
-end
-
--- The crown's sheet: radius 1 at its foot (z = 0), flaring to 1 + CROWN_FLARE at its rounded
--- lip (z = 1), CROWN_WALL thick; a loop up the outside, over the lip and down the inside.
-local function crownProfile()
-	local p, w, top = {}, CROWN_WALL, 0.97
-	local function rim(t) return 1 + CROWN_FLARE * t * t end
-	for k = 0, 5 do
-		local t = top * k / 5
-		p[#p + 1] = rim(t)
-		p[#p + 1] = t
-	end
-	local cr = rim(top) - w * 0.5
-	for k = 1, 4 do
-		local a = math.pi * k / 5
-		p[#p + 1] = cr + w * 0.5 * cos(a)
-		p[#p + 1] = top + (1 - top) * sin(a)
-	end
-	for k = 5, 0, -1 do
-		local t = top * k / 5
-		p[#p + 1] = rim(t) - w
-		p[#p + 1] = t
 	end
 	return p
 end
@@ -167,11 +184,14 @@ local function build(tris)
 	return m
 end
 
+-- (the module's table outlives a reload of this file: meshes an older version built are
+-- rebuilt when the version here changes)
+local MESHES = 2
+
 local function buildMeshes()
-	P.dropMesh = build(lathe(sphere(7), 12, false))
-	P.jetMesh = build(lathe(JET, 14, false))
-	-- seven points round the crown's lip
-	P.crownMesh = build(lathe(crownProfile(), 32, true, function(th, z) return z * (1 + 0.12 * cos(7 * th) * z * z) end))
+	P.dropMesh = build(lathe(sphere(7), 12))
+	P.jetMesh = build(lathe(JET, 14))
+	P.meshes = MESHES
 end
 
 ---------------------------------------------------------------- settings
@@ -180,6 +200,7 @@ function P.Configure(s)
 	P.enabled = s.splashes
 	P.strength = s.splashStrength
 	P.maxDrops = s.splashDrops
+	P.random = s.splashRandom
 	local tag = RTXWater_Data.types[s.type].tags.calm.texture
 	if not P.mat then
 		-- the calm material of the water's type: drops have no use for the waves' normal map
@@ -208,30 +229,100 @@ local function addDrop(plane, x, y, z, vx, vy, vz, r)
 end
 
 -- The way a hit along (dx, dy, dz) went across the water, (fx, fy), and how oblique it
--- was, h: 0 straight down, 1 grazing. A straight drop gets a random way (the crown's points).
+-- was, h: 0 straight down, 1 grazing.
 local function heading(dx, dy, dz)
 	local hz = sqrt(dx * dx + dy * dy)
 	local l = sqrt(hz * hz + dz * dz)
-	if hz < 1e-3 or l < 1e-3 then
-		local a = rand(0, TAU)
-		return cos(a), sin(a), 0
-	end
+	if hz < 1e-3 or l < 1e-3 then return 1, 0, 0 end
 	return dx / hz, dy / hz, hz / l
 end
 
--- The crown rises for rise = vh / g seconds, widening by vr at first and less as it slows.
-local function addCrown(plane, x, y, fx, fy, h, fields)
-	if #crowns >= MAX_CROWNS then return end
-	fields.plane, fields.x, fields.y, fields.z, fields.t0 = plane, x, y, plane.z, CurTime()
-	fields.fx, fields.fy, fields.sx, fields.shear = fx, fy, 1 + 0.5 * h, CROWN_LEAN * h
-	fields.rise = fields.vh / (gravity and gravity:GetFloat() or 600)
-	fields.acc = 0
-	crowns[#crowns + 1] = fields
+-- Points round an outline (counter-clockwise {x1, y1, ...}) about SHEET_STEP apart, each
+-- with its outward normal; at each corner, a fan of points with the normals turning, so
+-- that the sheet, set out along the normals, bends round the corner.
+local function rim(poly)
+	local n = #poly / 2
+	local out = {}
+	local function edge(i)
+		local j = i % n + 1
+		local ex, ey = poly[2 * j - 1] - poly[2 * i - 1], poly[2 * j] - poly[2 * i]
+		local l = sqrt(ex * ex + ey * ey)
+		return ex, ey, l, ey / max(l, 1e-6), -ex / max(l, 1e-6)
+	end
+	local _, _, _, pnx, pny = edge(n)
+	for i = 1, n do
+		local ax, ay = poly[2 * i - 1], poly[2 * i]
+		local ex, ey, l, nx, ny = edge(i)
+		local a0 = atan2(pny, pnx)
+		local da = (atan2(ny, nx) - a0) % TAU
+		if da > pi then da = 0 end
+		local k = ceil(da / (pi / 6))
+		for s = 0, k - 1 do
+			local a = a0 + da * s / k
+			out[#out + 1] = { ax, ay, cos(a), sin(a) }
+		end
+		local m = max(1, ceil(l / SHEET_STEP))
+		for s = 0, m - 1 do out[#out + 1] = { ax + ex * s / m, ay + ey * s / m, nx, ny } end
+		pnx, pny = nx, ny
+	end
+	return out
 end
 
--- A jet that rises from (x, y) after `delay`, leaning back up the path of the hit.
+-- A point on an outline's perimeter, at a fraction f of the way round, and the outward
+-- normal there.
+local function alongOutline(poly, per, f)
+	local n = #poly / 2
+	local want, run = f * per, 0
+	for i = 1, n do
+		local j = i % n + 1
+		local ax, ay = poly[2 * i - 1], poly[2 * i]
+		local ex, ey = poly[2 * j - 1] - ax, poly[2 * j] - ay
+		local l = sqrt(ex * ex + ey * ey)
+		if run + l >= want or i == n then
+			local t = l > 0 and math.Clamp((want - run) / l, 0, 1) or 0
+			return ax + ex * t, ay + ey * t, ey / max(l, 1e-6), -ex / max(l, 1e-6)
+		end
+		run = run + l
+	end
+end
+
+-- A sheet thrown up along an outline: rising at vz, its top going out at vout (per unit of
+-- height, it leans out vout / vz), its rim breaking into `budget` drops as it rises. It
+-- stays whole up to SHEET_MAX hydraulic diameters (4 area / perimeter) high.
+-- (fx, fy, h): the way and slant of the hit; seal: how far it closes over a cavity.
+local function addSheet(plane, o, vz, vout, fx, fy, h, seal, budget, dropR, thick)
+	if #crowns >= MAX_CROWNS or vz <= 1 then return end
+	local g = grav()
+	local hmax = min(vz * vz / (2 * g), SHEET_MAX * 4 * o.area / max(o.perimeter, 1) + 2)
+	if hmax < 0.4 then return end
+	local pts = rim(o.poly)
+	-- each point's share of the height: the rim's fingers, FINGER apart along the outline,
+	-- and a height that wanders smoothly round the sheet (with randomness)
+	local k, f1, f2, p1, p2 = {}, random(2, 3), random(4, 6), rand(0, TAU), rand(0, TAU)
+	local nf = max(3, floor(o.perimeter / FINGER + 0.5))
+	local amp, phase = 0.08 + 0.1 * P.random, P.random > 0 and random() or 0
+	local s, px, py = 0, pts[1][1], pts[1][2]
+	for j = 1, #pts do
+		local p = pts[j]
+		s = s + sqrt((p[1] - px) ^ 2 + (p[2] - py) ^ 2)
+		px, py = p[1], p[2]
+		local u = s / o.perimeter
+		k[j] = (1 - amp * (0.5 - 0.5 * cos(TAU * (nf * u + phase))))
+			* (1 + 0.2 * P.random * (0.6 * sin(TAU * f1 * u + p1) + 0.4 * sin(TAU * f2 * u + p2)))
+	end
+	crowns[#crowns + 1] = {
+		plane = plane, z = plane.z, t0 = CurTime(), pts = pts, k = k,
+		hmax = hmax, rise = 2 * hmax / vz, vz = vz, lean0 = min(0.5 * vout / vz, SHEET_LEAN),
+		-- closing over the cavity: no further in than the sheet's middle
+		seal = seal, inward = min(1, 0.8 * 2 * o.area / max(o.perimeter, 1) / hmax),
+		gap = 0.6 + thick * 0.5, spread = 0.12 * vout, thick = thick,
+		fx = fx, fy = fy, slant = h, budget = budget, rate = budget * vz / (2 * hmax), acc = 0, dropR = dropR,
+	}
+end
+
+-- A jet rising from (x, y) after `delay`, leaning back up the path of the hit.
 local function addJet(plane, x, y, fx, fy, h, delay, r, vj, tip)
-	if #jets >= MAX_JETS then return end
+	if #jets >= MAX_JETS or vj < 20 then return end
 	jets[#jets + 1] = {
 		plane = plane, x = x, y = y, z = plane.z, t0 = CurTime() + delay, r = r, vj = vj, tip = tip,
 		lx = -fx * JET_LEAN * h, ly = -fy * JET_LEAN * h,
@@ -256,48 +347,73 @@ local function lowPoint(ent)
 	return best
 end
 
--- A body of equivalent radius re hit the water at (x, y), going down at `speed` (units/s) and
--- across it at (vx, vy). The faster and the larger, the higher the crown and the more spray;
--- a compact body going in fast leaves a cavity that closes into a jet.
-function P.Entry(plane, x, y, speed, re, vx, vy)
-	if not P.enabled or P.strength <= 0 or speed < 60 then return end
-	local s = P.strength
+-- A random point inside an outline (or its middle, without randomness).
+local function inside(o)
+	if P.random <= 0 then return o.x, o.y end
+	for _ = 1, 8 do
+		local x, y = o.x + rand(-o.r, o.r), o.y + rand(-o.r, o.r)
+		if S.inside(o.poly, x, y) then return x, y end
+	end
+	return o.x, o.y
+end
+
+-- A body hit the water, going down at `speed` (units/s) and across it at (vx, vy). outlines:
+-- the plan of its part going in (W.Bodies.Footprint); flat: how flat its underside is (0 to
+-- 1); share: how much of that is new (1 when it first hits the water). Each outline throws
+-- a sheet and spray; a compact one hit hard enough makes a jet.
+function P.Entry(plane, outlines, speed, vx, vy, flat, share)
+	if not P.enabled or P.strength <= 0 or speed <= 0 then return end
+	local s, g = P.strength, grav()
 	local fx, fy, h = heading(vx or 0, vy or 0, -speed)
-	local k = min(speed / 300, 3)
-	local size = math.Clamp(re / 12, 0.25, 4)
-	local vh = math.Clamp(0.45 * speed, 40, 520) * sqrt(s)
-	if re >= 2.5 then
-		local n = floor(math.Clamp((8 + 26 * k) * sqrt(size), 4, 64) * s)
-		addCrown(plane, x, y, fx, fy, h, {
-			r0 = re * 1.05 + 1, vr = 0.15 * vh, vh = vh, budget = n, rate = n * 600 / vh,
-			dropR = math.Clamp(0.35 * sqrt(size), 0.25, 1.2),
-		})
-	end
-	-- spray thrown up and out from round the body as it goes in, ahead of it at a slant
-	local lean = SPRAY_LEAN * h
-	local n = floor(math.Clamp((6 + 18 * k) * sqrt(size), 4, 48) * s)
-	for _ = 1, n do
-		local a, rr = rand(0, TAU), re * rand(0.8, 1.15)
-		local out, up = vh * rand(0.1, 0.5), vh * rand(0.5, 1.25)
-		addDrop(plane, x + cos(a) * rr, y + sin(a) * rr, plane.z + 0.5, cos(a) * out + fx * lean * up,
-			sin(a) * out + fy * lean * up, up, rand(0.3, 0.9) * math.Clamp(sqrt(size), 0.7, 1.6))
-	end
-	if re < 10 and speed > 220 then
-		addJet(plane, x, y, fx, fy, h, 0.12 + re / 120, math.Clamp(re * 0.5, 1, 4), math.Clamp(0.35 * speed, 80, 260) * sqrt(s), 4)
+	local E = amount(speed) * s * (share or 1)
+	-- a flat underside slams: faster, lower; a round one parts the water: slower, steeper
+	local elev = 1.22 - 0.42 * flat
+	local vs = min(speed * (0.5 + 0.7 * flat) * sqrt(s), 900)
+	for _, o in ipairs(outlines) do
+		-- its size as a sheet sees it: the hydraulic diameter, a beam's width rather than its length
+		local D = 4 * o.area / max(o.perimeter, 1)
+		local fr = speed * speed / (g * max(D, 1))
+		local compact = smooth(o.area / (pi * o.r * o.r), 0.25, 0.6)
+		local thick = math.Clamp(0.06 * sqrt(D), 0.2, 0.6)
+		local dropR = math.Clamp(0.25 + 0.06 * sqrt(D), 0.25, 0.9)
+		local e = elev + 0.12 * P.random * (2 * random() - 1)
+		addSheet(plane, o, vs * sin(e), vs * cos(e), fx, fy, h,
+			smooth(fr, 20, 80) * compact * (1 - 0.6 * flat), count(o.perimeter * 0.15 * E), dropR, thick)
+		-- spray from all along the waterline, ahead of the hit at a slant
+		local n = min(count(o.perimeter * 0.3 * E * (1 + flat)), MAX_SPRAY)
+		local f0 = P.random > 0 and random() or 0
+		for i = 1, n do
+			local x, y, nx, ny = alongOutline(o.poly, o.perimeter, (f0 + (i - jit(0.5) * 0.5) / n) % 1)
+			local ahead = nx * fx + ny * fy
+			local sp = vs * jit(0.35) * (1 + 0.6 * h * ahead)
+			local a = e + 0.25 * P.random * (2 * random() - 1)
+			local out, up = sp * cos(a), sp * sin(a)
+			addDrop(plane, x + nx, y + ny, plane.z + 0.5, nx * out + fx * SPRAY_LEAN * h * up,
+				ny * out + fy * SPRAY_LEAN * h * up, up, dropR * jit(0.5))
+		end
+		-- the cavity of a compact body closes into a jet, about 2 sqrt(D / g) after the hit
+		local jet = smooth(fr, 2, 12) * compact * smooth(D, 48, 24)
+		if jet > 0.05 then
+			addJet(plane, o.x, o.y, fx, fy, h, 2 * sqrt(D / g), math.Clamp(0.22 * D, 0.8, 4),
+				min(0.45 * speed * sqrt(jet), 300) * sqrt(s) * jit(0.3), 4)
+		end
 	end
 end
 
--- A body left the water at `speed` (units/s, upwards): the water it lifts falls off its
--- underside, and it drips for a while.
-function P.Exit(plane, ent, speed, re)
+-- A body left the water going up at `speed` (units/s); outlines: the plan of its underside.
+-- The water it lifts drains off it (more the faster it came out), and it drips for a while.
+function P.Exit(plane, ent, outlines, speed)
 	if not P.enabled or P.strength <= 0 then return end
-	local k = min(speed / 300, 2.5) * P.strength
+	local E = amount(speed) * P.strength
 	local vel = ent:GetVelocity()
-	local n = floor(math.Clamp((4 + 14 * k) * sqrt(math.Clamp(re / 12, 0.25, 4)), 3, 40))
-	for _ = 1, n do
-		local p = lowPoint(ent)
-		addDrop(plane, p.x, p.y, p.z, vel.x * 0.5 + rand(-20, 20), vel.y * 0.5 + rand(-20, 20), speed * rand(0.1, 0.6),
-			rand(0.35, 0.9))
+	local re = 0
+	for _, o in ipairs(outlines) do
+		re = re + sqrt(o.area / pi)
+		for _ = 1, min(count((o.perimeter * 0.15 + o.area * 0.02) * E), MAX_SPRAY) do
+			local x, y = inside(o)
+			addDrop(plane, x, y, plane.z + 0.5, vel.x * 0.5 + vary(-20, 20), vel.y * 0.5 + vary(-20, 20),
+				speed * vary(0.1, 0.6), vary(0.35, 0.9))
+		end
 	end
 	P.wet[ent] = { t0 = CurTime(), plane = plane, rate = math.Clamp(re * 0.8, 3, 24) * P.strength, acc = 0 }
 end
@@ -309,16 +425,37 @@ function P.Shot(plane, x, y, dir, power)
 	local s = P.strength
 	local p = sqrt(power)
 	local fx, fy, h = heading(dir.x, dir.y, dir.z)
-	for _ = 1, floor((10 + 8 * power) * s) do
-		local up, lat, a = rand(150, 320) * p, rand(5, 45) * p, rand(0, TAU)
-		local lean = random() < BACK_SPRAY and -0.5 * h or SPRAY_LEAN * h
-		addDrop(plane, x, y, plane.z + 0.3, cos(a) * lat + fx * lean * up, sin(a) * lat + fy * lean * up, up, rand(0.18, 0.4))
+	local n = count((10 + 8 * power) * s)
+	for i = 1, n do
+		local up, lat = vary(150, 320) * p, vary(5, 45) * p
+		local a = TAU * (i + vary(-0.5, 0.5)) / n
+		-- every fifth drop, or that share at random, goes back up the shot's path
+		local back = P.random > 0 and random() < BACK_SPRAY or i % 5 == 0
+		local lean = back and -0.5 * h or SPRAY_LEAN * h
+		addDrop(plane, x, y, plane.z + 0.3, cos(a) * lat + fx * lean * up, sin(a) * lat + fy * lean * up, up,
+			vary(0.18, 0.4))
 	end
-	addJet(plane, x, y, fx, fy, h, 0.08, 1.0 * p, 90 * p * sqrt(s), 2)
-	addCrown(plane, x, y, fx, fy, h, { r0 = 1.2 * p, vr = 15 * p, vh = 55 * p * sqrt(s), budget = 0, rate = 0, dropR = 0.25 })
+	addJet(plane, x, y, fx, fy, h, 0.08, 1.0 * p, 90 * p * sqrt(s) * jit(0.3), 2)
+	local r, poly = 1.2 * p, {}
+	for i = 0, 9 do
+		poly[#poly + 1] = x + r * cos(TAU * i / 10)
+		poly[#poly + 1] = y + r * sin(TAU * i / 10)
+	end
+	addSheet(plane, { poly = poly, area = pi * r * r, perimeter = TAU * r, x = x, y = y, r = r },
+		55 * p * sqrt(s), 15 * p, fx, fy, h, 0, 0, 0.25, 0.3)
 end
 
 ---------------------------------------------------------------- per frame
+
+-- Sheet c at its point j now: its foot (x, y), outward normal, height and lean (outward per
+-- unit of height). Taller and leaning further on the side the hit went towards.
+local function sheetAt(c, j)
+	local p = c.pts[j]
+	local nx, ny = p[3], p[4]
+	local ahead = c.slant * (nx * c.fx + ny * c.fy)
+	local d = c.offset
+	return p[1] + nx * d, p[2] + ny * d, nx, ny, c.H * c.k[j] * (1 + SLANT_SHEET * ahead), c.lean + 0.6 * ahead
+end
 
 -- Moves everything on by the time since the last frame. Drops that come down on the water
 -- make rings there.
@@ -328,7 +465,7 @@ function P.Think()
 	P.last = now
 	if dt <= 0 then return end
 	if dt > 0.1 then dt = 0.1 end
-	local g = gravity and gravity:GetFloat() or 600
+	local g = grav()
 	local R = W.Ripples
 
 	local i, n = 1, #drops
@@ -352,34 +489,37 @@ function P.Think()
 	for c = #crowns, 1, -1 do
 		local cr = crowns[c]
 		local age = now - cr.t0
-		local top = cr.vh * age - 0.5 * g * age * age
-		local u = min(age / cr.rise, 1)
-		cr.H = max(top, 0.5)
-		cr.R = cr.r0 + 0.5 * cr.vr * cr.rise * (2 * u - u * u)
-		local vtop = cr.vh - g * age
-		local fx, fy, sx, lean = cr.fx, cr.fy, cr.sx, cr.shear
-		-- a drop from its rim at angle a, thrown out along its lean
-		local function rimDrop(a, out, up, r)
-			local ca, sa = cos(a), sin(a)
-			local s, w = ca * sx * (1 + CROWN_FLARE) * cr.R, sa * (1 + CROWN_FLARE) * cr.R
-			local ox, oy = fx * ca - fy * sa, fy * ca + fx * sa
-			addDrop(cr.plane, cr.x + fx * (s + lean * cr.H) - fy * w, cr.y + fy * (s + lean * cr.H) + fx * w, cr.z + cr.H,
-				ox * out + fx * lean * up, oy * out + fy * lean * up, up, r)
+		local u = age / cr.rise
+		-- rising, slowing to a stop at hmax; then falling back
+		local vtop
+		if u <= 1 then
+			cr.H, vtop = cr.hmax * (1 - (1 - u) * (1 - u)), cr.vz * (1 - u)
+		else
+			local tf = age - cr.rise
+			cr.H, vtop = cr.hmax - 0.5 * g * tf * tf, -g * tf
 		end
-		if (top <= 0 and age > 0.02) or age >= CROWN_BREAK * cr.rise then
-			-- falling back, the sheet breaks up into a ring of drops
-			if top > 1 then
-				local n = floor(math.Clamp(cr.R / 2, 4, 24))
-				local a0 = rand(0, TAU)
-				for k = 1, n do rimDrop(a0 + TAU * k / n, cr.vr * rand(0.1, 0.4), vtop * rand(0.7, 1.0), cr.dropR * rand(0.8, 1.4)) end
+		cr.offset = cr.gap + cr.spread * min(age, cr.rise)
+		-- leaning out as it rises; sealing, it turns in over the cavity
+		local seal = cr.seal * smooth(u, 0.6, 1.6)
+		cr.lean = cr.lean0 * (1 - seal) - cr.inward * seal
+		local function rimDrop(j, out, up, r)
+			local x, y, nx, ny, hh, lean = sheetAt(cr, j)
+			local lift = up > 0 and SPRAY_LEAN * cr.slant * up or 0
+			addDrop(cr.plane, x + nx * lean * hh, y + ny * lean * hh, cr.z + hh,
+				nx * out + cr.fx * lift, ny * out + cr.fy * lift, up, r)
+		end
+		if (u > 1 and cr.H <= 0.2) or u >= SHEET_BREAK then
+			-- falling back, the rest of the sheet breaks up into drops along it
+			if cr.H > 1 then
+				for j = 1, #cr.pts, 2 do rimDrop(j, cr.spread * rand(0.5, 2), vtop * rand(0.7, 1), cr.dropR * jit(0.4)) end
 			end
 			table.remove(crowns, c)
 		elseif vtop > 0 and cr.budget > 0 then
-			-- while the sheet rises, its rim breaks up into drops
+			-- while it rises, its rim breaks up into drops
 			cr.acc = cr.acc + cr.rate * dt
 			while cr.acc >= 1 and cr.budget > 0 do
 				cr.acc, cr.budget = cr.acc - 1, cr.budget - 1
-				rimDrop(rand(0, TAU), cr.vr + rand(0, 0.35) * cr.vh, vtop * rand(0.8, 1.25), cr.dropR * rand(0.6, 1.3))
+				rimDrop(random(1, #cr.pts), cr.vz * cr.lean0 * jit(0.35), vtop * jit(0.25), cr.dropR * jit(0.4))
 			end
 		end
 	end
@@ -440,10 +580,69 @@ local function place(ax, ay, az, bx, by, bz, cx, cy, cz, x, y, z)
 	cam.PushModelMatrix(M)
 end
 
+local function vtx(x, y, z, nx, ny, nz, u, v)
+	V:SetUnpacked(x, y, z)
+	mesh.Position(V)
+	NV:SetUnpacked(nx, ny, nz)
+	mesh.Normal(NV)
+	mesh.TexCoord(0, u, v)
+	mesh.AdvanceVertex()
+end
+
+-- per point of a sheet: its foot, its rim, the way out through it and its outward normal
+local FX, FY, TX, TY, TZ, OX, OY, NX, NY, NZ = {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+
+-- One sheet, built for this frame (its outline bends, rises and leans, which no transform of
+-- a fixed mesh can follow): a closed shell along the outline, `thick` through, from a unit
+-- under the surface up to its rim, leaning out. Faces are clockwise seen from outside the
+-- shell, so rays enter the water through it and leave it again. Returns the quads drawn.
+local function drawSheet(c)
+	local n = #c.pts
+	local t, z0 = c.thick * 0.5, c.z - 1
+	for j = 1, n do
+		local x, y, nx, ny, h, lean = sheetAt(c, j)
+		local l = lean * h
+		FX[j], FY[j] = x, y
+		TX[j], TY[j], TZ[j] = x + nx * l, y + ny * l, z0 + h + 1
+		OX[j], OY[j] = nx * t, ny * t
+		local k = 1 / sqrt(1 + lean * lean)
+		NX[j], NY[j], NZ[j] = nx * k, ny * k, -lean * k
+	end
+	mesh.Begin(MATERIAL_QUADS, n * 4)
+	for j = 1, n do
+		local q = j % n + 1
+		local u0, u1 = (j - 1) / n, j / n
+		local ax, ay, bx, by = OX[j], OY[j], OX[q], OY[q]
+		local anx, any, anz, bnx, bny, bnz = NX[j], NY[j], NZ[j], NX[q], NY[q], NZ[q]
+		-- outside: foot, rim, rim, foot (the points run counter-clockwise seen from above)
+		vtx(FX[j] + ax, FY[j] + ay, z0, anx, any, anz, u0, 0)
+		vtx(TX[j] + ax, TY[j] + ay, TZ[j], anx, any, anz, u0, 1)
+		vtx(TX[q] + bx, TY[q] + by, TZ[q], bnx, bny, bnz, u1, 1)
+		vtx(FX[q] + bx, FY[q] + by, z0, bnx, bny, bnz, u1, 0)
+		-- inside
+		vtx(FX[j] - ax, FY[j] - ay, z0, -anx, -any, -anz, u0, 0)
+		vtx(FX[q] - bx, FY[q] - by, z0, -bnx, -bny, -bnz, u1, 0)
+		vtx(TX[q] - bx, TY[q] - by, TZ[q], -bnx, -bny, -bnz, u1, 1)
+		vtx(TX[j] - ax, TY[j] - ay, TZ[j], -anx, -any, -anz, u0, 1)
+		-- over the rim
+		vtx(TX[j] + ax, TY[j] + ay, TZ[j], 0, 0, 1, u0, 1)
+		vtx(TX[j] - ax, TY[j] - ay, TZ[j], 0, 0, 1, u0, 1)
+		vtx(TX[q] - bx, TY[q] - by, TZ[q], 0, 0, 1, u1, 1)
+		vtx(TX[q] + bx, TY[q] + by, TZ[q], 0, 0, 1, u1, 1)
+		-- under the foot
+		vtx(FX[j] + ax, FY[j] + ay, z0, 0, 0, -1, u0, 0)
+		vtx(FX[q] + bx, FY[q] + by, z0, 0, 0, -1, u1, 0)
+		vtx(FX[q] - bx, FY[q] - by, z0, 0, 0, -1, u1, 0)
+		vtx(FX[j] - ax, FY[j] - ay, z0, 0, 0, -1, u0, 0)
+	end
+	mesh.End()
+	return n * 4
+end
+
 function P.Draw()
 	if #drops == 0 and #crowns == 0 and #jets == 0 then return end
 	if not P.mat then return end
-	if not P.dropMesh then buildMeshes() end
+	if P.meshes ~= MESHES then buildMeshes() end
 	local eye = EyePos()
 	local ex, ey, ez = eye.x, eye.y, eye.z
 	local far2 = FAR * FAR
@@ -475,18 +674,13 @@ function P.Draw()
 		end
 	end
 
-	m = P.crownMesh
+	-- sheets, up to SHEET_QUADS a frame
+	local quads = 0
 	for _, c in ipairs(crowns) do
-		if c.H then
-			local dx, dy, dz = c.x - ex, c.y - ey, c.z - ez
-			if dx * dx + dy * dy + dz * dz < far2 then
-				-- drawn out along the hit and leaning ahead, its foot a unit under the surface
-				local fx, fy, h = c.fx, c.fy, c.H + 1
-				local a, b, l = c.R * c.sx, c.R, c.shear * h
-				place(fx * a, fy * a, 0, -fy * b, fx * b, 0, fx * l, fy * l, h, c.x, c.y, c.z - 1)
-				m:Draw()
-				cam.PopModelMatrix()
-			end
+		if c.H and c.H > 0.2 and quads + 4 * #c.pts <= SHEET_QUADS then
+			local p = c.pts[1]
+			local dx, dy, dz = p[1] - ex, p[2] - ey, c.z - ez
+			if dx * dx + dy * dy + dz * dz < far2 then quads = quads + drawSheet(c) end
 		end
 	end
 

@@ -36,6 +36,7 @@ local function build(panel)
 	panel:NumSlider("Wave reach (how far waves travel before they die out)", "rtx_water_interaction_reach", 0.25, 4, 2)
 	panel:CheckBox("Splashes: drops, sheets and jets thrown up by bodies and bullets", "rtx_water_splashes")
 	panel:NumSlider("Splash strength", "rtx_water_splash_strength", 0, 3, 2)
+	panel:NumSlider("Splash randomness (0 = the same every time)", "rtx_water_splash_randomness", 0, 1, 2)
 	panel:NumSlider("Splash drops in the air at most", "rtx_water_splash_drops", 0, 1000, 0)
 	combo(panel, "Wave detail", "rtx_water_interaction_quality", {
 		{ "Low", "1" }, { "Medium", "2" }, { "High", "3" },

@@ -63,6 +63,7 @@ W.cv = {
 	splashes = cvar("rtx_water_splashes", "1", "Splashes: drops, sheets and jets thrown up by bodies and bullets", 0, 1),
 	splashStrength = cvar("rtx_water_splash_strength", "1", "How high and how much water splashes (multiplier)", 0, 3),
 	splashDrops = cvar("rtx_water_splash_drops", "200", "Splash drops in the air at most", 0, 1000),
+	splashRandom = cvar("rtx_water_splash_randomness", "0.5", "How much splashes vary (0: the same every time)", 0, 1),
 	mesh = cvar("rtx_water_mesh", "1", "Draw the water surface with RTX Water (0: the map's own faces, no waves from interaction)", 0, 1),
 }
 
@@ -95,6 +96,7 @@ function W.Resolve()
 		splashes = interaction and W.cv.splashes:GetBool(),
 		splashStrength = math.Clamp(W.cv.splashStrength:GetFloat(), 0, 3),
 		splashDrops = math.Clamp(W.cv.splashDrops:GetInt(), 0, 1000),
+		splashRandom = math.Clamp(W.cv.splashRandom:GetFloat(), 0, 1),
 		mesh = W.cv.mesh:GetBool(),
 		-- the native core draws the surface itself, so it needs the redrawn surface
 		native = W.cv.mesh:GetBool() and W.Native ~= nil and W.Native.Wanted(),
