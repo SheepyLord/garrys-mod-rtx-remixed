@@ -118,8 +118,10 @@ body reaches below the surface in every column:
   in. A body that disappears (removed, out of reach) lets go over 0.3 s instead of leaving a hole.
 - **Bullets** are a pressure impulse for one step. The kernel turns it into a push down in the
   middle and up around it with no net flow, so the crater refills from its rim into a train of
-  rings. Its depth goes with the square root of the round's damage (1 for 10 damage). The server
-  finds where each pellet goes into the water and reports it (`sv_bullets.lua`).
+  rings. Its depth goes with the square root of the round's damage (1 for 10 damage). A shot
+  at a slant goes on under the water along its path, so its impulse is split into a row of
+  up to three dents 3 units apart along it. The server finds where each pellet goes into the
+  water and reports it, with its direction (`sv_bullets.lua`).
 
 Body samples are interpolated: the simulation runs one step behind the newest sample.
 

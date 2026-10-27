@@ -820,7 +820,14 @@ end
 -- train of rings, and a spout of spray.
 function R.Shot(plane, x, y, dir, power)
 	if R.native then
-		RTXWaterNative.AddImpulse(plane.index, x, y, 2.0 * (R.strength or 1) * power, 3.0 * sqrt(power))
+		-- the cavity runs along the shot's path under the water: at a slant, a row of dents
+		-- along it, 3 units apart
+		local hz = sqrt(dir.x * dir.x + dir.y * dir.y)
+		local n = 1 + math.floor(2 * hz + 0.5)
+		local sx, sy = hz > 1e-3 and dir.x / hz * 3 or 0, hz > 1e-3 and dir.y / hz * 3 or 0
+		for i = 0, n - 1 do
+			RTXWaterNative.AddImpulse(plane.index, x + sx * i, y + sy * i, 2.0 * (R.strength or 1) * power / n, 3.0 * sqrt(power))
+		end
 	else
 		R.Add(plane, x, y, 0.6 * power, 6, 28, 1.0)
 		R.Add(plane, x, y, 0.3 * power, 10, 34, 1.2, 0.05)

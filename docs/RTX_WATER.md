@@ -41,9 +41,11 @@ refracts and reflects through the disturbed surface.
     a slower, steeper crown. Compact bodies hit hard close their cavity into a jet, and faster
     still, the crown closes over it.
   - They grow smoothly from nothing with the speed of the hit (the sheet's height with its
-    square), with no speed at which they suddenly start; they lean with its angle (ahead of a
-    slanted hit, the jet back up its path); the drops that fall back make rings of their own;
-    and they vary as much as `rtx_water_splash_randomness` says.
+    square), with no speed at which they suddenly start; they lean with its angle (spray
+    ahead of a slanted hit, a body's jet back up its path, and a bullet's plume ahead along
+    the shot, straight up only from a shot straight down and lower the flatter it came in);
+    the drops that fall back make rings of their own; and they vary as much as
+    `rtx_water_splash_randomness` says.
 - **Under water** (native core): the camera starts inside the water's material, so the surface
   seen from below refracts as real water does. Overhead is Snell's window; past the critical
   angle (48.6° from vertical at refraction index 1.333) the surface mirrors the pool, and the

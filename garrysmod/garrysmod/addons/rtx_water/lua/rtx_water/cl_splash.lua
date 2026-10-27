@@ -25,8 +25,10 @@
 --   closes, about 2 sqrt(D / g) later, into a jet (Worthington's); faster still, the crown
 --   leans in and closes over the cavity (surface seal). Long or wide bodies make neither.
 -- * Hit at a slant, the water ahead is thrown forward: on that side the sheet stands taller
---   and leans further out, and the spray goes ahead; the cavity runs down along the path,
---   so the jet leans back towards where the hit came from.
+--   and leans further out, and the spray goes ahead; a body's cavity runs down along its
+--   path, so its jet leans back towards where it came from. A bullet's plume (and the
+--   column of water at its root) is thrown ahead along the shot: straight up only from a
+--   shot straight down, and the flatter the shot came in, the lower and further ahead.
 -- Drops fall under the game's gravity with air drag; those that come down on the water make
 -- rings of their own (R.Drop). A body pulled out lifts water that drains off its underside,
 -- and drips. rtx_water_splash_randomness sets how much splashes vary (0: the same every
@@ -59,8 +61,9 @@ local DRIP_TIME = 3       -- s a body pulled out of the water drips for
 local DRIP_HEIGHT = 300   -- units above the water past which a body no longer drips onto it
 local SPRAY_LEAN = 1.2    -- at a grazing hit: spray thrown ahead, per unit of upward speed
 local SLANT_SHEET = 0.5   -- ...the sheet that much taller on the side ahead (shorter behind)
-local JET_LEAN = 0.7      -- ...the jet's tip back up the path, per unit of height
+local JET_LEAN = 0.7      -- ...a body's jet leaning back up its path, per unit of height
 local BACK_SPRAY = 0.2    -- share of a bullet's spray thrown back up its path
+local PLUME_RISE = 0.3    -- a bullet's plume rises this share of the way from its angle to vertical
 
 -- (pieces from before a reload of this file may lack fields: start afresh)
 P.drops, P.crowns, P.jets, P.wet = {}, {}, {}, {}
@@ -320,12 +323,11 @@ local function addSheet(plane, o, vz, vout, fx, fy, h, seal, budget, dropR, thic
 	}
 end
 
--- A jet rising from (x, y) after `delay`, leaning back up the path of the hit.
-local function addJet(plane, x, y, fx, fy, h, delay, r, vj, tip)
+-- A jet rising from (x, y) after `delay`, leaning (lx, ly) per unit of height.
+local function addJet(plane, x, y, lx, ly, delay, r, vj, tip)
 	if #jets >= MAX_JETS or vj < 20 then return end
 	jets[#jets + 1] = {
-		plane = plane, x = x, y = y, z = plane.z, t0 = CurTime() + delay, r = r, vj = vj, tip = tip,
-		lx = -fx * JET_LEAN * h, ly = -fy * JET_LEAN * h,
+		plane = plane, x = x, y = y, z = plane.z, t0 = CurTime() + delay, r = r, vj = vj, tip = tip, lx = lx, ly = ly,
 	}
 end
 
@@ -391,10 +393,11 @@ function P.Entry(plane, outlines, speed, vx, vy, flat, share)
 			addDrop(plane, x + nx, y + ny, plane.z + 0.5, nx * out + fx * SPRAY_LEAN * h * up,
 				ny * out + fy * SPRAY_LEAN * h * up, up, dropR * jit(0.5))
 		end
-		-- the cavity of a compact body closes into a jet, about 2 sqrt(D / g) after the hit
+		-- the cavity of a compact body closes into a jet, about 2 sqrt(D / g) after the hit; the
+		-- cavity runs along the body's path, so the jet leans back up it
 		local jet = smooth(fr, 2, 12) * compact * smooth(D, 48, 24)
 		if jet > 0.05 then
-			addJet(plane, o.x, o.y, fx, fy, h, 2 * sqrt(D / g), math.Clamp(0.22 * D, 0.8, 4),
+			addJet(plane, o.x, o.y, -fx * JET_LEAN * h, -fy * JET_LEAN * h, 2 * sqrt(D / g), math.Clamp(0.22 * D, 0.8, 4),
 				min(0.45 * speed * sqrt(jet), 300) * sqrt(s) * jit(0.3), 4)
 		end
 	end
@@ -425,17 +428,32 @@ function P.Shot(plane, x, y, dir, power)
 	local s = P.strength
 	local p = sqrt(power)
 	local fx, fy, h = heading(dir.x, dir.y, dir.z)
+	-- the plume: straight up from a shot straight down, and the flatter the shot came in, the
+	-- lower and further ahead along its path (pe, its angle from the water)
+	local e = math.acos(math.Clamp(h, 0, 1))
+	local pe = e + (pi / 2 - e) * PLUME_RISE
+	local ce, se = cos(pe), sin(pe)
+	-- two directions square to the plume, to spread the spray round it
+	local ax, ay, az = -fy, fx, 0
+	local bx, by, bz = -fx * se, -fy * se, ce
 	local n = count((10 + 8 * power) * s)
 	for i = 1, n do
-		local up, lat = vary(150, 320) * p, vary(5, 45) * p
-		local a = TAU * (i + vary(-0.5, 0.5)) / n
-		-- every fifth drop, or that share at random, goes back up the shot's path
-		local back = P.random > 0 and random() < BACK_SPRAY or i % 5 == 0
-		local lean = back and -0.5 * h or SPRAY_LEAN * h
-		addDrop(plane, x, y, plane.z + 0.3, cos(a) * lat + fx * lean * up, sin(a) * lat + fy * lean * up, up,
-			vary(0.18, 0.4))
+		local sp, a, off = vary(150, 320) * p, TAU * (i + vary(-0.5, 0.5)) / n, vary(0.1, 0.45)
+		local ux, uy, uz = fx * ce, fy * ce, se
+		-- every fifth drop, or that share at random, goes back up the shot's path, steeply
+		if P.random > 0 and random() < BACK_SPRAY or P.random <= 0 and i % 5 == 0 then
+			local l = 1 / sqrt(1 + 0.35 * 0.35 * h * h)
+			ux, uy, uz, sp = -fx * 0.35 * h * l, -fy * 0.35 * h * l, l, sp * 0.6
+		end
+		local co, so, ca, sa = cos(off), sin(off), cos(a), sin(a)
+		local dx = ux * co + (ax * ca + bx * sa) * so
+		local dy = uy * co + (ay * ca + by * sa) * so
+		local dz = uz * co + (az * ca + bz * sa) * so
+		addDrop(plane, x, y, plane.z + 0.3, dx * sp, dy * sp, dz * sp, vary(0.18, 0.4))
 	end
-	addJet(plane, x, y, fx, fy, h, 0.08, 1.0 * p, 90 * p * sqrt(s) * jit(0.3), 2)
+	-- its column, leaning ahead with it (its tip breaks into drops)
+	local lean = ce / max(se, 0.25)
+	addJet(plane, x, y, fx * lean, fy * lean, 0.04, 1.0 * p, 110 * p * se * sqrt(s) * jit(0.3), 2)
 	local r, poly = 1.2 * p, {}
 	for i = 0, 9 do
 		poly[#poly + 1] = x + r * cos(TAU * i / 10)
